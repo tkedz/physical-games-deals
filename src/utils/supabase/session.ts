@@ -18,13 +18,20 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet, headers) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
           supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options),
+          );
+          // Cache headers the library sends with the cookie write. Without
+          // them a CDN may cache a response carrying refreshed tokens and
+          // serve one user’s session to another. See the SetAllCookies
+          // docs in @supabase/ssr.
+          Object.entries(headers).forEach(([key, value]) =>
+            supabaseResponse.headers.set(key, value),
           );
         },
       },
