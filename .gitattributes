@@ -1,0 +1,19 @@
+# Normalise line endings. The repository stores LF; checkouts get LF too, so a
+# Windows working copy matches what runs on the Linux CI runners and on Vercel.
+# This matters most for shell steps in GitHub Actions workflows, which break on
+# CRLF.
+* text=auto eol=lf
+
+# Keep binaries byte-exact.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
+
+# Generated — collapse in diffs and skip language statistics.
+package-lock.json linguist-generated=true -diff
