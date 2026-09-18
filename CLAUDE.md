@@ -34,6 +34,17 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 - `npm run lint` runs `eslint` with no arguments (flat config).
 - There is no test runner and no tests. Do not claim tests passed — verify with `npm run build` or `npm run lint`.
 
+## Commits
+
+- Do not add `Co-Authored-By` trailers, "Generated with" lines, or any other attribution to commit messages or pull request descriptions.
+- Keep the subject line short and imperative. Add a body only when the change needs a reason the diff does not show.
+
+## Secrets
+
+- Never read `.env.local`, or any other file holding credentials, by any route: not with the Read tool, and not indirectly through `cat`, `node -e`, a script, or any other shell command. The `Read(.env.local)` deny rule in `.claude/settings.json` only covers the Read tool — this rule covers every path to the file, because a permission pattern cannot constrain an interpreter.
+- To learn whether a variable is set, ask the user. Do not read the file to find out.
+- Never print a secret, or any part of one, into the conversation — that includes prefixes, lengths and fragments.
+
 <!-- BEGIN @przeprogramowani/10x-cli -->
 
 ## 10xDevs AI Toolkit — Module 1, Lesson 5
