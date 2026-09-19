@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A newer push to the same branch makes the running one pointless.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Gate. Cheap checks only — no build here, so the build runs exactly once
+  # per pipeline, inside `vercel build` in the deploy job.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      # The Vercel CLI reads all three from the environment, so no token ever
+      # appears on a command line that the runner echoes into the log.
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Select target environment
+        id: target
+        run: |
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            echo "environment=production" >> "$GITHUB_OUTPUT"
+            echo "prod_flag=--prod" >> "$GITHUB_OUTPUT"
+          else
+            echo "environment=preview" >> "$GITHUB_OUTPUT"
+            echo "prod_flag=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Vercel CLI
+        run: npm i -g vercel@59
+
+      # Fetches the project's environment variables into the runner. Required:
+      # NEXT_PUBLIC_* values are inlined at build time, not read at runtime.
+      - name: Pull Vercel environment
+        run: vercel pull --yes --environment=${{ steps.target.outputs.environment }}
+
+      # This is where `next build` actually runs. A type error fails the
+      # pipeline here, before any deployment exists.
+      - name: Build
+        run: vercel build ${{ steps.target.outputs.prod_flag }}
+
+      - name: Deploy prebuilt output
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt --yes ${{ steps.target.outputs.prod_flag }})
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Deployed"
+            echo ""
+            echo "- Environment: ${{ steps.target.outputs.environment }}"
+            echo "- URL: $url"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment the preview URL on the pull request
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREVIEW_URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          gh pr comment "${{ github.event.number }}" --body "Preview: $PREVIEW_URL"
