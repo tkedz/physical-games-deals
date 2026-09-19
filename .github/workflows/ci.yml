@@ -64,6 +64,22 @@ jobs:
       - name: Install Vercel CLI
         run: npm i -g vercel@59
 
+      # Diagnostic. Reports presence only — never a value, a length or a
+      # fragment — then proves what the token can actually see.
+      - name: Check CI credentials
+        run: |
+          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+            if [ -z "${!name}" ]; then
+              echo "MISSING   $name"
+            else
+              echo "present   $name"
+            fi
+          done
+          echo "--- identity this token resolves to ---"
+          vercel whoami || true
+          echo "--- projects this token can see ---"
+          vercel project ls || true
+
       # Fetches the project's environment variables into the runner. Required:
       # NEXT_PUBLIC_* values are inlined at build time, not read at runtime.
       - name: Pull Vercel environment
