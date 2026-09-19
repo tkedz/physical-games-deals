@@ -1,9 +1,15 @@
 name: CI
 
+# Documentation-only changes do not need a build or a preview deployment.
+# Caveat: if branch protection ever requires `verify`, a docs-only pull request
+# will never report that status and will sit unmergeable. Known GitHub
+# behaviour — revisit these filters at the same time as enabling protection.
 on:
   push:
     branches: [main]
+    paths-ignore: ["**/*.md", "context/**"]
   pull_request:
+    paths-ignore: ["**/*.md", "context/**"]
 
 # A newer push to the same branch makes the running one pointless.
 concurrency:
