@@ -320,12 +320,12 @@ F-02 inherits the column contract above and loads with `on conflict (id) do noth
 
 #### Automated
 
-- [x] 3.1 Security advisor is clean again once the probe is removed: `npm run db:check` exits 0
-- [x] 3.2 Linting passes: `npm run lint`
-- [x] 3.3 Formatting passes: `npm run format:check`
+- [x] 3.1 Security advisor is clean again once the probe is removed: `npm run db:check` exits 0 — 3f6b4ad
+- [x] 3.2 Linting passes: `npm run lint` — 3f6b4ad
+- [x] 3.3 Formatting passes: `npm run format:check` — 3f6b4ad
 
 #### Manual
 
-- [x] 3.4 With the probe table present, `npm run db:check` exits non-zero and names `rls_disabled_in_public`
-- [x] 3.5 The probe table is dropped, confirmed absent, and `npm run db:status` shows the migration history unchanged by it
-- [x] 3.6 The `CLAUDE.md` runbook is sufficient to run the whole loop from a clean checkout without opening this plan
+- [x] 3.4 With the probe table present, `npm run db:check` exits non-zero and names `rls_disabled_in_public` — 3f6b4ad
+- [x] 3.5 The probe table is dropped, confirmed absent, and `npm run db:status` shows the migration history unchanged by it — 3f6b4ad
+- [x] 3.6 The `CLAUDE.md` runbook is sufficient to run the whole loop from a clean checkout without opening this plan — 3f6b4ad
