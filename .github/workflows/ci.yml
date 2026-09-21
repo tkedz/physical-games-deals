@@ -1,15 +1,43 @@
 name: CI
 
-# Documentation-only changes do not need a build or a preview deployment.
-# Caveat: if branch protection ever requires `verify`, a docs-only pull request
-# will never report that status and will sit unmergeable. Known GitHub
-# behaviour — revisit these filters at the same time as enabling protection.
+# Changes that cannot alter the deployed artifact do not need a build or a
+# preview deployment. GitHub evaluates these patterns against the union of files
+# across every commit in a push, so one unmatched file runs the whole pipeline.
+#
+# `supabase/**` is inert only while nothing under it feeds the Next build: the
+# migrations are applied by hand and `config.toml` configures the local stack.
+# If generated database types ever land there and `src/` imports them, a schema
+# change would skip the deploy that needs it — put generated types under `src/`.
+# Note this pattern is rooted at the repository, so `src/utils/supabase/` is not
+# matched and still triggers. `**/*.md` would likewise swallow content Markdown
+# if the app ever renders it from the repository.
+#
+# Caveat: if branch protection ever requires `verify`, a pull request touching
+# only ignored paths will never report that status and will sit unmergeable.
+# Known GitHub behaviour — revisit these filters at the same time as protection.
+#
+# The two lists are duplicated on purpose: GitHub Actions does not support YAML
+# anchors, so `&name`/`*name` would fail to parse. Keep them in step by hand.
 on:
   push:
     branches: [main]
-    paths-ignore: ["**/*.md", "context/**", ".claude/**"]
+    paths-ignore:
+      - "**/*.md"
+      - "context/**"
+      - ".claude/**"
+      - ".agents/**"
+      - "supabase/**"
+      - "skills-lock.json"
+      - ".10x-cli.json"
   pull_request:
-    paths-ignore: ["**/*.md", "context/**", ".claude/**"]
+    paths-ignore:
+      - "**/*.md"
+      - "context/**"
+      - ".claude/**"
+      - ".agents/**"
+      - "supabase/**"
+      - "skills-lock.json"
+      - ".10x-cli.json"
 
 # A newer push to the same branch makes the running one pointless.
 concurrency:
