@@ -291,15 +291,15 @@ F-02 inherits the column contract above and loads with `on conflict (id) do noth
 
 #### Automated
 
-- [ ] 1.1 Migration history is reachable and reports no applied migrations: `npm run db:status`
-- [ ] 1.2 Security advisor baseline is clean: `npm run db:check` exits 0
-- [ ] 1.3 Linting passes: `npm run lint`
-- [ ] 1.4 Formatting passes: `npm run format:check`
+- [x] 1.1 Migration history is reachable and reports no applied migrations: `npm run db:status`
+- [x] 1.2 Security advisor baseline is clean: `npm run db:check` exits 0
+- [x] 1.3 Linting passes: `npm run lint`
+- [x] 1.4 Formatting passes: `npm run format:check`
 
 #### Manual
 
-- [ ] 1.5 Remote Postgres major version matches `major_version = 17` in `supabase/config.toml`, checked with `npx supabase db query --linked "show server_version;"`
-- [ ] 1.6 Any pre-existing advisor finding is recorded verbatim in the phase commit message
+- [x] 1.5 Remote Postgres major version matches `major_version = 17` in `supabase/config.toml`, checked with `npx supabase db query --linked "show server_version;"`
+- [x] 1.6 Any pre-existing advisor finding is recorded verbatim in the phase commit message
 
 ### Phase 2: First migration — collected_posts, locked by default
 

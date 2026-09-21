@@ -56,7 +56,7 @@ Choosing it first also settles two of the PRD's open questions by doing rather t
 
 | ID   | Change ID                            | Outcome (user can …)                                                        | Prerequisites    | PRD refs                        | Status   |
 | ---- | ------------------------------------ | --------------------------------------------------------------------------- | ---------------- | ------------------------------- | -------- |
-| F-01 | `schema-migrations-and-rls-baseline` | (foundation) schema lives in repo migrations; every new table starts locked  | —                | Access Control, Guardrails, NFR | planning |
+| F-01 | `schema-migrations-and-rls-baseline` | (foundation) schema lives in repo migrations; every new table starts locked  | —                | Access Control, Guardrails, NFR | in-progress |
 | F-02 | `collector-into-repo-and-database`   | (foundation) collected posts land in the database, in this repository        | F-01             | Business Logic, NFR             | proposed |
 | F-03 | `game-catalog-provider-proven`       | (foundation) a catalogue provider is chosen and proven on real Polish titles | —                | FR-003, Business Logic          | ready    |
 | S-01 | `physical-deals-from-real-posts`     | see physical-edition deals extracted from real posts, with price and link    | F-01, F-02       | FR-005, FR-006, US-01           | proposed |
@@ -101,7 +101,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Data volume is undeclared (`target_scale.data_volume` is empty; PRD open question 4), and the raw-post set grows with time rather than with users. Owner: user. Block: no — the shape can be chosen now and revisited once weeks of collection exist.
 - **Risk:** Sequenced first because nothing else can store anything, and because retrofitting row-level security onto tables that already hold data is where per-user isolation quietly fails. Kept deliberately thin: this is the migration path plus the default posture, not the product's schema. Each later slice brings its own tables.
-- **Status:** planning
+- **Status:** in-progress
 
 ### F-02: Collection moves into this repository and writes to the database
 

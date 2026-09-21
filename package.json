@@ -11,7 +11,11 @@
     "start": "next start",
     "lint": "eslint --max-warnings 0",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:new": "supabase migration new",
+    "db:push": "supabase db push --linked",
+    "db:status": "supabase migration list --linked",
+    "db:check": "supabase db advisors --linked --type security --fail-on error"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
