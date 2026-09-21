@@ -305,27 +305,27 @@ F-02 inherits the column contract above and loads with `on conflict (id) do noth
 
 #### Automated
 
-- [x] 2.1 Dry run lists the new migration and nothing else: `npm run db:push -- --dry-run`
-- [x] 2.2 Migration applies to the linked project: `npm run db:push`
-- [x] 2.3 Local and remote migration history agree on one applied version: `npm run db:status`
-- [x] 2.4 Security advisor still exits 0 with the table present: `npm run db:check`
-- [x] 2.5 Catalogue query returns row-level security enabled, zero policies and zero grants for `anon` and `authenticated`, via `npx supabase db query --linked` against `pg_class.relrowsecurity`, `pg_policies` and `information_schema.role_table_grants`
-- [x] 2.6 Formatting passes: `npm run format:check`
+- [x] 2.1 Dry run lists the new migration and nothing else: `npm run db:push -- --dry-run` — 7872252
+- [x] 2.2 Migration applies to the linked project: `npm run db:push` — 7872252
+- [x] 2.3 Local and remote migration history agree on one applied version: `npm run db:status` — 7872252
+- [x] 2.4 Security advisor still exits 0 with the table present: `npm run db:check` — 7872252
+- [x] 2.5 Catalogue query returns row-level security enabled, zero policies and zero grants for `anon` and `authenticated`, via `npx supabase db query --linked` against `pg_class.relrowsecurity`, `pg_policies` and `information_schema.role_table_grants` — 7872252
+- [x] 2.6 Formatting passes: `npm run format:check` — 7872252
 
 #### Manual
 
-- [x] 2.7 The table's columns in Supabase Studio match the collector's nine fields one-for-one, in name and nullability
+- [x] 2.7 The table's columns in Supabase Studio match the collector's nine fields one-for-one, in name and nullability — 7872252
 
 ### Phase 3: Prove the gate and record the runbook
 
 #### Automated
 
-- [ ] 3.1 Security advisor is clean again once the probe is removed: `npm run db:check` exits 0
-- [ ] 3.2 Linting passes: `npm run lint`
-- [ ] 3.3 Formatting passes: `npm run format:check`
+- [x] 3.1 Security advisor is clean again once the probe is removed: `npm run db:check` exits 0
+- [x] 3.2 Linting passes: `npm run lint`
+- [x] 3.3 Formatting passes: `npm run format:check`
 
 #### Manual
 
-- [ ] 3.4 With the probe table present, `npm run db:check` exits non-zero and names `rls_disabled_in_public`
-- [ ] 3.5 The probe table is dropped, confirmed absent, and `npm run db:status` shows the migration history unchanged by it
-- [ ] 3.6 The `CLAUDE.md` runbook is sufficient to run the whole loop from a clean checkout without opening this plan
+- [x] 3.4 With the probe table present, `npm run db:check` exits non-zero and names `rls_disabled_in_public`
+- [x] 3.5 The probe table is dropped, confirmed absent, and `npm run db:status` shows the migration history unchanged by it
+- [x] 3.6 The `CLAUDE.md` runbook is sufficient to run the whole loop from a clean checkout without opening this plan

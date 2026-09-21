@@ -24,6 +24,17 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 - The public key is `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (not `..._ANON_KEY`). `SUPABASE_SECRET_KEY` bypasses RLS and **never** takes the `NEXT_PUBLIC_` prefix. Full list: @.env.example
 - Per-user data isolation rests on Postgres RLS, not on filtering in application code.
 
+## Database migrations
+
+- The schema lives in `supabase/migrations/` and is applied by hand. The loop is `npm run db:new -- <name>` → `npm run db:push -- --dry-run` → `npm run db:push` → `npm run db:check`. Use the npm scripts, not the bare CLI: they carry the flags, and `supabase db advisors` without `--fail-on error` exits 0 while printing the very finding it was hired to catch.
+- From a clean checkout the CLI is unlinked. `npx supabase login`, then `npx supabase link --project-ref <ref>`. Both are interactive and belong to a human — `link` asks for the database password, which is not in this repository and must not be read out of `.env.local` (see **Secrets**).
+- `npm run db:push` is a human action, never CI. No credential that can write the database belongs in a workflow.
+- Every new table in `public` ships locked: `enable row level security` plus `revoke all on table <t> from anon, authenticated`, and no policy. Add a policy only when a browser client genuinely needs the rows, and justify it in the migration. Leave `service_role` alone — that is the server-side write path.
+- Open every migration with two header lines: `-- Revert: <the statement that undoes this>` and a one-line statement of whether it is backward-compatible with the previous deployment. `vercel rollback` moves traffic only and does not undo a migration, so a migration must stay compatible for the length of one rollback window.
+- Migrations are additive. A change that drops a column, narrows a type or adds `not null` to an existing one splits in two: the additive half now, the destructive half in a later migration, once the deployment that needed the old shape is no longer a rollback target. `supabase migration down` is not an escape — it resets rather than reverts, and takes the data with it.
+- `npm run db:status` is the drift check between the repository and the hosted project. Manual apply makes drift possible; this is what detects it.
+- Do not set `auto_expose_new_tables` in `supabase/config.toml`. It governs only the local stack, so it would hide a forgotten `revoke` exactly where mistakes are cheap and expose it where they are not. The `revoke` in the migration behaves the same in both places.
+
 ## Directories
 
 - `_incoming/` is a staging directory listed in `.gitignore` — do not import from it into `src/` before deciding where the code finally belongs (@_incoming/README.md).

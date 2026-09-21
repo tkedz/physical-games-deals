@@ -84,13 +84,14 @@ The gate was exercised against a **lint** failure. That a **type** error also bl
 
 `NEXT_PUBLIC_*` values are inlined at build time, so rotating either one requires a **redeploy**, not an environment-variable update. The Vercel UI gives no such warning.
 
-Preview deployments currently read and write the **production** Supabase project. Harmless today because the schema is empty; once there is data and there are mutations, the right fix is a separate Supabase project for preview, not separate keys against the same one.
+Preview deployments currently read and write the **production** Supabase project. Harmless today — the one table holds no rows, has no policy and no deployed code reads it; once there is data and there are mutations, the right fix is a separate Supabase project for preview, not separate keys against the same one.
 
 ## Operational commands
 
 - **Rollback**: `vercel rollback <deployment-url>` — seconds, no rebuild. **Hobby reaches only the immediately previous production deployment**; deeper history needs Pro. Traffic-level revert only: it does not undo Supabase schema migrations.
 - **Logs**: `vercel logs <deployment-url> --json`, `--follow` to stream (ends after 5 minutes), `--level error --since 1h` to filter. Hobby retains runtime logs for **one hour** with no log drains.
 - **Inspect**: `vercel inspect <deployment-url>` shows the function regions and the build output; `--logs` adds the build log.
+- **Migrations**: the schema lives in `supabase/migrations/` and is applied by a human with `npm run db:push`, never from CI. `npm run db:push -- --dry-run` first, `npm run db:check` after — the security advisor with `--fail-on error`, which refuses a table in `public` without row-level security. `npm run db:status` is the drift check. Full rules in `CLAUDE.md`.
 
 ## Approval boundary
 
@@ -111,7 +112,6 @@ The Vercel MCP server is deliberately **not** connected: it is public beta, carr
 - **`getUser()` → `getClaims()`** in `src/utils/supabase/session.ts` — the risk register rates it H / already true: a network round trip to Supabase Auth on every matching request, including RSC prefetches. Needs the Supabase signing-key type confirmed (asymmetric ECC/RSA) and the `CLAUDE.md` rule updated in the same change.
 - **Landing page and metadata** — `src/app/page.tsx` is the create-next-app template; `layout.tsx` still declares `title: "Create Next App"`.
 - **Supabase auth redirect URLs** — the production domain must reach Supabase → Authentication → URL Configuration before login works. `supabase/config.toml` points at `127.0.0.1:3000`. Blocked on there being a login flow.
-- **Database migrations** — `supabase/migrations/` is empty; no schema exists yet.
 - **Collector workflow** — the four-hourly cron lands in the same `.github/workflows/` directory and needs `SUPABASE_SECRET_KEY`. This pipeline is the pattern it will copy.
 - **Manual production gate** — a GitHub Environment named `production` with a required reviewer, if `auto-deploy-on-merge` ever stops feeling right.
 - **Custom domain, Vercel MCP, Spend Management** (Pro-only anyway).
