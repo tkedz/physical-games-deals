@@ -291,30 +291,30 @@ F-02 inherits the column contract above and loads with `on conflict (id) do noth
 
 #### Automated
 
-- [x] 1.1 Migration history is reachable and reports no applied migrations: `npm run db:status`
-- [x] 1.2 Security advisor baseline is clean: `npm run db:check` exits 0
-- [x] 1.3 Linting passes: `npm run lint`
-- [x] 1.4 Formatting passes: `npm run format:check`
+- [x] 1.1 Migration history is reachable and reports no applied migrations: `npm run db:status` — d580dea
+- [x] 1.2 Security advisor baseline is clean: `npm run db:check` exits 0 — d580dea
+- [x] 1.3 Linting passes: `npm run lint` — d580dea
+- [x] 1.4 Formatting passes: `npm run format:check` — d580dea
 
 #### Manual
 
-- [x] 1.5 Remote Postgres major version matches `major_version = 17` in `supabase/config.toml`, checked with `npx supabase db query --linked "show server_version;"`
-- [x] 1.6 Any pre-existing advisor finding is recorded verbatim in the phase commit message
+- [x] 1.5 Remote Postgres major version matches `major_version = 17` in `supabase/config.toml`, checked with `npx supabase db query --linked "show server_version;"` — d580dea
+- [x] 1.6 Any pre-existing advisor finding is recorded verbatim in the phase commit message — d580dea
 
 ### Phase 2: First migration — collected_posts, locked by default
 
 #### Automated
 
-- [ ] 2.1 Dry run lists the new migration and nothing else: `npm run db:push -- --dry-run`
-- [ ] 2.2 Migration applies to the linked project: `npm run db:push`
-- [ ] 2.3 Local and remote migration history agree on one applied version: `npm run db:status`
-- [ ] 2.4 Security advisor still exits 0 with the table present: `npm run db:check`
-- [ ] 2.5 Catalogue query returns row-level security enabled, zero policies and zero grants for `anon` and `authenticated`, via `npx supabase db query --linked` against `pg_class.relrowsecurity`, `pg_policies` and `information_schema.role_table_grants`
-- [ ] 2.6 Formatting passes: `npm run format:check`
+- [x] 2.1 Dry run lists the new migration and nothing else: `npm run db:push -- --dry-run`
+- [x] 2.2 Migration applies to the linked project: `npm run db:push`
+- [x] 2.3 Local and remote migration history agree on one applied version: `npm run db:status`
+- [x] 2.4 Security advisor still exits 0 with the table present: `npm run db:check`
+- [x] 2.5 Catalogue query returns row-level security enabled, zero policies and zero grants for `anon` and `authenticated`, via `npx supabase db query --linked` against `pg_class.relrowsecurity`, `pg_policies` and `information_schema.role_table_grants`
+- [x] 2.6 Formatting passes: `npm run format:check`
 
 #### Manual
 
-- [ ] 2.7 The table's columns in Supabase Studio match the collector's nine fields one-for-one, in name and nullability
+- [x] 2.7 The table's columns in Supabase Studio match the collector's nine fields one-for-one, in name and nullability
 
 ### Phase 3: Prove the gate and record the runbook
 
