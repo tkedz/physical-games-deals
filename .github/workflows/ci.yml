@@ -7,9 +7,9 @@ name: CI
 on:
   push:
     branches: [main]
-    paths-ignore: ["**/*.md", "context/**"]
+    paths-ignore: ["**/*.md", "context/**", ".claude/**"]
   pull_request:
-    paths-ignore: ["**/*.md", "context/**"]
+    paths-ignore: ["**/*.md", "context/**", ".claude/**"]
 
 # A newer push to the same branch makes the running one pointless.
 concurrency:
