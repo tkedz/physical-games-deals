@@ -56,7 +56,7 @@ Choosing it first also settles two of the PRD's open questions by doing rather t
 
 | ID   | Change ID                            | Outcome (user can …)                                                        | Prerequisites    | PRD refs                        | Status   |
 | ---- | ------------------------------------ | --------------------------------------------------------------------------- | ---------------- | ------------------------------- | -------- |
-| F-01 | `schema-migrations-and-rls-baseline` | (foundation) schema lives in repo migrations; every new table starts locked  | —                | Access Control, Guardrails, NFR | in-progress |
+| F-01 | `schema-migrations-and-rls-baseline` | (foundation) schema lives in repo migrations; every new table starts locked  | —                | Access Control, Guardrails, NFR | done |
 | F-02 | `collector-into-repo-and-database`   | (foundation) collected posts land in the database, in this repository        | F-01             | Business Logic, NFR             | in-progress |
 | F-03 | `game-catalog-provider-proven`       | (foundation) a catalogue provider is chosen and proven on real Polish titles | —                | FR-003, Business Logic          | ready    |
 | S-01 | `physical-deals-from-real-posts`     | see physical-edition deals extracted from real posts, with price and link    | F-01, F-02       | FR-005, FR-006, US-01           | proposed |
@@ -101,7 +101,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Data volume is undeclared (`target_scale.data_volume` is empty; PRD open question 4), and the raw-post set grows with time rather than with users. Owner: user. Block: no — the shape can be chosen now and revisited once weeks of collection exist.
 - **Risk:** Sequenced first because nothing else can store anything, and because retrofitting row-level security onto tables that already hold data is where per-user isolation quietly fails. Kept deliberately thin: this is the migration path plus the default posture, not the product's schema. Each later slice brings its own tables.
-- **Status:** in-progress
+- **Status:** done
 
 ### F-02: Collection moves into this repository and writes to the database
 
@@ -207,7 +207,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 5. **A measurable primary success criterion** — the PRD's criteria are binary; no number has been set for when matching is good enough. Owner: user. Block: `S-04` (non-blocking).
 6. **Behaviour when the catalogue is unreachable** — what the user sees when the catalogue does not answer during a search. Owner: user. Block: **`S-03` (blocking)** — the PRD places it before implementing `FR-003`.
 7. **Catalogue coverage of the Polish market** — whether the chosen catalogue knows the titles a Polish collector of boxed editions cares about. The ruling that only catalogued games may be watched makes this coverage the ceiling on the product's usefulness. Owner: user. Block: **`S-03` (blocking)** — `F-03` resolves it.
-8. **Is the old collector still running?** — surfaced by the baseline probe, not by the PRD. The collector runs from a different repository; these feeds retain roughly two days, so if it has been switched off, every day until `F-02` lands is lost permanently. Owner: user. Block: none — but the answer sets how urgent `F-02` is.
+8. **Is the old collector still running?** — surfaced by the baseline probe, not by the PRD. The collector runs from a different repository; these feeds retain roughly two days, so if it has been switched off, every day until `F-02` lands is lost permanently. Owner: user. Block: none — but the answer sets how urgent `F-02` is. **Answered 2026-09-23: yes, it ran throughout.** Confirmed against the data rather than from memory — the export staged for `F-02`'s import runs from 2026-09-16 to 2026-09-23 without a gap, so no collection days were lost between the baseline probe and the move into this repository.
 
 ## Parked
 

@@ -425,11 +425,11 @@ The data migration is the import script, and it is idempotent by construction â€
 - [ ] 4.2 `select max(first_seen_at) from collected_posts` is later than `2026-09-18T04:35:36.450Z` and within one cron interval of now
 - [ ] 4.3 `select count(distinct source) from collected_posts` is still 15
 - [ ] 4.4 Re-running the import on the same export reports 0 rows inserted
-- [ ] 4.5 `npm run db:status` shows no drift
+- [x] 4.5 `npm run db:status` shows no drift
 
 #### Manual
 
 - [ ] 4.6 Two consecutive scheduled `collect` runs have finished green, each writing rows or reporting 0 new against a plausible feed count
 - [ ] 4.7 The old repository's schedule is disabled and its final run is accounted for in the imported export
 - [ ] 4.8 `_incoming/cron-collector/` is gone and `_incoming/README.md` points at `scripts/collector/`
-- [ ] 4.9 The roadmap no longer shows F-01 as in-progress, and open question 8 carries its answer
+- [x] 4.9 The roadmap no longer shows F-01 as in-progress, and open question 8 carries its answer
