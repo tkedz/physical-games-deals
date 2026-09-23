@@ -371,34 +371,34 @@ The data migration is the import script, and it is idempotent by construction �
 
 #### Automated
 
-- [x] 1.1 `npm run db:push -- --dry-run` lists exactly one pending migration
-- [x] 1.2 `npm run db:status` after `npm run db:push` shows no drift between the repository and the hosted project
-- [x] 1.3 `npm run db:check` exits 0
-- [x] 1.4 The `information_schema.columns` query for `collected_posts` returns ten columns, with `processed_at` nullable and `timestamp with time zone`
+- [x] 1.1 `npm run db:push -- --dry-run` lists exactly one pending migration — a3e3064
+- [x] 1.2 `npm run db:status` after `npm run db:push` shows no drift between the repository and the hosted project — a3e3064
+- [x] 1.3 `npm run db:check` exits 0 — a3e3064
+- [x] 1.4 The `information_schema.columns` query for `collected_posts` returns ten columns, with `processed_at` nullable and `timestamp with time zone` — a3e3064
 
 #### Manual
 
-- [x] 1.5 `CLAUDE.md`'s migrations section distinguishes schema writes from row writes and names the workflow and secret that perform the latter
-- [x] 1.6 `.env.example` no longer describes `DATABASE_URL` as a collector write path
-- [x] 1.7 `SUPABASE_SECRET_KEY` exists in the Supabase dashboard and in local `.env.local`, and its value has not appeared in this conversation or in any tracked file
+- [x] 1.5 `CLAUDE.md`'s migrations section distinguishes schema writes from row writes and names the workflow and secret that perform the latter — a3e3064
+- [x] 1.6 `.env.example` no longer describes `DATABASE_URL` as a collector write path — a3e3064
+- [x] 1.7 `SUPABASE_SECRET_KEY` exists in the Supabase dashboard and in local `.env.local`, and its value has not appeared in this conversation or in any tracked file — a3e3064
 
 ### Phase 2: The collector in the repository, writing to the database
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` exits 0 with the collector inside ESLint's scope
-- [ ] 2.2 `npm run format:check` exits 0
-- [ ] 2.3 `npm run build` completes
-- [ ] 2.4 The content hash of `scripts/collector/feeds.json` equals that of `_incoming/cron-collector/feeds.json`
-- [ ] 2.5 `npm run collect` completes, exits 0, and the row count is greater than 0
-- [ ] 2.6 A second consecutive `npm run collect` reports 0 new entries and leaves the row count unchanged
+- [x] 2.1 `npm run lint` exits 0 with the collector inside ESLint's scope
+- [x] 2.2 `npm run format:check` exits 0
+- [x] 2.3 `npm run build` completes
+- [x] 2.4 The content hash of `scripts/collector/feeds.json` equals that of `_incoming/cron-collector/feeds.json`
+- [x] 2.5 `npm run collect` completes, exits 0, and the row count is greater than 0
+- [x] 2.6 A second consecutive `npm run collect` reports 0 new entries and leaves the row count unchanged
 
 #### Manual
 
-- [ ] 2.7 The run summary's "new entries" figure matches the row-count delta for a mixed batch
-- [ ] 2.8 With `SUPABASE_SECRET_KEY` unset, `npm run collect` fails naming that variable before any feed is fetched
-- [ ] 2.9 With every feed URL unreachable, the run exits non-zero
-- [ ] 2.10 Nothing under `src/` imports from `scripts/`
+- [x] 2.7 The run summary's "new entries" figure matches the row-count delta for a mixed batch
+- [x] 2.8 With `SUPABASE_SECRET_KEY` unset, `npm run collect` fails naming that variable before any feed is fetched
+- [x] 2.9 With every feed URL unreachable, the run exits non-zero
+- [x] 2.10 Nothing under `src/` imports from `scripts/`
 
 ### Phase 3: Backfill and the workflow
 

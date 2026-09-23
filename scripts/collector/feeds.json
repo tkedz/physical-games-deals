@@ -1,0 +1,92 @@
+[
+  {
+    "id": "pepper-gry-nintendo-switch",
+    "url": "https://www.pepper.pl/rss/grupa/gry-nintendo-switch",
+    "platform": "switch",
+    "enabled": true
+  },
+  {
+    "id": "pepper-ps5",
+    "url": "https://www.pepper.pl/rss/grupa/ps5",
+    "platform": "ps5",
+    "enabled": true
+  },
+  {
+    "id": "pepper-gry-playstation",
+    "url": "https://www.pepper.pl/rss/grupa/gry-playstation",
+    "platform": "playstation",
+    "enabled": true
+  },
+  {
+    "id": "pepper-gry-wideo",
+    "url": "https://www.pepper.pl/rss/grupa/gry-wideo",
+    "platform": "mixed",
+    "enabled": true
+  },
+  {
+    "id": "pepper-playstation-4",
+    "url": "https://www.pepper.pl/rss/grupa/playstation-4",
+    "platform": "ps4",
+    "enabled": true
+  },
+  {
+    "id": "pepper-xbox-series-x",
+    "url": "https://www.pepper.pl/rss/grupa/xbox-series-x",
+    "platform": "xbox-series-x",
+    "enabled": true
+  },
+  {
+    "id": "pepper-xbox-series-s",
+    "url": "https://www.pepper.pl/rss/grupa/xbox-series-s",
+    "platform": "xbox-series-s",
+    "enabled": true
+  },
+  {
+    "id": "pepper-nintendo-switch",
+    "url": "https://www.pepper.pl/rss/grupa/nintendo-switch",
+    "platform": "switch",
+    "enabled": true
+  },
+  {
+    "id": "pepper-nintendo-switch-2",
+    "url": "https://www.pepper.pl/rss/grupa/nintendo-switch-2",
+    "platform": "switch-2",
+    "enabled": true
+  },
+  {
+    "id": "lowcygier-polecane",
+    "url": "https://lowcygier.pl/polecane/feed/",
+    "platform": "mixed",
+    "enabled": true
+  },
+  {
+    "id": "lowcygier-edycje-kolekcjonerskie",
+    "url": "https://lowcygier.pl/edycje-kolekcjonerskie/feed/",
+    "platform": "collectors",
+    "enabled": true
+  },
+  {
+    "id": "lowcygier-preordery",
+    "url": "https://lowcygier.pl/preordery/feed/",
+    "platform": "mixed",
+    "enabled": true
+  },
+  {
+    "id": "lowcygier-promocje-pudelkowe",
+    "url": "https://lowcygier.pl/promocje-pudelkowe/feed/",
+    "platform": "boxed",
+    "enabled": true
+  },
+  {
+    "id": "cenograj-pudelkowe-najlepsze",
+    "url": "https://cenograj.pl/feed/pudelkowe/najlepsze",
+    "platform": "boxed",
+    "enabled": true
+  },
+  {
+    "id": "cenograj-pudelkowe-nowe",
+    "url": "https://cenograj.pl/feed/pudelkowe/nowe",
+    "platform": "boxed",
+    "enabled": true
+  }
+]
