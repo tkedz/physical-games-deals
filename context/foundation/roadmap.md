@@ -3,7 +3,7 @@ project: physical-games-deals
 version: 1
 status: draft
 created: 2026-09-21
-updated: 2026-09-21
+updated: 2026-09-23
 prd_version: 2
 main_goal: speed
 top_blocker: time
@@ -57,7 +57,7 @@ Choosing it first also settles two of the PRD's open questions by doing rather t
 | ID   | Change ID                            | Outcome (user can …)                                                        | Prerequisites    | PRD refs                        | Status   |
 | ---- | ------------------------------------ | --------------------------------------------------------------------------- | ---------------- | ------------------------------- | -------- |
 | F-01 | `schema-migrations-and-rls-baseline` | (foundation) schema lives in repo migrations; every new table starts locked  | —                | Access Control, Guardrails, NFR | in-progress |
-| F-02 | `collector-into-repo-and-database`   | (foundation) collected posts land in the database, in this repository        | F-01             | Business Logic, NFR             | proposed |
+| F-02 | `collector-into-repo-and-database`   | (foundation) collected posts land in the database, in this repository        | F-01             | Business Logic, NFR             | in-progress |
 | F-03 | `game-catalog-provider-proven`       | (foundation) a catalogue provider is chosen and proven on real Polish titles | —                | FR-003, Business Logic          | ready    |
 | S-01 | `physical-deals-from-real-posts`     | see physical-edition deals extracted from real posts, with price and link    | F-01, F-02       | FR-005, FR-006, US-01           | proposed |
 | S-02 | `email-password-accounts`            | create an account with e-mail and password, sign in and sign out             | —                | FR-001, Access Control          | ready    |
@@ -114,7 +114,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** The code already works and the data already exists, so the risk is not in writing it but in the move: the collector currently lives in a gitignored staging directory and runs from a different repository. Two things can go wrong — the feed identifiers change during the move, which the collector's own README warns duplicates every past entry, and the schedule lapses in the gap between switching the old cron off and the new one on. RSS feeds here retain roughly two days, so a lapse loses those days permanently. Sequenced immediately after `F-01` for that reason, and kept to a move rather than a rewrite.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### F-03: A catalogue provider is chosen and proven against real Polish titles
 
