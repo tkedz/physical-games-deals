@@ -404,18 +404,18 @@ The data migration is the import script, and it is idempotent by construction �
 
 #### Automated
 
-- [x] 3.1 `npm run lint`, `npm run format:check` and `npm run build` all pass with the new scripts present
-- [x] 3.2 The import of the staged snapshot reports 659 lines read and 0 unparseable
-- [x] 3.3 A second run of the same import reports 0 rows inserted
-- [x] 3.4 `select count(*) from collected_posts` is at least 659
-- [x] 3.5 `select count(distinct source) from collected_posts` returns 15
-- [x] 3.6 `select count(*) from collected_posts where processed_at is not null` returns 0
+- [x] 3.1 `npm run lint`, `npm run format:check` and `npm run build` all pass with the new scripts present — 0971a9a
+- [x] 3.2 The import of the staged snapshot reports 659 lines read and 0 unparseable — 0971a9a
+- [x] 3.3 A second run of the same import reports 0 rows inserted — 0971a9a
+- [x] 3.4 `select count(*) from collected_posts` is at least 659 — 0971a9a
+- [x] 3.5 `select count(distinct source) from collected_posts` returns 15 — 0971a9a
+- [x] 3.6 `select count(*) from collected_posts where processed_at is not null` returns 0 — 0971a9a
 
 #### Manual
 
-- [ ] 3.7 A `workflow_dispatch` run of `collect` finishes green with rows written and no credential visible in the log
-- [x] 3.8 `.github/workflows/collect.yml` contains no `git` command and no `contents: write`
-- [ ] 3.9 A `collect` run and a CI run overlapping in time neither cancel each other
+- [x] 3.7 A `workflow_dispatch` run of `collect` finishes green with rows written and no credential visible in the log — 0971a9a
+- [x] 3.8 `.github/workflows/collect.yml` contains no `git` command and no `contents: write` — 0971a9a
+- [x] 3.9 A `collect` run and a CI run overlapping in time neither cancel each other — 0971a9a
 
 ### Phase 4: Cutover
 

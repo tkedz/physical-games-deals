@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,13 +6,16 @@ import Parser from "rss-parser";
 // rewriting the specifier, so this has to be the real file name. TypeScript
 // accepts it through "allowImportingTsExtensions" in tsconfig.json.
 import { createCollectorClient } from "./supabase.mts";
-// The row shape and the write path, shared with import-jsonl.mts so both reach
-// collected_posts through the same chunked upsert.
+// The row shape, the mapping and the write path all live next door, in a module
+// with no top-level side effects — this file cannot host them, because it calls
+// main() at the bottom.
 import {
   errorMessage,
   insertPosts,
-  toCategories,
+  toCollectedPost,
   type CollectedPost,
+  type CustomItem,
+  type Feed,
 } from "./posts.mts";
 
 const FEEDS_PATH = resolve(
@@ -22,21 +24,7 @@ const FEEDS_PATH = resolve(
 );
 
 const TIMEOUT_MS = 20_000;
-const CONTENT_LIMIT = 4000;
 const USER_AGENT = "cron-collector/0.1 (RSS collector; contact via the repo)";
-
-type Feed = {
-  id: string;
-  url: string;
-  platform: string;
-  enabled: boolean;
-};
-
-type CustomItem = {
-  "content:encoded"?: string;
-};
-
-type FeedItem = Parser.Item & CustomItem;
 
 function loadFeeds(): Feed[] {
   const parsed: unknown = JSON.parse(readFileSync(FEEDS_PATH, "utf8"));
@@ -44,49 +32,6 @@ function loadFeeds(): Feed[] {
     throw new Error("feeds.json must be an array of objects");
   }
   return parsed as Feed[];
-}
-
-function makeId(feedId: string, key: string): string {
-  return createHash("sha1")
-    .update(`${feedId}|${key}`)
-    .digest("hex")
-    .slice(0, 16);
-}
-
-function pickContent(item: FeedItem): string | null {
-  const raw =
-    item["content:encoded"] ?? item.content ?? item.contentSnippet ?? null;
-  if (typeof raw !== "string") return null;
-  return raw.slice(0, CONTENT_LIMIT);
-}
-
-/**
- * Maps one feed entry to a table row. The only piece of domain logic here, and
- * deliberately pure — no I/O and no clock, `seenAt` is passed in — so it can be
- * called with data the day a test runner arrives.
- *
- * Returns null for an entry with no guid, link or title: there is nothing to
- * hash, and the original collector skipped it too.
- */
-export function toCollectedPost(
-  feed: Feed,
-  item: FeedItem,
-  seenAt: string,
-): CollectedPost | null {
-  const key = item.guid || item.link || item.title;
-  if (!key) return null;
-
-  return {
-    id: makeId(feed.id, key),
-    source: feed.id,
-    platform_hint: feed.platform,
-    title: item.title ?? null,
-    link: item.link ?? null,
-    published_at: item.isoDate ?? item.pubDate ?? null,
-    categories: toCategories(item.categories),
-    content: pickContent(item),
-    first_seen_at: seenAt,
-  };
 }
 
 async function main(): Promise<void> {
@@ -125,6 +70,7 @@ async function main(): Promise<void> {
   let okFeeds = 0;
   let failedFeeds = 0;
   let noKey = 0;
+  let noDate = 0;
 
   for (const feed of active) {
     let collectedForFeed = 0;
@@ -138,6 +84,13 @@ async function main(): Promise<void> {
         if (post === null) {
           noKey += 1;
           continue;
+        }
+
+        // The entry carried a date that neither JavaScript nor, most likely,
+        // Postgres can read. It was dropped rather than sent; worth counting,
+        // because a feed that starts doing this does it to every entry.
+        if (post.published_at === null && (item.isoDate ?? item.pubDate)) {
+          noDate += 1;
         }
 
         posts.set(post.id, post);
@@ -161,7 +114,8 @@ async function main(): Promise<void> {
   console.log(
     `Summary: feeds OK ${okFeeds}/${active.length}, failed ${failedFeeds}, ` +
       `rows collected ${rows.length}, new entries ${inserted}` +
-      (noKey > 0 ? `, items without a key skipped ${noKey}` : ""),
+      (noKey > 0 ? `, items without a key skipped ${noKey}` : "") +
+      (noDate > 0 ? `, unreadable dates dropped ${noDate}` : ""),
   );
 
   // A partly failing run stays green, as the collector's README always treated

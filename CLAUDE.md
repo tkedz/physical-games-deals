@@ -53,6 +53,7 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 ## Secrets
 
 - Never read `.env.local`, or any other file holding credentials, by any route: not with the Read tool, and not indirectly through `cat`, `node -e`, a script, or any other shell command. The `Read(.env.local)` deny rule in `.claude/settings.json` only covers the Read tool — this rule covers every path to the file, because a permission pattern cannot constrain an interpreter.
+- The one sanctioned exception is the collector: `npm run collect` and `npm run collect:import` pass `--env-file-if-exists=.env.local` to node, so the process loads the file while nothing reads or prints its contents. Running those commands is not a breach of the rule above; opening the file to see what is in it still is.
 - To learn whether a variable is set, ask the user. Do not read the file to find out.
 - Never print a secret, or any part of one, into the conversation — that includes prefixes, lengths and fragments.
 

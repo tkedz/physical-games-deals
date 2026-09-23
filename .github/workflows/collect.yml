@@ -8,6 +8,9 @@ name: collect
 # in ci.yml would have caught.
 on:
   schedule:
+    # GitHub disables a scheduled workflow in a repository with no activity for
+    # 60 days, and collection would then stop with no failing run to show for
+    # it. If this repository ever goes quiet, re-enable it here.
     - cron: "7 */4 * * *"
   workflow_dispatch:
 
@@ -27,6 +30,9 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-latest
+    # Fifteen feeds at the collector's 20-second parser timeout is a ~5 minute
+    # worst case, so anything beyond this is a hang, not slow feeds.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
 
@@ -38,7 +44,11 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      - run: npm ci
+      # The collector needs rss-parser and supabase-js, both in dependencies.
+      # Nothing in devDependencies is used here, and leaving that tree out keeps
+      # third-party install code out of the job that later holds a key which
+      # bypasses row-level security.
+      - run: npm ci --omit=dev
 
       - name: Collect
         env:

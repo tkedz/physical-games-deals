@@ -9,6 +9,11 @@
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    // For scripts/collector/*.mts: Node strips types without rewriting import
+    // specifiers, so those files must import each other by their real ".mts"
+    // name, which "bundler" resolution rejects without this. Legal because
+    // noEmit is set above. Nothing under src/ needs it — an extension in an
+    // import there type-checks but may not survive bundling.
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
