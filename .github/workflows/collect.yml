@@ -1,0 +1,55 @@
+name: collect
+
+# The collector's four-hourly schedule, carried over unchanged from the
+# repository it used to live in. What did not come along is the commit-and-push
+# step: the entries go into public.collected_posts now, so there is no data file
+# to push — and therefore none of these six daily runs pushes a commit that
+# would trigger `verify` plus a production deploy, which no paths-ignore pattern
+# in ci.yml would have caught.
+on:
+  schedule:
+    - cron: "7 */4 * * *"
+  workflow_dispatch:
+
+# The write permission existed only for the push step.
+permissions:
+  contents: read
+
+# A group of its own — deliberately not ci.yml's
+# `${{ github.workflow }}-${{ github.ref }}` — so a collection and a CI run that
+# overlap in time never cancel each other. Nothing is cancelled in progress
+# either: a run already fetching feeds is worth finishing, and the feeds retain
+# roughly two days.
+concurrency:
+  group: collect
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # .nvmrc rather than a literal version, matching both jobs in ci.yml. It
+      # pins Node 24, which runs .mts directly; on Node 22 the same file would
+      # need --experimental-strip-types.
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Collect
+        env:
+          # Both values are read from the environment, so no credential ever
+          # appears on a command line the runner echoes into the log — the
+          # pattern ci.yml already uses for the Vercel token. Scoped to this
+          # step rather than the job: `npm ci` above runs dependency lifecycle
+          # scripts, which have no business seeing a key that bypasses
+          # row-level security.
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          # A repository variable rather than a secret: the URL is public and is
+          # already inlined into the browser bundle by the Next build.
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+        run: npm run collect

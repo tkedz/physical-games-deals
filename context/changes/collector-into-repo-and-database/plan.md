@@ -386,35 +386,35 @@ The data migration is the import script, and it is idempotent by construction �
 
 #### Automated
 
-- [x] 2.1 `npm run lint` exits 0 with the collector inside ESLint's scope
-- [x] 2.2 `npm run format:check` exits 0
-- [x] 2.3 `npm run build` completes
-- [x] 2.4 The content hash of `scripts/collector/feeds.json` equals that of `_incoming/cron-collector/feeds.json`
-- [x] 2.5 `npm run collect` completes, exits 0, and the row count is greater than 0
-- [x] 2.6 A second consecutive `npm run collect` reports 0 new entries and leaves the row count unchanged
+- [x] 2.1 `npm run lint` exits 0 with the collector inside ESLint's scope — 66d420d
+- [x] 2.2 `npm run format:check` exits 0 — 66d420d
+- [x] 2.3 `npm run build` completes — 66d420d
+- [x] 2.4 The content hash of `scripts/collector/feeds.json` equals that of `_incoming/cron-collector/feeds.json` — 66d420d
+- [x] 2.5 `npm run collect` completes, exits 0, and the row count is greater than 0 — 66d420d
+- [x] 2.6 A second consecutive `npm run collect` reports 0 new entries and leaves the row count unchanged — 66d420d
 
 #### Manual
 
-- [x] 2.7 The run summary's "new entries" figure matches the row-count delta for a mixed batch
-- [x] 2.8 With `SUPABASE_SECRET_KEY` unset, `npm run collect` fails naming that variable before any feed is fetched
-- [x] 2.9 With every feed URL unreachable, the run exits non-zero
-- [x] 2.10 Nothing under `src/` imports from `scripts/`
+- [x] 2.7 The run summary's "new entries" figure matches the row-count delta for a mixed batch — 66d420d
+- [x] 2.8 With `SUPABASE_SECRET_KEY` unset, `npm run collect` fails naming that variable before any feed is fetched — 66d420d
+- [x] 2.9 With every feed URL unreachable, the run exits non-zero — 66d420d
+- [x] 2.10 Nothing under `src/` imports from `scripts/` — 66d420d
 
 ### Phase 3: Backfill and the workflow
 
 #### Automated
 
-- [ ] 3.1 `npm run lint`, `npm run format:check` and `npm run build` all pass with the new scripts present
-- [ ] 3.2 The import of the staged snapshot reports 659 lines read and 0 unparseable
-- [ ] 3.3 A second run of the same import reports 0 rows inserted
-- [ ] 3.4 `select count(*) from collected_posts` is at least 659
-- [ ] 3.5 `select count(distinct source) from collected_posts` returns 15
-- [ ] 3.6 `select count(*) from collected_posts where processed_at is not null` returns 0
+- [x] 3.1 `npm run lint`, `npm run format:check` and `npm run build` all pass with the new scripts present
+- [x] 3.2 The import of the staged snapshot reports 659 lines read and 0 unparseable
+- [x] 3.3 A second run of the same import reports 0 rows inserted
+- [x] 3.4 `select count(*) from collected_posts` is at least 659
+- [x] 3.5 `select count(distinct source) from collected_posts` returns 15
+- [x] 3.6 `select count(*) from collected_posts where processed_at is not null` returns 0
 
 #### Manual
 
 - [ ] 3.7 A `workflow_dispatch` run of `collect` finishes green with rows written and no credential visible in the log
-- [ ] 3.8 `.github/workflows/collect.yml` contains no `git` command and no `contents: write`
+- [x] 3.8 `.github/workflows/collect.yml` contains no `git` command and no `contents: write`
 - [ ] 3.9 A `collect` run and a CI run overlapping in time neither cancel each other
 
 ### Phase 4: Cutover

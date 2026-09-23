@@ -16,7 +16,8 @@
     "db:push": "supabase db push --linked",
     "db:status": "supabase migration list --linked",
     "db:check": "supabase db advisors --linked --type security --fail-on error",
-    "collect": "node --env-file-if-exists=.env.local scripts/collector/collect.mts"
+    "collect": "node --env-file-if-exists=.env.local scripts/collector/collect.mts",
+    "collect:import": "node --env-file-if-exists=.env.local scripts/collector/import-jsonl.mts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

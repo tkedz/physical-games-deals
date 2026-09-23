@@ -7,6 +7,14 @@ import Parser from "rss-parser";
 // rewriting the specifier, so this has to be the real file name. TypeScript
 // accepts it through "allowImportingTsExtensions" in tsconfig.json.
 import { createCollectorClient } from "./supabase.mts";
+// The row shape and the write path, shared with import-jsonl.mts so both reach
+// collected_posts through the same chunked upsert.
+import {
+  errorMessage,
+  insertPosts,
+  toCategories,
+  type CollectedPost,
+} from "./posts.mts";
 
 const FEEDS_PATH = resolve(
   dirname(fileURLToPath(import.meta.url)),
@@ -17,10 +25,6 @@ const TIMEOUT_MS = 20_000;
 const CONTENT_LIMIT = 4000;
 const USER_AGENT = "cron-collector/0.1 (RSS collector; contact via the repo)";
 
-// Below the Data API's 1,000-row default cap, so the representation the write
-// returns is never truncated and the "new entries" count stays exact.
-const CHUNK_SIZE = 500;
-
 type Feed = {
   id: string;
   url: string;
@@ -28,26 +32,11 @@ type Feed = {
   enabled: boolean;
 };
 
-/** One row of public.collected_posts — feed fields copied 1:1, nothing normalised. */
-type CollectedPost = {
-  id: string;
-  source: string;
-  platform_hint: string;
-  title: string | null;
-  link: string | null;
-  published_at: string | null;
-  categories: string[];
-  content: string | null;
-  first_seen_at: string;
-};
-
 type CustomItem = {
   "content:encoded"?: string;
 };
 
 type FeedItem = Parser.Item & CustomItem;
-
-type CollectorClient = ReturnType<typeof createCollectorClient>;
 
 function loadFeeds(): Feed[] {
   const parsed: unknown = JSON.parse(readFileSync(FEEDS_PATH, "utf8"));
@@ -69,24 +58,6 @@ function pickContent(item: FeedItem): string | null {
     item["content:encoded"] ?? item.content ?? item.contentSnippet ?? null;
   if (typeof raw !== "string") return null;
   return raw.slice(0, CONTENT_LIMIT);
-}
-
-/**
- * Coerces feed categories to strings for the text[] column. All 1,154 values
- * collected so far are strings and rss-parser declares them string[], but the
- * declaration is a claim about the XML rather than a guarantee — an Atom
- * category arrives as an object. One non-string reaching Postgres would be
- * rejected and take its whole chunk down with it.
- */
-function toCategories(categories: unknown): string[] {
-  if (!Array.isArray(categories)) return [];
-  return categories.map((category: unknown) =>
-    typeof category === "string" ? category : String(category),
-  );
-}
-
-function errorMessage(err: unknown): string {
-  return err instanceof Error ? err.message : String(err);
 }
 
 /**
@@ -116,39 +87,6 @@ export function toCollectedPost(
     content: pickContent(item),
     first_seen_at: seenAt,
   };
-}
-
-/**
- * Writes the rows and returns how many of them were new.
- *
- * `ignoreDuplicates` sends `Prefer: resolution=ignore-duplicates`, which
- * PostgREST renders as `on conflict do nothing`; `.select('id')` adds
- * `Prefer: return=representation`, so the response carries exactly the rows
- * that landed. Deduplication therefore lives in the primary key rather than in
- * a set of ids read back first — a read that the Data API would silently cap at
- * 1,000 rows.
- */
-async function insertPosts(
-  client: CollectorClient,
-  rows: CollectedPost[],
-): Promise<number> {
-  let inserted = 0;
-
-  for (let start = 0; start < rows.length; start += CHUNK_SIZE) {
-    const chunk = rows.slice(start, start + CHUNK_SIZE);
-    const { data, error } = await client
-      .from("collected_posts")
-      .upsert(chunk, { onConflict: "id", ignoreDuplicates: true })
-      .select("id");
-
-    if (error) {
-      throw new Error(`Writing to collected_posts failed: ${error.message}`);
-    }
-
-    inserted += data.length;
-  }
-
-  return inserted;
 }
 
 async function main(): Promise<void> {
