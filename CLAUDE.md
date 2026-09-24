@@ -37,7 +37,6 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 
 ## Directories
 
-- `_incoming/` is a staging directory listed in `.gitignore` — do not import from it into `src/` before deciding where the code finally belongs (@_incoming/README.md).
 - The current PRD is `context/foundation/prd.md`; `prd_old.md` is stale.
 
 ## Verification
