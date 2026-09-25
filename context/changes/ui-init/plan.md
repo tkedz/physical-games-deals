@@ -443,16 +443,16 @@ A guarded `/kitchen-sink` renders every named state of the repo's components wit
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes with zero warnings
-- [x] 3.2 `npm run format:check` passes
-- [x] 3.3 `npm run build` succeeds with `/kitchen-sink` prerendered as not found (local `NODE_ENV` is `production` and `VERCEL_ENV` is unset)
-- [x] 3.4 The palette-literal grep from Phase 2 still prints nothing with `src/app/kitchen-sink` in place
+- [x] 3.1 `npm run lint` passes with zero warnings — f95ae68
+- [x] 3.2 `npm run format:check` passes — f95ae68
+- [x] 3.3 `npm run build` succeeds with `/kitchen-sink` prerendered as not found (local `NODE_ENV` is `production` and `VERCEL_ENV` is unset) — f95ae68
+- [x] 3.4 The palette-literal grep from Phase 2 still prints nothing with `src/app/kitchen-sink` in place — f95ae68
 
 #### Manual
 
-- [x] 3.5 With `npm run dev` started by Tomasz, screenshots of `/kitchen-sink` at 1280×800 and 375×812, saved to `context/changes/ui-init/screenshots/`, show every section with no horizontal scroll
-- [x] 3.6 Keyboard Tab shows a visible focus ring on every button, and mouse hover changes each variant's background (one screenshot of each, saved alongside)
-- [x] 3.7 DevTools contrast checks match the Key Discoveries table: muted text on background and on card, the destructive alert title and description, and the destructive and primary button labels are all at least 4.5
-- [x] 3.8 With `npm run build && npm run start` run by Tomasz, `/kitchen-sink` returns 404 and `/` returns 200
-- [ ] 3.9 On the PR preview, `/kitchen-sink` renders, or returns 404 when Vercel does not expose system environment variables; the outcome is recorded, and Tomasz decides whether to enable that setting
-- [ ] 3.10 After the merge to `main`, production `/kitchen-sink` returns 404
+- [x] 3.5 With `npm run dev` started by Tomasz, screenshots of `/kitchen-sink` at 1280×800 and 375×812, saved to `context/changes/ui-init/screenshots/`, show every section with no horizontal scroll — f95ae68
+- [x] 3.6 Keyboard Tab shows a visible focus ring on every button, and mouse hover changes each variant's background (one screenshot of each, saved alongside) — f95ae68
+- [x] 3.7 DevTools contrast checks match the Key Discoveries table: muted text on background and on card, the destructive alert title and description, and the destructive and primary button labels are all at least 4.5 — f95ae68
+- [x] 3.8 With `npm run build && npm run start` run by Tomasz, `/kitchen-sink` returns 404 and `/` returns 200 — f95ae68
+- [x] 3.9 On the PR preview, `/kitchen-sink` renders, or returns 404 when Vercel does not expose system environment variables; the outcome is recorded, and Tomasz decides whether to enable that setting — f95ae68
+- [x] 3.10 After the merge to `main`, production `/kitchen-sink` returns 404 — f95ae68
