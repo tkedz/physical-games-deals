@@ -412,32 +412,32 @@ A guarded `/kitchen-sink` renders every named state of the repo's components wit
 
 #### Automated
 
-- [x] 1.1 `npm run lint` passes with zero warnings
-- [x] 1.2 `npm run format:check` passes (run `npm run format` first if needed)
-- [x] 1.3 `npm run build` succeeds
-- [x] 1.4 `grep -l -- '--font-geist' .next/static/chunks/*.css` prints nothing after the build
-- [x] 1.5 `grep -oE -- '--font-(sans|mono):"Geist[^}]*' .next/static/chunks/*.css` prints the Geist and Geist Mono stacks
-- [x] 1.6 Every mapped variable in `:root` and `.dark` equals the pinned JSON value, and the blocks still hold 32 and 31 variables (one-off `node` comparison)
+- [x] 1.1 `npm run lint` passes with zero warnings — d2e03fe
+- [x] 1.2 `npm run format:check` passes (run `npm run format` first if needed) — d2e03fe
+- [x] 1.3 `npm run build` succeeds — d2e03fe
+- [x] 1.4 `grep -l -- '--font-geist' .next/static/chunks/*.css` prints nothing after the build — d2e03fe
+- [x] 1.5 `grep -oE -- '--font-(sans|mono):"Geist[^}]*' .next/static/chunks/*.css` prints the Geist and Geist Mono stacks — d2e03fe
+- [x] 1.6 Every mapped variable in `:root` and `.dark` equals the pinned JSON value, and the blocks still hold 32 and 31 variables (one-off `node` comparison) — d2e03fe
 
 #### Manual
 
-- [x] 1.7 With `npm run dev` started by Tomasz, DevTools → Computed → Rendered Fonts on `/` shows Geist, not a browser default
-- [x] 1.8 The browser shows `lang="pl"` on `<html>` and the tab title "Okazje na gry pudełkowe"
+- [x] 1.7 With `npm run dev` started by Tomasz, DevTools → Computed → Rendered Fonts on `/` shows Geist, not a browser default — d2e03fe
+- [x] 1.8 The browser shows `lang="pl"` on `<html>` and the tab title "Okazje na gry pudełkowe" — d2e03fe
 
 ### Phase 2: Shared components and `/` on tokens
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes with zero warnings
-- [ ] 2.2 `npm run format:check` passes
-- [ ] 2.3 `npm run build` succeeds
-- [ ] 2.4 `grep -rEn '(zinc|slate|gray|neutral|stone)-[0-9]|(bg|text|border)-(black|white)|#[0-9a-fA-F]{3,8}\b' src/app --include=*.tsx` prints nothing
-- [ ] 2.5 `grep -rnE '(next|vercel|file|globe|window)\.svg' src` prints nothing
-- [ ] 2.6 `git status --porcelain src/components/ui` lists exactly the five new component files
+- [x] 2.1 `npm run lint` passes with zero warnings
+- [x] 2.2 `npm run format:check` passes
+- [x] 2.3 `npm run build` succeeds
+- [x] 2.4 `grep -rEn '(zinc|slate|gray|neutral|stone)-[0-9]|(bg|text|border)-(black|white)|#[0-9a-fA-F]{3,8}\b' src/app --include=*.tsx` prints nothing
+- [x] 2.5 `grep -rnE '(next|vercel|file|globe|window)\.svg' src` prints nothing
+- [x] 2.6 `git status --porcelain src/components/ui` lists exactly the five new component files
 
 #### Manual
 
-- [ ] 2.7 Screenshots of `/` at 1280 px and 375 px, saved to `context/changes/ui-init/screenshots/`, show a black background, white heading, grey description and outline badge, no horizontal scroll at 375 px, and Polish diacritics rendered in Geist
+- [x] 2.7 Screenshots of `/` at 1280 px and 375 px, saved to `context/changes/ui-init/screenshots/`, show a black background, white heading, grey description and outline badge, no horizontal scroll at 375 px, and Polish diacritics rendered in Geist
 
 ### Phase 3: Kitchen sink and visual gate
 
