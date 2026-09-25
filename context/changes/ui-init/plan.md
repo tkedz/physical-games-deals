@@ -428,31 +428,31 @@ A guarded `/kitchen-sink` renders every named state of the repo's components wit
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes with zero warnings
-- [x] 2.2 `npm run format:check` passes
-- [x] 2.3 `npm run build` succeeds
-- [x] 2.4 `grep -rEn '(zinc|slate|gray|neutral|stone)-[0-9]|(bg|text|border)-(black|white)|#[0-9a-fA-F]{3,8}\b' src/app --include=*.tsx` prints nothing
-- [x] 2.5 `grep -rnE '(next|vercel|file|globe|window)\.svg' src` prints nothing
-- [x] 2.6 `git status --porcelain src/components/ui` lists exactly the five new component files
+- [x] 2.1 `npm run lint` passes with zero warnings — d1806a9
+- [x] 2.2 `npm run format:check` passes — d1806a9
+- [x] 2.3 `npm run build` succeeds — d1806a9
+- [x] 2.4 `grep -rEn '(zinc|slate|gray|neutral|stone)-[0-9]|(bg|text|border)-(black|white)|#[0-9a-fA-F]{3,8}\b' src/app --include=*.tsx` prints nothing — d1806a9
+- [x] 2.5 `grep -rnE '(next|vercel|file|globe|window)\.svg' src` prints nothing — d1806a9
+- [x] 2.6 `git status --porcelain src/components/ui` lists exactly the five new component files — d1806a9
 
 #### Manual
 
-- [x] 2.7 Screenshots of `/` at 1280 px and 375 px, saved to `context/changes/ui-init/screenshots/`, show a black background, white heading, grey description and outline badge, no horizontal scroll at 375 px, and Polish diacritics rendered in Geist
+- [x] 2.7 Screenshots of `/` at 1280 px and 375 px, saved to `context/changes/ui-init/screenshots/`, show a black background, white heading, grey description and outline badge, no horizontal scroll at 375 px, and Polish diacritics rendered in Geist — d1806a9
 
 ### Phase 3: Kitchen sink and visual gate
 
 #### Automated
 
-- [ ] 3.1 `npm run lint` passes with zero warnings
-- [ ] 3.2 `npm run format:check` passes
-- [ ] 3.3 `npm run build` succeeds with `/kitchen-sink` prerendered as not found (local `NODE_ENV` is `production` and `VERCEL_ENV` is unset)
-- [ ] 3.4 The palette-literal grep from Phase 2 still prints nothing with `src/app/kitchen-sink` in place
+- [x] 3.1 `npm run lint` passes with zero warnings
+- [x] 3.2 `npm run format:check` passes
+- [x] 3.3 `npm run build` succeeds with `/kitchen-sink` prerendered as not found (local `NODE_ENV` is `production` and `VERCEL_ENV` is unset)
+- [x] 3.4 The palette-literal grep from Phase 2 still prints nothing with `src/app/kitchen-sink` in place
 
 #### Manual
 
-- [ ] 3.5 With `npm run dev` started by Tomasz, screenshots of `/kitchen-sink` at 1280×800 and 375×812, saved to `context/changes/ui-init/screenshots/`, show every section with no horizontal scroll
-- [ ] 3.6 Keyboard Tab shows a visible focus ring on every button, and mouse hover changes each variant's background (one screenshot of each, saved alongside)
-- [ ] 3.7 DevTools contrast checks match the Key Discoveries table: muted text on background and on card, the destructive alert title and description, and the destructive and primary button labels are all at least 4.5
-- [ ] 3.8 With `npm run build && npm run start` run by Tomasz, `/kitchen-sink` returns 404 and `/` returns 200
+- [x] 3.5 With `npm run dev` started by Tomasz, screenshots of `/kitchen-sink` at 1280×800 and 375×812, saved to `context/changes/ui-init/screenshots/`, show every section with no horizontal scroll
+- [x] 3.6 Keyboard Tab shows a visible focus ring on every button, and mouse hover changes each variant's background (one screenshot of each, saved alongside)
+- [x] 3.7 DevTools contrast checks match the Key Discoveries table: muted text on background and on card, the destructive alert title and description, and the destructive and primary button labels are all at least 4.5
+- [x] 3.8 With `npm run build && npm run start` run by Tomasz, `/kitchen-sink` returns 404 and `/` returns 200
 - [ ] 3.9 On the PR preview, `/kitchen-sink` renders, or returns 404 when Vercel does not expose system environment variables; the outcome is recorded, and Tomasz decides whether to enable that setting
 - [ ] 3.10 After the merge to `main`, production `/kitchen-sink` returns 404
