@@ -12,5 +12,145 @@
     "expect": "Silent Hill 2",
     "year": 2001,
     "kind": "own"
+  },
+  {
+    "title": "The Witcher 3: Wild Hunt",
+    "queries": ["Wiedźmin 3: Dziki Gon", "The Witcher 3: Wild Hunt"],
+    "expect": "The Witcher 3: Wild Hunt",
+    "kind": "own"
+  },
+  {
+    "title": "Hogwarts Legacy",
+    "queries": ["Dziedzictwo Hogwartu", "Hogwarts Legacy"],
+    "expect": "Hogwarts Legacy",
+    "kind": "own"
+  },
+  {
+    "title": "Onimusha: Way of the Sword",
+    "queries": ["Onimusha Way of The Sword"],
+    "expect": "Onimusha: Way of the Sword",
+    "kind": "own"
+  },
+  {
+    "title": "The Blood of Dawnwalker",
+    "queries": ["Blood of Dawnwalker"],
+    "expect": "The Blood of Dawnwalker",
+    "kind": "own"
+  },
+  {
+    "title": "The Alters",
+    "queries": ["The Alters"],
+    "expect": "The Alters",
+    "kind": "own"
+  },
+  {
+    "title": "Hades (2020)",
+    "queries": ["Hades"],
+    "expect": "Hades",
+    "year": 2020,
+    "kind": "own"
+  },
+  {
+    "title": "Metal Gear Solid Delta: Snake Eater",
+    "queries": ["Metal Gear Solid Snake Eater"],
+    "expect": "Metal Gear Solid Delta: Snake Eater",
+    "year": 2025,
+    "kind": "own"
+  },
+  {
+    "title": "Bloodborne",
+    "queries": ["Bloodborne"],
+    "expect": "Bloodborne",
+    "kind": "own"
+  },
+  {
+    "title": "Control Resonant",
+    "queries": ["Control RESONANT"],
+    "expect": "Control Resonant",
+    "kind": "own"
+  },
+  {
+    "title": "Final Fantasy VII Rebirth",
+    "queries": ["Final Fantasy VII Rebirth"],
+    "expect": "Final Fantasy VII Rebirth",
+    "kind": "own"
+  },
+  {
+    "title": "Fire Emblem: Fortune's Weave (post)",
+    "queries": ["Fire Emblem: Fortune's Weave Dagdan Collection"],
+    "expect": "Fire Emblem: Fortune's Weave",
+    "kind": "post"
+  },
+  {
+    "title": "Need for Speed Ultimate (post)",
+    "queries": ["Gry Need for Speed Ultimate Bundle na PS4/PS5"],
+    "expect": "Need for Speed Ultimate",
+    "kind": "post"
+  },
+  {
+    "title": "Hades II (post)",
+    "queries": ["Gra Hades II za 81,90 zł"],
+    "expect": "Hades II",
+    "kind": "post"
+  },
+  {
+    "title": "The Witcher: Enhanced Edition Director's Cut (post)",
+    "queries": [
+      "The Witcher: Enhanced Edition Director's Cut za 4,49 zł i The Witcher 2: Assassins of Kings Enhanced Edition za 5,99 zł @ Steam"
+    ],
+    "expect": "The Witcher: Enhanced Edition Director's Cut",
+    "kind": "post"
+  },
+  {
+    "title": "The Witcher 2: Assassins of Kings Enhanced Edition (post)",
+    "queries": [
+      "The Witcher: Enhanced Edition Director's Cut za 4,49 zł i The Witcher 2: Assassins of Kings Enhanced Edition za 5,99 zł @ Steam"
+    ],
+    "expect": "The Witcher 2: Assassins of Kings Enhanced Edition",
+    "kind": "post"
+  },
+  {
+    "title": "Grand Theft Auto VI (post)",
+    "queries": [
+      "Preorder Grand Theft Auto VI The Album w Empiku. Płyty CD i winylowe ze ścieżką dźwiękową już od 67,50 zł"
+    ],
+    "expect": "Grand Theft Auto VI",
+    "kind": "post"
+  },
+  {
+    "title": "Teenage Mutant Ninja Turtles Mutants Unleashed (post)",
+    "queries": [
+      "Pudełkowe Teenage Mutant Ninja Turtles Mutants Unleashed na Switcha od 45 zł w polskich sklepach"
+    ],
+    "expect": "Teenage Mutant Ninja Turtles Mutants Unleashed",
+    "kind": "post"
+  },
+  {
+    "title": "Clive Barker’s Hellraiser Revival (post)",
+    "queries": [
+      "Preorder Clive Barker’s Hellraiser Revival Day One Edition na PS5 i XSX za 144,99 zł (+ wysyłka) w Perfect Blue"
+    ],
+    "expect": "Clive Barker’s Hellraiser Revival",
+    "kind": "post"
+  },
+  {
+    "title": "Assassin’s Creed Black Flag Resynced (post)",
+    "queries": [
+      "Pudełkowe Assassin’s Creed Black Flag Resynced Launch Edition na PS5 za 249,99 zł na Allegro"
+    ],
+    "expect": "Assassin’s Creed Black Flag Resynced",
+    "kind": "post"
+  },
+  {
+    "title": "Eastward (post)",
+    "queries": ["Eastward za 109,99 zł (-8%)"],
+    "expect": "Eastward",
+    "kind": "post"
+  },
+  {
+    "title": "Absolute Drift (post)",
+    "queries": ["Absolute Drift Premium Edition za 133,90 zł (-6%)"],
+    "expect": "Absolute Drift",
+    "kind": "post"
   }
 ]

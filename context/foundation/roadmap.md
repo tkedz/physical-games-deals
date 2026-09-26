@@ -3,7 +3,7 @@ project: physical-games-deals
 version: 1
 status: draft
 created: 2026-09-21
-updated: 2026-09-23
+updated: 2026-09-26
 prd_version: 2
 main_goal: speed
 top_blocker: time
@@ -58,9 +58,9 @@ Choosing it first also settles two of the PRD's open questions by doing rather t
 | ---- | ------------------------------------ | --------------------------------------------------------------------------- | ---------------- | ------------------------------- | -------- |
 | F-01 | `schema-migrations-and-rls-baseline` | (foundation) schema lives in repo migrations; every new table starts locked  | —                | Access Control, Guardrails, NFR | done |
 | F-02 | `collector-into-repo-and-database`   | (foundation) collected posts land in the database, in this repository        | F-01             | Business Logic, NFR             | in-progress |
-| F-03 | `game-catalog-provider-proven`       | (foundation) a catalogue provider is chosen and proven on real Polish titles | —                | FR-003, Business Logic          | ready    |
+| F-03 | `game-catalog-provider-proven`       | (foundation) a catalogue provider is chosen and proven on real Polish titles | —                | FR-003, Business Logic          | in-progress |
 | S-01 | `physical-deals-from-real-posts`     | see physical-edition deals extracted from real posts, with price and link    | F-01, F-02       | FR-005, FR-006, US-01           | proposed |
-| S-02 | `email-password-accounts`            | create an account with e-mail and password, sign in and sign out             | —                | FR-001, Access Control          | ready    |
+| S-02 | `email-password-accounts`            | create an account with e-mail and password, sign in and sign out             | —                | FR-001, Access Control          | in-progress |
 | S-03 | `watchlist-from-catalog`             | search the catalogue, add a game to a watchlist, remove one                  | F-01, F-03, S-02 | FR-003, FR-004, US-01           | blocked  |
 | S-04 | `deals-matched-to-watchlist`         | see only the deals matching their own watchlist, platform rule applied       | S-01, S-03       | US-01, FR-005, Guardrails       | proposed |
 
@@ -126,9 +126,9 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Parallel with:** F-01, F-02, S-01, S-02
 - **Blockers:** —
 - **Unknowns:**
-  - Which provider — `.env.example` carries empty `IGDB_CLIENT_ID` / `IGDB_CLIENT_SECRET` slots and its comment leaves RAWG open. Owner: user. Block: no — choosing is this foundation's work.
+  - Which provider — `.env.example` carries empty `IGDB_CLIENT_ID` / `IGDB_CLIENT_SECRET` slots and its comment leaves RAWG open. Owner: user. Block: no — choosing is this foundation's work. Answered 2026-09-26: RAWG — chosen by the user after a desk comparison with IGDB, as the simpler integration for a course project.
 - **Risk:** The PRD calls the catalogue "the only external dependency on the main path of adding a game" and warns that its coverage sets the ceiling on how useful the product can be. If it does not know Polish boxed releases, the ruling that only catalogued games may be watched has to be reopened — and that reshapes `S-03` rather than merely delaying it. Sequenced early and cheaply for exactly that reason: the PRD itself says the check is a few queries for real titles. It has no prerequisites, so it can be done in an evening alongside anything else.
-- **Status:** ready
+- **Status:** in-progress
 
 ## Slices
 
@@ -157,7 +157,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** The least uncertain slice in the milestone — the session plumbing is already wired and proven, so what remains is screens and route protection. Its value under a time constraint is that it depends on nothing at all and can fill any evening that the pipeline work leaves blocked. The one thing to get right is that signing out actually clears the session on the server and not only in the browser; the PRD's isolation guardrail is about what a URL can reach, not about what the interface shows.
-- **Status:** ready
+- **Status:** in-progress
 
 ### S-03: A collector keeps a watchlist of games from the catalogue
 
@@ -169,7 +169,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:**
   - What the user sees when the catalogue does not answer while they are searching (PRD open question 6). Owner: user. Block: yes — the PRD states it is "do rozstrzygnięcia przed implementacją FR-003", and the catalogue sits on the main path of adding a game, so the slice has no defined behaviour for its most likely failure until this is answered.
-  - Whether the chosen catalogue covers the Polish boxed titles this product exists for (PRD open question 7). Owner: user. Block: yes — a negative answer reopens the ruling that only catalogued games may be watched, which changes what this slice builds rather than when. `F-03` resolves it.
+  - Whether the chosen catalogue covers the Polish boxed titles this product exists for (PRD open question 7). Owner: user. Block: yes — a negative answer reopens the ruling that only catalogued games may be watched, which changes what this slice builds rather than when. `F-03` resolves it. Resolved by F-03 on 2026-09-26: PASS.
 - **Risk:** Marked blocked rather than merely risky because both unknowns change the slice's shape, not its timing, and one of them the PRD explicitly puts before implementation. Both are cheap to resolve and `F-03` resolves the harder one, so this is a short block, not a stalled slice. Sequenced after `S-02` because the list belongs to a user, and after `F-01` because isolation here is enforced by the database rather than by application code.
 - **Status:** blocked
 
@@ -206,8 +206,9 @@ Foundations below assume these are present and do NOT re-scaffold them.
 4. **Data volume** — undeclared; the raw-post set grows with time regardless of user count. Owner: user. Block: `F-01` (non-blocking).
 5. **A measurable primary success criterion** — the PRD's criteria are binary; no number has been set for when matching is good enough. Owner: user. Block: `S-04` (non-blocking).
 6. **Behaviour when the catalogue is unreachable** — what the user sees when the catalogue does not answer during a search. Owner: user. Block: **`S-03` (blocking)** — the PRD places it before implementing `FR-003`.
-7. **Catalogue coverage of the Polish market** — whether the chosen catalogue knows the titles a Polish collector of boxed editions cares about. The ruling that only catalogued games may be watched makes this coverage the ceiling on the product's usefulness. Owner: user. Block: **`S-03` (blocking)** — `F-03` resolves it.
+7. **Catalogue coverage of the Polish market** — whether the chosen catalogue knows the titles a Polish collector of boxed editions cares about. The ruling that only catalogued games may be watched makes this coverage the ceiling on the product's usefulness. Owner: user. Block: **`S-03` (blocking)** — `F-03` resolves it. **Answered 2026-09-26: PASS.** All 12 of the user's titles were found within the first five results, both Polish names included — see `context/changes/game-catalog-provider-proven/coverage.md`.
 8. **Is the old collector still running?** — surfaced by the baseline probe, not by the PRD. The collector runs from a different repository; these feeds retain roughly two days, so if it has been switched off, every day until `F-02` lands is lost permanently. Owner: user. Block: none — but the answer sets how urgent `F-02` is. **Answered 2026-09-23: yes, it ran throughout.** Confirmed against the data rather than from memory — the export staged for `F-02`'s import runs from 2026-09-16 to 2026-09-23 without a gap, so no collection days were lost between the baseline probe and the move into this repository.
+9. **Watching keywords, not only catalogued games** — the user's idea (2026-09-26): besides games identified in the catalogue, let a user watch a keyword. It contradicts the PRD's ruling "Gra nieobecna w katalogu nie może zostać dodana do listy obserwowanych" (`prd.md:98`). `F-03` supplies the evidence: Fire Emblem: Fortune's Weave, a new release offered in collected posts, is not in RAWG — the catalogue lags new releases. Owner: user. Block: `S-03` (non-blocking — `F-03`'s verdict is PASS, so the ruling stands unless the user reopens it; a yes changes the shape of `S-03` and the matching in `S-04`).
 
 ## Parked
 

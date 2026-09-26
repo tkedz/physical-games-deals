@@ -308,30 +308,30 @@ None — no schema change, and no deployed code reads the new module.
 
 #### Automated
 
-- [x] 1.1 Lint passes with zero warnings: `npm run lint`
-- [x] 1.2 Formatting passes: `npm run format:check`
-- [x] 1.3 The build type-checks `src/` and `scripts/`: `npm run build`
-- [x] 1.4 Without the env file the probe aborts before any request: `env -u RAWG_API_KEY node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/catalog/probe.mts` exits 1 and prints `RAWG_API_KEY is not set`
-- [x] 1.5 The key never gets a public prefix: `git grep -n "NEXT_PUBLIC_RAWG"` returns nothing
-- [x] 1.6 The client never logs: `git grep -n "console\." -- src/lib/catalog` returns nothing
+- [x] 1.1 Lint passes with zero warnings: `npm run lint` — ea16611
+- [x] 1.2 Formatting passes: `npm run format:check` — ea16611
+- [x] 1.3 The build type-checks `src/` and `scripts/`: `npm run build` — ea16611
+- [x] 1.4 Without the env file the probe aborts before any request: `env -u RAWG_API_KEY node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/catalog/probe.mts` exits 1 and prints `RAWG_API_KEY is not set` — ea16611
+- [x] 1.5 The key never gets a public prefix: `git grep -n "NEXT_PUBLIC_RAWG"` returns nothing — ea16611
+- [x] 1.6 The client never logs: `git grep -n "console\." -- src/lib/catalog` returns nothing — ea16611
 
 #### Manual
 
-- [x] 1.7 Tomasz registers at https://rawg.io/apidocs and puts `RAWG_API_KEY` into `.env.local`, confirmed by Tomasz without anyone reading the file; if registration fails, that goes into `coverage.md` and Phase 2 continues with the record only
-- [x] 1.8 `npm run catalog:probe`, run by Tomasz, reports both Silent Hill 2 entries in both modes — a rank where RAWG returns the entry, `—` where it does not, different ranks where both appear — with a latency per call, a verdict line and `Failure path: unavailable`
-- [x] 1.9 The output Tomasz pastes contains neither the key nor a request URL
+- [x] 1.7 Tomasz registers at https://rawg.io/apidocs and puts `RAWG_API_KEY` into `.env.local`, confirmed by Tomasz without anyone reading the file; if registration fails, that goes into `coverage.md` and Phase 2 continues with the record only — ea16611
+- [x] 1.8 `npm run catalog:probe`, run by Tomasz, reports both Silent Hill 2 entries in both modes — a rank where RAWG returns the entry, `—` where it does not, different ranks where both appear — with a latency per call, a verdict line and `Failure path: unavailable` — ea16611
+- [x] 1.9 The output Tomasz pastes contains neither the key nor a request URL — ea16611
 
 ### Phase 2: Coverage verdict and handoff
 
 #### Automated
 
-- [ ] 2.1 No IGDB placeholder is left in code, config or deployment docs: `git grep -n "IGDB_" -- .env.example src scripts .github context/deployment` returns nothing
-- [ ] 2.2 Formatting passes, the title file included: `npm run format:check`
-- [ ] 2.3 Lint passes with zero warnings: `npm run lint`
+- [x] 2.1 No IGDB placeholder is left in code, config or deployment docs: `git grep -n "IGDB_" -- .env.example src scripts .github context/deployment` returns nothing
+- [x] 2.2 Formatting passes, the title file included: `npm run format:check`
+- [x] 2.3 Lint passes with zero warnings: `npm run lint`
 
 #### Manual
 
-- [ ] 2.4 `npm run catalog:probe` on the full title set, run by Tomasz, produces output that contains neither the key nor a request URL
-- [ ] 2.5 Tomasz confirms or corrects every automatic rank in `coverage.md`
-- [ ] 2.6 The verdict in `coverage.md` follows the agreed predicate applied to the confirmed ranks
-- [ ] 2.7 The roadmap carries the answers to the F-03 provider unknown, question 7 and S-03's coverage unknown
+- [x] 2.4 `npm run catalog:probe` on the full title set, run by Tomasz, produces output that contains neither the key nor a request URL
+- [x] 2.5 Tomasz confirms or corrects every automatic rank in `coverage.md`
+- [x] 2.6 The verdict in `coverage.md` follows the agreed predicate applied to the confirmed ranks
+- [x] 2.7 The roadmap carries the answers to the F-03 provider unknown, question 7 and S-03's coverage unknown
