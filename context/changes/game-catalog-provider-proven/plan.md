@@ -325,13 +325,13 @@ None — no schema change, and no deployed code reads the new module.
 
 #### Automated
 
-- [x] 2.1 No IGDB placeholder is left in code, config or deployment docs: `git grep -n "IGDB_" -- .env.example src scripts .github context/deployment` returns nothing
-- [x] 2.2 Formatting passes, the title file included: `npm run format:check`
-- [x] 2.3 Lint passes with zero warnings: `npm run lint`
+- [x] 2.1 No IGDB placeholder is left in code, config or deployment docs: `git grep -n "IGDB_" -- .env.example src scripts .github context/deployment` returns nothing — c04ad1f
+- [x] 2.2 Formatting passes, the title file included: `npm run format:check` — c04ad1f
+- [x] 2.3 Lint passes with zero warnings: `npm run lint` — c04ad1f
 
 #### Manual
 
-- [x] 2.4 `npm run catalog:probe` on the full title set, run by Tomasz, produces output that contains neither the key nor a request URL
-- [x] 2.5 Tomasz confirms or corrects every automatic rank in `coverage.md`
-- [x] 2.6 The verdict in `coverage.md` follows the agreed predicate applied to the confirmed ranks
-- [x] 2.7 The roadmap carries the answers to the F-03 provider unknown, question 7 and S-03's coverage unknown
+- [x] 2.4 `npm run catalog:probe` on the full title set, run by Tomasz, produces output that contains neither the key nor a request URL — c04ad1f
+- [x] 2.5 Tomasz confirms or corrects every automatic rank in `coverage.md` — c04ad1f
+- [x] 2.6 The verdict in `coverage.md` follows the agreed predicate applied to the confirmed ranks — c04ad1f
+- [x] 2.7 The roadmap carries the answers to the F-03 provider unknown, question 7 and S-03's coverage unknown — c04ad1f

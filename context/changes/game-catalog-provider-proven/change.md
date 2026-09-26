@@ -1,7 +1,7 @@
 ---
 change_id: game-catalog-provider-proven
 title: Game catalog provider proven
-status: implementing
+status: implemented
 created: 2026-09-26
 updated: 2026-09-26
 archived_at: null
