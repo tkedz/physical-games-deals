@@ -645,43 +645,43 @@ There are none. The `curl` matrices in Phases 3 and 4 and the manual flows stand
 
 #### Automated
 
-- [x] 1.1 `npm run lint` passes with zero warnings
-- [x] 1.2 `npm run format:check` passes (run `npm run format` first if needed)
-- [x] 1.3 `npm run build` succeeds with `/kitchen-sink` still prerendered as not found
-- [x] 1.4 `git status --porcelain src/components/ui` lists exactly `field.tsx`, `input.tsx`, `label.tsx` and `separator.tsx` as new
-- [x] 1.5 `git diff --quiet -- package.json package-lock.json components.json src/app/globals.css` exits 0
-- [x] 1.6 `grep -rEn '(zinc|slate|gray|neutral|stone)-[0-9]|(bg|text|border)-(black|white)|#[0-9a-fA-F]{3,8}\b' src/app --include=*.tsx` prints nothing
+- [x] 1.1 `npm run lint` passes with zero warnings — 671743b
+- [x] 1.2 `npm run format:check` passes (run `npm run format` first if needed) — 671743b
+- [x] 1.3 `npm run build` succeeds with `/kitchen-sink` still prerendered as not found — 671743b
+- [x] 1.4 `git status --porcelain src/components/ui` lists exactly `field.tsx`, `input.tsx`, `label.tsx` and `separator.tsx` as new — 671743b
+- [x] 1.5 `git diff --quiet -- package.json package-lock.json components.json src/app/globals.css` exits 0 — 671743b
+- [x] 1.6 `grep -rEn '(zinc|slate|gray|neutral|stone)-[0-9]|(bg|text|border)-(black|white)|#[0-9a-fA-F]{3,8}\b' src/app --include=*.tsx` prints nothing — 671743b
 
 #### Manual
 
-- [x] 1.7 With `npm run dev` started by Tomasz, screenshots of the kitchen sink's "Formularz" section at 1280 px and 375 px, saved to `context/changes/email-password-accounts/screenshots/`, show all four states with no horizontal scroll
-- [x] 1.8 Tab reaches each enabled input with a visible focus ring and skips the disabled one, and clicking a label focuses its input
-- [x] 1.9 DevTools contrast checks put the error text and the description text at 4.5:1 or more on the background
+- [x] 1.7 With `npm run dev` started by Tomasz, screenshots of the kitchen sink's "Formularz" section at 1280 px and 375 px, saved to `context/changes/email-password-accounts/screenshots/`, show all four states with no horizontal scroll — 671743b
+- [x] 1.8 Tab reaches each enabled input with a visible focus ring and skips the disabled one, and clicking a label focuses its input — 671743b
+- [x] 1.9 DevTools contrast checks put the error text and the description text at 4.5:1 or more on the background — 671743b
 
 ### Phase 2: Sign-up, sign-in and sign-out
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes with zero warnings
-- [ ] 2.2 `npm run format:check` passes
-- [ ] 2.3 `npm run build` succeeds and its route list includes `/login` and `/signup`
-- [ ] 2.4 The palette-literal grep from Phase 1, run over `src/app` and `src/components/auth`, prints nothing
-- [ ] 2.5 `grep -rn '"use server"' src` prints nothing
-- [ ] 2.6 `grep -rn 'scope: "local"' src/components/auth` prints exactly one line
-- [ ] 2.7 `git diff --quiet -- package.json package-lock.json` exits 0
+- [x] 2.1 `npm run lint` passes with zero warnings
+- [x] 2.2 `npm run format:check` passes
+- [x] 2.3 `npm run build` succeeds and its route list includes `/login` and `/signup`
+- [x] 2.4 The palette-literal grep from Phase 1, run over `src/app` and `src/components/auth`, prints nothing
+- [x] 2.5 `grep -rn '"use server"' src` prints nothing
+- [x] 2.6 `grep -rn 'scope: "local"' src/components/auth` prints exactly one line
+- [x] 2.7 `git diff --quiet -- package.json package-lock.json` exits 0
 
 #### Manual
 
-- [ ] 2.8 Signed out, `/` shows the placeholder with "Zaloguj się" and "Załóż konto" in the header, and each link opens its form
-- [ ] 2.9 Tomasz confirms the three dashboard steps were done in order, with no unconfirmed user left when "Confirm email" was switched off
-- [ ] 2.10 Signing up in dev with a fresh address Tomasz controls lands on `/`, whose header shows that address
-- [ ] 2.11 Signing up again with the same address shows "Konto z tym adresem już istnieje. Zaloguj się." and adds no user
-- [ ] 2.12 On `/signup`, the agent's 7-character password and mismatched repeat each show their field error, and DevTools → Network shows no request to `/auth/v1/signup`
-- [ ] 2.13 On `/login`, the agent's address with no account shows "Nieprawidłowy e-mail lub hasło.", the same message Tomasz gets for his own address with a wrong password
-- [ ] 2.14 Tomasz's SQL-editor count of the test user's rows in `auth.sessions` drops by exactly one after "Wyloguj się", while a second signed-in browser stays signed in
-- [ ] 2.15 After sign-out the page is `/`, its header shows "Zaloguj się" and "Załóż konto" without a manual reload, and Back does not bring back the signed-in header
-- [ ] 2.16 Screenshots at 1280 px and 375 px of `/login` (idle and with the error alert), `/signup` (idle and with field errors), and `/` signed out and signed in (Tomasz signs in inside the agent's browser window), saved to `context/changes/email-password-accounts/screenshots/`, show no horizontal scroll
-- [ ] 2.17 On each form, Tab moves through e-mail, password, repeat (sign-up only), submit and the link to the other form, each with a visible focus indicator
+- [x] 2.8 Signed out, `/` shows the placeholder with "Zaloguj się" and "Załóż konto" in the header, and each link opens its form
+- [x] 2.9 Tomasz confirms the three dashboard steps were done in order, with no unconfirmed user left when "Confirm email" was switched off
+- [x] 2.10 Signing up in dev with a fresh address Tomasz controls lands on `/`, whose header shows that address
+- [x] 2.11 Signing up again with the same address shows "Konto z tym adresem już istnieje. Zaloguj się." and adds no user
+- [x] 2.12 On `/signup`, the agent's 7-character password and mismatched repeat each show their field error, and DevTools → Network shows no request to `/auth/v1/signup`
+- [x] 2.13 On `/login`, the agent's address with no account shows "Nieprawidłowy e-mail lub hasło.", the same message Tomasz gets for his own address with a wrong password
+- [x] 2.14 Tomasz's SQL-editor count of the test user's rows in `auth.sessions` drops by exactly one after "Wyloguj się", while a second signed-in browser stays signed in
+- [x] 2.15 After sign-out the page is `/`, its header shows "Zaloguj się" and "Załóż konto" without a manual reload, and Back does not bring back the signed-in header
+- [x] 2.16 Screenshots at 1280 px and 375 px of `/login` (idle and with the error alert), `/signup` (idle and with field errors), and `/` signed out and signed in (Tomasz signs in inside the agent's browser window), saved to `context/changes/email-password-accounts/screenshots/`, show no horizontal scroll
+- [x] 2.17 On each form, Tab moves through e-mail, password, repeat (sign-up only), submit and the link to the other form, each with a visible focus indicator
 
 ### Phase 3: Signed-in redirect in the proxy
 
