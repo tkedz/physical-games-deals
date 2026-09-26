@@ -17,6 +17,14 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isKitchenSinkVisible } from "@/lib/kitchen-sink";
 
@@ -138,6 +146,51 @@ export default function KitchenSinkPage() {
             <Button>Przejdź do okazji</Button>
           </CardFooter>
         </Card>
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <h2 className="font-heading text-xl font-semibold tracking-tight">
+          Formularz
+        </h2>
+        <FieldGroup className="max-w-sm">
+          <Field>
+            <FieldLabel htmlFor="sample-email">E-mail</FieldLabel>
+            <Input id="sample-email" type="email" />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="sample-password">Hasło</FieldLabel>
+            <Input
+              id="sample-password"
+              type="password"
+              aria-describedby="sample-password-description"
+            />
+            <FieldDescription id="sample-password-description">
+              Co najmniej 8 znaków.
+            </FieldDescription>
+          </Field>
+          <Field data-invalid="true">
+            <FieldLabel htmlFor="sample-email-invalid">E-mail</FieldLabel>
+            <Input
+              id="sample-email-invalid"
+              type="email"
+              defaultValue="jan.kowalski@"
+              aria-invalid
+              aria-describedby="sample-email-invalid-error"
+            />
+            <FieldError id="sample-email-invalid-error">
+              Podaj adres e-mail w poprawnym formacie.
+            </FieldError>
+          </Field>
+          <Field data-disabled="true">
+            <FieldLabel htmlFor="sample-email-disabled">E-mail</FieldLabel>
+            <Input
+              id="sample-email-disabled"
+              type="email"
+              defaultValue="jan.kowalski@example.com"
+              disabled
+            />
+          </Field>
+        </FieldGroup>
       </section>
 
       <section className="flex flex-col gap-6">
