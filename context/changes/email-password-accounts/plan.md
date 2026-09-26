@@ -662,42 +662,42 @@ There are none. The `curl` matrices in Phases 3 and 4 and the manual flows stand
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes with zero warnings
-- [x] 2.2 `npm run format:check` passes
-- [x] 2.3 `npm run build` succeeds and its route list includes `/login` and `/signup`
-- [x] 2.4 The palette-literal grep from Phase 1, run over `src/app` and `src/components/auth`, prints nothing
-- [x] 2.5 `grep -rn '"use server"' src` prints nothing
-- [x] 2.6 `grep -rn 'scope: "local"' src/components/auth` prints exactly one line
-- [x] 2.7 `git diff --quiet -- package.json package-lock.json` exits 0
+- [x] 2.1 `npm run lint` passes with zero warnings — b887b7c
+- [x] 2.2 `npm run format:check` passes — b887b7c
+- [x] 2.3 `npm run build` succeeds and its route list includes `/login` and `/signup` — b887b7c
+- [x] 2.4 The palette-literal grep from Phase 1, run over `src/app` and `src/components/auth`, prints nothing — b887b7c
+- [x] 2.5 `grep -rn '"use server"' src` prints nothing — b887b7c
+- [x] 2.6 `grep -rn 'scope: "local"' src/components/auth` prints exactly one line — b887b7c
+- [x] 2.7 `git diff --quiet -- package.json package-lock.json` exits 0 — b887b7c
 
 #### Manual
 
-- [x] 2.8 Signed out, `/` shows the placeholder with "Zaloguj się" and "Załóż konto" in the header, and each link opens its form
-- [x] 2.9 Tomasz confirms the three dashboard steps were done in order, with no unconfirmed user left when "Confirm email" was switched off
-- [x] 2.10 Signing up in dev with a fresh address Tomasz controls lands on `/`, whose header shows that address
-- [x] 2.11 Signing up again with the same address shows "Konto z tym adresem już istnieje. Zaloguj się." and adds no user
-- [x] 2.12 On `/signup`, the agent's 7-character password and mismatched repeat each show their field error, and DevTools → Network shows no request to `/auth/v1/signup`
-- [x] 2.13 On `/login`, the agent's address with no account shows "Nieprawidłowy e-mail lub hasło.", the same message Tomasz gets for his own address with a wrong password
-- [x] 2.14 Tomasz's SQL-editor count of the test user's rows in `auth.sessions` drops by exactly one after "Wyloguj się", while a second signed-in browser stays signed in
-- [x] 2.15 After sign-out the page is `/`, its header shows "Zaloguj się" and "Załóż konto" without a manual reload, and Back does not bring back the signed-in header
-- [x] 2.16 Screenshots at 1280 px and 375 px of `/login` (idle and with the error alert), `/signup` (idle and with field errors), and `/` signed out and signed in (Tomasz signs in inside the agent's browser window), saved to `context/changes/email-password-accounts/screenshots/`, show no horizontal scroll
-- [x] 2.17 On each form, Tab moves through e-mail, password, repeat (sign-up only), submit and the link to the other form, each with a visible focus indicator
+- [x] 2.8 Signed out, `/` shows the placeholder with "Zaloguj się" and "Załóż konto" in the header, and each link opens its form — b887b7c
+- [x] 2.9 Tomasz confirms the three dashboard steps were done in order, with no unconfirmed user left when "Confirm email" was switched off — b887b7c
+- [x] 2.10 Signing up in dev with a fresh address Tomasz controls lands on `/`, whose header shows that address — b887b7c
+- [x] 2.11 Signing up again with the same address shows "Konto z tym adresem już istnieje. Zaloguj się." and adds no user — b887b7c
+- [x] 2.12 On `/signup`, the agent's 7-character password and mismatched repeat each show their field error, and DevTools → Network shows no request to `/auth/v1/signup` — b887b7c
+- [x] 2.13 On `/login`, the agent's address with no account shows "Nieprawidłowy e-mail lub hasło.", the same message Tomasz gets for his own address with a wrong password — b887b7c
+- [x] 2.14 Tomasz's SQL-editor count of the test user's rows in `auth.sessions` drops by exactly one after "Wyloguj się", while a second signed-in browser stays signed in — b887b7c
+- [x] 2.15 After sign-out the page is `/`, its header shows "Zaloguj się" and "Załóż konto" without a manual reload, and Back does not bring back the signed-in header — b887b7c
+- [x] 2.16 Screenshots at 1280 px and 375 px of `/login` (idle and with the error alert), `/signup` (idle and with field errors), and `/` signed out and signed in (Tomasz signs in inside the agent's browser window), saved to `context/changes/email-password-accounts/screenshots/`, show no horizontal scroll — b887b7c
+- [x] 2.17 On each form, Tab moves through e-mail, password, repeat (sign-up only), submit and the link to the other form, each with a visible focus indicator — b887b7c
 
 ### Phase 3: Signed-in redirect in the proxy
 
 #### Automated
 
-- [ ] 3.1 `npm run lint` passes with zero warnings
-- [ ] 3.2 `npm run format:check` passes
-- [ ] 3.3 `npm run build` succeeds
-- [ ] 3.4 `test ! -e src/middleware.ts && grep -q "export async function proxy" src/proxy.ts` exits 0
-- [ ] 3.5 `grep -n "setAll(cookiesToSet, headers)" src/utils/supabase/session.ts` prints exactly one line
+- [x] 3.1 `npm run lint` passes with zero warnings
+- [x] 3.2 `npm run format:check` passes
+- [x] 3.3 `npm run build` succeeds
+- [x] 3.4 `test ! -e src/middleware.ts && grep -q "export async function proxy" src/proxy.ts` exits 0
+- [x] 3.5 `grep -n "setAll(cookiesToSet, headers)" src/utils/supabase/session.ts` prints exactly one line
 
 #### Manual
 
-- [ ] 3.6 With `npm run build && npm run start` run by Tomasz, the agent's signed-out `curl -sI` returns 200 for `/`, `/login`, `/signup`, `/favicon.ico` and one `/_next/static/` asset linked from `/login`
-- [ ] 3.7 The same `curl -sI` returns 404 for `/does-not-exist` and `/kitchen-sink`
-- [ ] 3.8 Signed in, Tomasz opens `/login` and `/signup` from the address bar and lands on `/`
+- [x] 3.6 With `npm run build && npm run start` run by Tomasz, the agent's signed-out `curl -sI` returns 200 for `/`, `/login`, `/signup`, `/favicon.ico` and one `/_next/static/` asset linked from `/login`
+- [x] 3.7 The same `curl -sI` returns 404 for `/does-not-exist` and `/kitchen-sink`
+- [x] 3.8 Signed in, Tomasz opens `/login` and `/signup` from the address bar and lands on `/`
 
 ### Phase 4: Production acceptance and records
 

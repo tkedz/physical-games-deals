@@ -20,7 +20,8 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 
 - Three clients: @src/utils/supabase/client.ts ("use client"), @src/utils/supabase/server.ts (Server Components / Actions / Route Handlers), @src/utils/supabase/session.ts (for `src/proxy.ts` only). Supabase's own docs call that last one `utils/supabase/middleware.ts`.
 - Call `createClient()` from `server.ts` fresh on every request. Never hold the result in a module-level variable — session cookies are per-request.
-- In @src/utils/supabase/session.ts, do not move `await supabase.auth.getUser()` and do not return anything other than `supabaseResponse`. Failure mode: random logouts. The reason is spelled out in that file's comments.
+- In @src/utils/supabase/session.ts, do not move `await supabase.auth.getUser()`. `updateSession()` returns `supabaseResponse` together with the user, and any redirect goes through its `redirectTo()`, which copies the cookies and cache headers. Returning any other response causes random logouts.
+- Every path is public: `src/proxy.ts` only sends signed-in users from `/login` and `/signup` to `/` (@src/lib/auth/access.ts). Nothing enforces privacy by default — a private view needs its own rule there, and its data stays behind RLS either way.
 - The public key is `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (not `..._ANON_KEY`). `SUPABASE_SECRET_KEY` bypasses RLS and **never** takes the `NEXT_PUBLIC_` prefix. Full list: @.env.example
 - Per-user data isolation rests on Postgres RLS, not on filtering in application code.
 
