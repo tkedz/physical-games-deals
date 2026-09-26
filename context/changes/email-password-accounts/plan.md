@@ -703,12 +703,12 @@ There are none. The `curl` matrices in Phases 3 and 4 and the manual flows stand
 
 #### Automated
 
-- [x] 4.1 `grep -c "email-password-accounts" context/foundation/infrastructure.md context/deployment/deploy-plan.md` reports at least one match in each file
+- [x] 4.1 `grep -c "email-password-accounts" context/foundation/infrastructure.md context/deployment/deploy-plan.md` reports at least one match in each file — 539568e
 
 #### Manual
 
-- [x] 4.2 CI is green on `main` and the production deployment is `Ready`
-- [x] 4.3 The agent's signed-out `curl -sI` against `https://physical-games-deals.vercel.app` returns 200 for `/`, `/login` and `/signup`, and 404 for `/kitchen-sink`
-- [x] 4.4 Tomasz signs in to production with the demo account from a private window and lands on `/`, whose header shows the demo address
-- [x] 4.5 After more than an hour idle on production, Tomasz's first request, `/login` from the address bar, lands on `/` still signed in; the 307 carries `Set-Cookie` and `Cache-Control: private, no-cache, no-store, must-revalidate, max-age=0`, and a reload of `/` stays signed in
-- [x] 4.6 Authentication → Users lists only Tomasz's own account and the demo account
+- [x] 4.2 CI is green on `main` and the production deployment is `Ready` — 539568e
+- [x] 4.3 The agent's signed-out `curl -sI` against `https://physical-games-deals.vercel.app` returns 200 for `/`, `/login` and `/signup`, and 404 for `/kitchen-sink` — 539568e
+- [x] 4.4 Tomasz signs in to production with the demo account from a private window and lands on `/`, whose header shows the demo address — 539568e
+- [x] 4.5 After more than an hour idle on production, Tomasz's first request, `/login` from the address bar, lands on `/` still signed in; the 307 carries `Set-Cookie` and `Cache-Control: private, no-cache, no-store, must-revalidate, max-age=0`, and a reload of `/` stays signed in — 539568e
+- [x] 4.6 Authentication → Users lists only Tomasz's own account and the demo account — 539568e
