@@ -67,6 +67,8 @@ Runtime logs record an entry per request (`GET /`, `HEAD /`) and the page is sta
 
 **The conclusive test is deferred**: sign in, wait past the access-token lifetime, reload, confirm the session survives. It cannot run until there is a login UI and an `/auth/callback` route. It is the acceptance test for whichever change introduces auth. A `proxy.ts` that never executes produces no error, only random logouts later.
 
+**Done 2026-09-26** (`email-password-accounts`): the test passed on production — see `context/foundation/infrastructure.md`, Setup item 6. It needed no `/auth/callback` route, because password sign-in performs no redirect.
+
 ### Not proven
 
 The gate was exercised against a **lint** failure. That a **type** error also blocks the deploy follows from the pipeline's shape — `vercel build` runs `next build` and the deploy step comes after it — but was not exercised in practice. Cheapest moment to confirm is the first real code change.
@@ -111,7 +113,7 @@ The Vercel MCP server is deliberately **not** connected: it is public beta, carr
 
 - **`getUser()` → `getClaims()`** in `src/utils/supabase/session.ts` — the risk register rates it H / already true: a network round trip to Supabase Auth on every matching request, including RSC prefetches. Needs the Supabase signing-key type confirmed (asymmetric ECC/RSA) and the `CLAUDE.md` rule updated in the same change.
 - **Landing page and metadata** — `src/app/page.tsx` is the create-next-app template; `layout.tsx` still declares `title: "Create Next App"`.
-- **Supabase auth redirect URLs** — the production domain must reach Supabase → Authentication → URL Configuration before login works. `supabase/config.toml` points at `127.0.0.1:3000`. Blocked on there being a login flow.
+- **Supabase auth redirect URLs** — the production domain must reach Supabase → Authentication → URL Configuration before login works. `supabase/config.toml` points at `127.0.0.1:3000`. Blocked on there being a login flow. **Resolved 2026-09-26** (`email-password-accounts`): the Site URL is `https://physical-games-deals.vercel.app`; no redirect URLs are needed, because password sign-in performs no redirect.
 - **Collector workflow** — the four-hourly cron lands in the same `.github/workflows/` directory and needs `SUPABASE_SECRET_KEY`. This pipeline is the pattern it will copy.
 - **Manual production gate** — a GitHub Environment named `production` with a required reviewer, if `auto-deploy-on-merge` ever stops feeling right.
 - **Custom domain, Vercel MCP, Spend Management** (Pro-only anyway).

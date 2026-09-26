@@ -687,28 +687,28 @@ There are none. The `curl` matrices in Phases 3 and 4 and the manual flows stand
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes with zero warnings
-- [x] 3.2 `npm run format:check` passes
-- [x] 3.3 `npm run build` succeeds
-- [x] 3.4 `test ! -e src/middleware.ts && grep -q "export async function proxy" src/proxy.ts` exits 0
-- [x] 3.5 `grep -n "setAll(cookiesToSet, headers)" src/utils/supabase/session.ts` prints exactly one line
+- [x] 3.1 `npm run lint` passes with zero warnings — 189675c
+- [x] 3.2 `npm run format:check` passes — 189675c
+- [x] 3.3 `npm run build` succeeds — 189675c
+- [x] 3.4 `test ! -e src/middleware.ts && grep -q "export async function proxy" src/proxy.ts` exits 0 — 189675c
+- [x] 3.5 `grep -n "setAll(cookiesToSet, headers)" src/utils/supabase/session.ts` prints exactly one line — 189675c
 
 #### Manual
 
-- [x] 3.6 With `npm run build && npm run start` run by Tomasz, the agent's signed-out `curl -sI` returns 200 for `/`, `/login`, `/signup`, `/favicon.ico` and one `/_next/static/` asset linked from `/login`
-- [x] 3.7 The same `curl -sI` returns 404 for `/does-not-exist` and `/kitchen-sink`
-- [x] 3.8 Signed in, Tomasz opens `/login` and `/signup` from the address bar and lands on `/`
+- [x] 3.6 With `npm run build && npm run start` run by Tomasz, the agent's signed-out `curl -sI` returns 200 for `/`, `/login`, `/signup`, `/favicon.ico` and one `/_next/static/` asset linked from `/login` — 189675c
+- [x] 3.7 The same `curl -sI` returns 404 for `/does-not-exist` and `/kitchen-sink` — 189675c
+- [x] 3.8 Signed in, Tomasz opens `/login` and `/signup` from the address bar and lands on `/` — 189675c
 
 ### Phase 4: Production acceptance and records
 
 #### Automated
 
-- [ ] 4.1 `grep -c "email-password-accounts" context/foundation/infrastructure.md context/deployment/deploy-plan.md` reports at least one match in each file
+- [x] 4.1 `grep -c "email-password-accounts" context/foundation/infrastructure.md context/deployment/deploy-plan.md` reports at least one match in each file
 
 #### Manual
 
-- [ ] 4.2 CI is green on `main` and the production deployment is `Ready`
-- [ ] 4.3 The agent's signed-out `curl -sI` against `https://physical-games-deals.vercel.app` returns 200 for `/`, `/login` and `/signup`, and 404 for `/kitchen-sink`
-- [ ] 4.4 Tomasz signs in to production with the demo account from a private window and lands on `/`, whose header shows the demo address
-- [ ] 4.5 After more than an hour idle on production, Tomasz's first request, `/login` from the address bar, lands on `/` still signed in; the 307 carries `Set-Cookie` and `Cache-Control: private, no-cache, no-store, must-revalidate, max-age=0`, and a reload of `/` stays signed in
-- [ ] 4.6 Authentication → Users lists only Tomasz's own account and the demo account
+- [x] 4.2 CI is green on `main` and the production deployment is `Ready`
+- [x] 4.3 The agent's signed-out `curl -sI` against `https://physical-games-deals.vercel.app` returns 200 for `/`, `/login` and `/signup`, and 404 for `/kitchen-sink`
+- [x] 4.4 Tomasz signs in to production with the demo account from a private window and lands on `/`, whose header shows the demo address
+- [x] 4.5 After more than an hour idle on production, Tomasz's first request, `/login` from the address bar, lands on `/` still signed in; the 307 carries `Set-Cookie` and `Cache-Control: private, no-cache, no-store, must-revalidate, max-age=0`, and a reload of `/` stays signed in
+- [x] 4.6 Authentication → Users lists only Tomasz's own account and the demo account
