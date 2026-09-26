@@ -1,0 +1,16 @@
+[
+  {
+    "title": "Silent Hill 2 (2024 remake)",
+    "queries": ["Silent Hill 2"],
+    "expect": "Silent Hill 2",
+    "year": 2024,
+    "kind": "own"
+  },
+  {
+    "title": "Silent Hill 2 (2001 original)",
+    "queries": ["Silent Hill 2"],
+    "expect": "Silent Hill 2",
+    "year": 2001,
+    "kind": "own"
+  }
+]
