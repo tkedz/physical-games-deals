@@ -43,3 +43,9 @@ next-env.d.ts
 
 # staging directory for the collector code — never committed
 _incoming/
+
+# the labelled set's working files — the posts exported from collected_posts
+# and the evaluation reports, both carrying post text — are never committed;
+# its labels.json is
+/scripts/extract/eval/*
+!/scripts/extract/eval/labels.json

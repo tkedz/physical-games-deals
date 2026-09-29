@@ -3,7 +3,7 @@ project: physical-games-deals
 version: 1
 status: draft
 created: 2026-09-21
-updated: 2026-09-26
+updated: 2026-09-29
 prd_version: 2
 main_goal: speed
 top_blocker: time
@@ -59,7 +59,7 @@ Choosing it first also settles two of the PRD's open questions by doing rather t
 | F-01 | `schema-migrations-and-rls-baseline` | (foundation) schema lives in repo migrations; every new table starts locked  | —                | Access Control, Guardrails, NFR | done |
 | F-02 | `collector-into-repo-and-database`   | (foundation) collected posts land in the database, in this repository        | F-01             | Business Logic, NFR             | in-progress |
 | F-03 | `game-catalog-provider-proven`       | (foundation) a catalogue provider is chosen and proven on real Polish titles | —                | FR-003, Business Logic          | in-progress |
-| S-01 | `physical-deals-from-real-posts`     | see physical-edition deals extracted from real posts, with price and link    | F-01, F-02       | FR-005, FR-006, US-01           | proposed |
+| S-01 | `physical-deals-from-real-posts`     | see physical-edition deals extracted from real posts, with price and link    | F-01, F-02       | FR-005, FR-006, US-01           | in-progress |
 | S-02 | `email-password-accounts`            | create an account with e-mail and password, sign in and sign out             | —                | FR-001, Access Control          | in-progress |
 | S-03 | `watchlist-from-catalog`             | search the catalogue, add a game to a watchlist, remove one                  | F-01, F-03, S-02 | FR-003, FR-004, US-01           | blocked  |
 | S-04 | `deals-matched-to-watchlist`         | see only the deals matching their own watchlist, platform rule applied       | S-01, S-03       | US-01, FR-005, Guardrails       | proposed |
@@ -134,7 +134,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ### S-01: A visitor sees physical-edition deals extracted from real collected posts
 
-- **Outcome:** user opens the deals view and sees deals read automatically out of the collected posts — each one a recognised game with its platform, a price, a percentage discount where the post states one, and a link that goes to the shop, or to the aggregator post when the shop link is not in the text. Digital editions and key offers do not appear. A deal whose post gives an expiry date disappears after it; one without a date stays. The view states when the data was last refreshed.
+- **Outcome:** user opens the deals view and sees deals read automatically out of the collected posts — each one a game named by its original title, with its platform where the post states one, a price, a percentage discount where the post states one, and a link that goes to the shop, or to the aggregator post when the shop link is not in the text. Digital editions and key offers do not appear. A deal whose post gives an expiry date disappears after it; one without a date stays. The view states when the data was last refreshed.
 - **Change ID:** `physical-deals-from-real-posts`
 - **PRD refs:** `FR-005`, `FR-006`, `US-01` (acceptance criteria 3, 4 and 5); `## Business Logic`; the guardrails on digital editions not leaking and on links always resolving to the deal's origin; the non-functional requirements on responsiveness, visible progress and 6-hour freshness
 - **Prerequisites:** F-01, F-02
@@ -143,9 +143,9 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Whether v1 normalises posts from all three aggregators or collects from all three and normalises one (PRD open question 2). Owner: user. Block: no — the PRD defers it to after the first working extraction run, so this slice is what answers it.
   - What share of wrong entries is acceptable (PRD open question 3). Owner: user. Block: no — same reason; the PRD says it is decided by looking at the first results.
-  - Which model does the extraction and at what cost per post — `.env.example` records that the choice was postponed to this point. Owner: user. Block: no.
+  - Which model does the extraction and at what cost per post — `.env.example` records that the choice was postponed to this point. Owner: user. Block: no. Answered 2026-09-29: `mistralai/mistral-small-3.2-24b-instruct` through OpenRouter, alone in `MODELS`, at about $0.0002 per post (prompt version 2). It had zero digital leaks on the 55-post labelled set, while `openai/gpt-4.1-nano` leaked in both runs — see `context/changes/physical-deals-from-real-posts/evaluation.md`.
 - **Risk:** This is the only part of the product whose outcome is genuinely unknown, which is why it is the north star and why it sits as early as its prerequisites permit. Two things decide whether it works: whether freehand Polish posts yield a reliable physical-versus-digital reading — a judgement the catalogue cannot help with, since it identifies games and not editions — and whether extraction runs once per post and stays run, because re-reading the whole corpus on every pass is how the cost guardrail gets broken quietly. One known wrinkle to plan around: the feeds overlap and the collector deduplicates per feed by design, so the same deal arrives several times under different sources.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-02: A collector creates an account and signs in
 
@@ -183,6 +183,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:**
   - No number has been set for what counts as the matching working well enough — how many hits on a watchlist in the first week (PRD open question 5). Owner: user. Block: no; the PRD records it as non-blocking.
+  - Deals carry titles, not catalogue ids. S-01 stores each deal's original title and the alternative titles its post uses, with no RAWG call (`context/changes/physical-deals-from-real-posts/plan.md`), so whether this slice resolves them to a RAWG `id` or matches by name is decided here, together with the edition and platform rules. Owner: user. Block: no — the titles are stored either way.
 - **Risk:** The slice that completes the PRD's primary success criterion, and the only one depending on both tracks, so it is last by necessity rather than by choice. The load-bearing detail is that one absent platform means "any platform" while a present one means "only this one" — a single field with two behaviours, which the PRD's own example (Silent Hill 2 with and without PS5) exists to pin down. Worth building against that example directly.
 - **Status:** proposed
 

@@ -1,0 +1,821 @@
+[
+  {
+    "postId": "0f5cc06c045eb321",
+    "note": "cenograj template: 'Typ: Pudełko', with a stated discount (Rabat: -9%).",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Castle of Heart: Retold",
+        "platform": "switch",
+        "price": { "amount": 109, "currency": "PLN" },
+        "discountPercent": 9,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "21992a93f6d95283",
+    "note": "cenograj template, in two feeds.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "God of Rock",
+        "platform": "switch",
+        "price": { "amount": 22, "currency": "PLN" },
+        "discountPercent": 41,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "35f9ffbf227d28a3",
+    "note": "Trap: cenograj's 'Przewaga cenowa: 30%' is the advantage over the next-cheapest offer, not a discount.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Slaycation Paradise",
+        "platform": "switch",
+        "price": { "amount": 79.99, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "7e6598e4ba19ae79",
+    "note": "cenograj template at Amazon PL: the shop decides nothing, 'Typ: Pudełko' does.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Vampire: The Masquerade - Swansong",
+        "platform": "switch",
+        "price": { "amount": 105.43, "currency": "PLN" },
+        "discountPercent": 4,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "80b992c95c74a3d0",
+    "note": "cenograj template at Amazon PL.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Paper Mario: The Origami King",
+        "platform": "switch",
+        "price": { "amount": 232, "currency": "PLN" },
+        "discountPercent": 10,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "83328db2b6466093",
+    "note": "cenograj template on Nintendo Switch 2.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Pokémon Pokopia",
+        "platform": "switch-2",
+        "price": { "amount": 249.89, "currency": "PLN" },
+        "discountPercent": 8,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "8a51f8e9a8bd27d9",
+    "note": "cenograj template; a one-word title that is a Roman numeral.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "XIII",
+        "platform": "switch",
+        "price": { "amount": 49.99, "currency": "PLN" },
+        "discountPercent": 69,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "9d4b5010d732e207",
+    "note": "cenograj template with a long title and a 1% discount.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Neopets: Mega Mini Games Collection - The Neopian Arcade Odyssey",
+        "platform": "switch",
+        "price": { "amount": 79, "currency": "PLN" },
+        "discountPercent": 1,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "aafc9cf6cbc51857",
+    "note": "Trap: 'Przewaga cenowa: 12%' again, not a discount.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Paradigm Paradox",
+        "platform": "switch",
+        "price": { "amount": 129, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "cd21c66efdee0b82",
+    "note": "cenograj template.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Super Mario Maker 2",
+        "platform": "switch",
+        "price": { "amount": 205, "currency": "PLN" },
+        "discountPercent": 2,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "db678008ec9a4f31",
+    "note": "cenograj template at Amazon UK, the price already in złoty.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Bread & Fred",
+        "platform": "switch",
+        "price": { "amount": 155.94, "currency": "PLN" },
+        "discountPercent": 33,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "f1586d19dab5c195",
+    "note": "cenograj template.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Metroid Prime 4: Beyond",
+        "platform": "switch",
+        "price": { "amount": 119.99, "currency": "PLN" },
+        "discountPercent": 5,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "09b1153826a6c918",
+    "note": "lowcygier boxed feed at Allegro: the shop decides nothing, 'Pudełkowe wydanie' does.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Donkey Kong Country Returns HD",
+        "platform": "switch",
+        "price": { "amount": 137.99, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "1682822fa7cf7b7d",
+    "note": "Trap: a key shop (Instant Gaming, category Keyshopy) selling a Switch code; 'zamiast 71,99 zł' states no percentage.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Wargroove",
+        "platform": "switch",
+        "price": { "amount": 4.32, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "1ba5fb9a24d655f2",
+    "note": "Not a game: two amiibo figures at two prices, pre-ordered.",
+    "items": [
+      {
+        "kind": "not_game",
+        "edition": "physical",
+        "englishTitle": "Samus amiibo",
+        "platform": null,
+        "price": { "amount": 109.9, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      },
+      {
+        "kind": "not_game",
+        "edition": "physical",
+        "englishTitle": "Chozo Statue amiibo",
+        "platform": null,
+        "price": { "amount": 189.9, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "504666985fda941d",
+    "note": "Trap: a digest of free games and Game Pass / PS Plus additions; the excerpt offers nothing to buy.",
+    "items": []
+  },
+  {
+    "postId": "66ee4a26b278abb5",
+    "note": "Trap: a key shop (GameBoost), 'klucz Steam'.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Shape of Dreams",
+        "platform": "pc",
+        "price": { "amount": 29.51, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "773cee9350629db7",
+    "note": "Not a game: a smartphone.",
+    "items": [
+      {
+        "kind": "not_game",
+        "edition": "physical",
+        "englishTitle": "Apple iPhone 17 Pro 256GB",
+        "platform": null,
+        "price": { "amount": 5099, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "7e3fd28bfe5e243c",
+    "note": "Not a game: a LEGO set at Empik, a boxed-game retailer.",
+    "items": [
+      {
+        "kind": "not_game",
+        "edition": "physical",
+        "englishTitle": "LEGO Icons Captain Jack Sparrow's Pirate Ship",
+        "platform": null,
+        "price": { "amount": 1242.99, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "8410aaf7573d95a7",
+    "note": "Trap: key-shop pre-orders (categories Keyshopy, Kod zniżkowy); PlayStation Store and Xbox Store are named only as the dearer reference.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Grand Theft Auto VI",
+        "platform": "ps5",
+        "price": { "amount": 273, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "af2c1cb46eb61f25",
+    "note": "A collector's edition with the game (lowcygier collectors feed) at MediaMarkt, priced after a 'Taniej o VAT' basket trick.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Elden Ring Nightreign",
+        "platform": "ps4",
+        "price": { "amount": 407.71, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "da46d8fb2c4f753c",
+    "note": "A boxed pre-order ('Pudełkowe wydanie', '+ wysyłka') at one price for PS5 and Xbox Series; the Xbox item counts as an extra offer.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Clive Barker's Hellraiser: Revival",
+        "platform": "ps5",
+        "price": { "amount": 144.99, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "dc6b8a966ab2d97e",
+    "note": "Trap: a Nintendo eShop pre-order, 'cyfrowe wydanie'.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Metroid Ravenous",
+        "platform": "switch-2",
+        "price": { "amount": 254.8, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "ef4a82ff16eff7cf",
+    "note": "Trap: another free-games and subscription digest; nothing to buy.",
+    "items": []
+  },
+  {
+    "postId": "f60aae03ac782340",
+    "note": "A collector's edition pre-order at Media Expert (lowcygier collectors feed); the excerpt names no platform for the edition.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Tomb Raider: Legacy of Atlantis",
+        "platform": null,
+        "price": { "amount": 879.99, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "f647131aa127e5f0",
+    "note": "Trap: 'do pobrania' is the bonus soundtrack; the game is a boxed collector's edition (category Gry pudełkowe Nintendo Switch).",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Blasphemous",
+        "platform": "switch",
+        "price": { "amount": 194, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "f7b390c70839bbcb",
+    "note": "News about reviews, in the pre-order feed; the excerpt states no offer and no price.",
+    "items": []
+  },
+  {
+    "postId": "f95141295655b0ea",
+    "note": "News: no offer.",
+    "items": []
+  },
+  {
+    "postId": "177da139d6c1c235",
+    "note": "Digital: a PC game from Difmark, a key shop the instructions do not name; a standalone expansion.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Wolfenstein: The Old Blood",
+        "platform": "pc",
+        "price": { "amount": 1.82, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "290c07bba85be6df",
+    "note": "Trap: the Xbox Store (Icelandic region), digital.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Kingdom Come: Deliverance II",
+        "platform": "xbox-series",
+        "price": { "amount": 104, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "2c5b90ea87e74a91",
+    "note": "Not a game: a travel case.",
+    "items": [
+      {
+        "kind": "not_game",
+        "edition": "physical",
+        "englishTitle": "PDP Mario Pull-N-Go Travel Case",
+        "platform": "switch",
+        "price": { "amount": 79.99, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "3c466673229032b5",
+    "note": "A free weekend on Xbox: nothing to buy.",
+    "items": []
+  },
+  {
+    "postId": "40e923c089c02c46",
+    "note": "Not a game: a limited-edition console, priced in złoty and in euro.",
+    "items": [
+      {
+        "kind": "not_game",
+        "edition": "physical",
+        "englishTitle": "Nintendo Switch 2 The Legend of Zelda 40th Anniversary Edition",
+        "platform": "switch-2",
+        "price": { "amount": 2318.41, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "4780c2c26320636f",
+    "note": "Trap: 'Kod rabatowy: rabat1' is a discount code; x-kom sells boxes and ships. Allegro 'od 145 zł' may come back as an extra offer; Ceneo 249 zł is a comparison.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Yoshi and the Mysterious Book",
+        "platform": "switch-2",
+        "price": { "amount": 199, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "553a5c179b3fb366",
+    "note": "Digital: the Xbox store, 'Typ odebrania: na konto'.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Steep",
+        "platform": "xbox-series",
+        "price": { "amount": 15.79, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "5d02587d7b3216e8",
+    "note": "Digital: Steam, two editions at two prices, each with a stated discount.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Steep",
+        "platform": "pc",
+        "price": { "amount": 5.99, "currency": "PLN" },
+        "discountPercent": 90,
+        "expiresOn": null
+      },
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Steep",
+        "platform": "pc",
+        "price": { "amount": 15.99, "currency": "PLN" },
+        "discountPercent": 85,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "69a6d68732570c9a",
+    "note": "Physical by the retailer rule alone: x-kom, nothing pointing to a key; the feed hint 'playstation' names no platform, the title does.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Stellar Blade",
+        "platform": "ps5",
+        "price": { "amount": 159, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "7a81989f145fb596",
+    "note": "Digital: Steam; the Polish title 'Wiedźmin 3: Dziki Gon' has the original title 'The Witcher 3: Wild Hunt'.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "The Witcher 3: Wild Hunt",
+        "platform": "pc",
+        "price": { "amount": 74.99, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "82c6e55196928d62",
+    "note": "Not a game: a controller.",
+    "items": [
+      {
+        "kind": "not_game",
+        "edition": "physical",
+        "englishTitle": "PowerA Enhanced Wireless Controller PAC-MAN Neon Arcade",
+        "platform": "switch",
+        "price": { "amount": 130.47, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "88a52603860e86b8",
+    "note": "Trap: a month of Game Pass free with a Samsung TV; nothing to buy.",
+    "items": []
+  },
+  {
+    "postId": "9084b8dec6fa59da",
+    "note": "Trap: Nintendo eShop (South African region), digital.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Mario + Rabbids Kingdom Battle",
+        "platform": "switch",
+        "price": { "amount": 20.39, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "9220654893e4b984",
+    "note": "Digital: Steam, two simulators at one price.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Auto fuszerka + Thief Simulator",
+        "platform": "pc",
+        "price": { "amount": 45.15, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "9d718bcdfa7fdca2",
+    "note": "Physical: 'Płyta Blu-ray' — Amazon alone would decide nothing. Allegro at the same price may come back as an extra offer.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Final Fantasy X/X-2 HD Remaster",
+        "platform": "ps4",
+        "price": { "amount": 52.65, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "9f637e9775ac2828",
+    "note": "Digital: GOG.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "The Saboteur",
+        "platform": "pc",
+        "price": { "amount": 7.89, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "9fc29fb2a638ffce",
+    "note": "Trap: Nintendo eShop, digital, in three feeds.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Final Fantasy VII Rebirth",
+        "platform": "switch-2",
+        "price": { "amount": 129.5, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "b499462a6223aff0",
+    "note": "Not a game: a refurbished console; Kinguin and 'z kodem' concern the gift cards used to pay.",
+    "items": [
+      {
+        "kind": "not_game",
+        "edition": "physical",
+        "englishTitle": "Xbox Series S 1TB",
+        "platform": "xbox-series",
+        "price": { "amount": 1043.72, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "bac6b58408e8d112",
+    "note": "Physical: 'Pudełko angielskie PEGI'; 'Zawartość do pobrania' is the bonus DLC, not the game.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Metal Gear Solid Delta: Snake Eater",
+        "platform": "ps5",
+        "price": { "amount": 259.9, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "bac6ff8ce71904d9",
+    "note": "Digital: Steam.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "House Flipper",
+        "platform": "pc",
+        "price": { "amount": 9.99, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "be25eecd82bbf812",
+    "note": "Physical: Empik (the price line) and Neonet (the title), with delivery costs; Neonet at 89 zł may come back as an extra offer, the Ceneo and OLX prices are comparisons.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "No More Heroes 3",
+        "platform": "switch",
+        "price": { "amount": 85.59, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "c86fa2ad9e24cc38",
+    "note": "Trap: a key shop (Kinguin), a Steam key.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Tainted Grail: Conquest",
+        "platform": "pc",
+        "price": { "amount": 5.17, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "d03942ee8b83b7b8",
+    "note": "Not a game: a console.",
+    "items": [
+      {
+        "kind": "not_game",
+        "edition": "physical",
+        "englishTitle": "PlayStation 5 Pro",
+        "platform": "ps5",
+        "price": { "amount": 4999, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "d31a86d97c2b4922",
+    "note": "Trap: 'pudełko do pizzy' is an in-game mask in a digital Xbox Store pack (Saudi region, paid by gift card); two editions at two prices.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Silent Hill 2",
+        "platform": "xbox-series",
+        "price": { "amount": 53.57, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      },
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Silent Hill 2",
+        "platform": "xbox-series",
+        "price": { "amount": 61.35, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "d7bc4657c73d0f06",
+    "note": "Physical by shipping alone: Amazon.de decides nothing, 'Dostawa za darmo do punktu DHL' does; priced in złoty and in euro. Little Nightmares III is named without a price.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Pragmata",
+        "platform": "switch-2",
+        "price": { "amount": 182.23, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      },
+      {
+        "kind": "game",
+        "edition": "unclear",
+        "englishTitle": "Little Nightmares III",
+        "platform": "switch-2",
+        "price": null,
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "f167c50ce0f5f980",
+    "note": "Digital: Steam, three editions at three prices.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Watch Dogs 2",
+        "platform": "pc",
+        "price": { "amount": 12.49, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      },
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Watch Dogs 2",
+        "platform": "pc",
+        "price": { "amount": 14.49, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      },
+      {
+        "kind": "game",
+        "edition": "digital",
+        "englishTitle": "Watch Dogs 2",
+        "platform": "pc",
+        "price": { "amount": 15.99, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  },
+  {
+    "postId": "f89ad2ca3d0c61f8",
+    "note": "Not a game: a camera accessory; 'Kod rabatowy' is a discount code.",
+    "items": [
+      {
+        "kind": "not_game",
+        "edition": "physical",
+        "englishTitle": "Hori USB Camera for Nintendo Switch 2",
+        "platform": "switch-2",
+        "price": { "amount": 89, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresOn": null
+      }
+    ]
+  }
+]

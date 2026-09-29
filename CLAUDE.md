@@ -32,6 +32,12 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 - Files under `src/lib/catalog/` are also loaded by Node, so only whole-statement `import type` crosses between them. Scripts importing `src/` run with `--disable-warning=MODULE_TYPELESS_PACKAGE_JSON`.
 - RAWG's terms require an active link to rawg.io on every page showing its data.
 
+## Deal extraction
+
+- The provider is OpenRouter. `scripts/extract/openrouter.mts` is the only file that knows it.
+- `OPENROUTER_API_KEY` is server-only and **never** takes the `NEXT_PUBLIC_` prefix. It lives in the GitHub Actions secrets, scoped to the extract step, and in `.env.local` for the extract scripts.
+- The model list is `MODELS` in `scripts/extract/config.mts`. A model enters it only after passing `npm run extract:eval`.
+
 ## Database migrations
 
 - The schema lives in `supabase/migrations/` and is applied by hand. The loop is `npm run db:new -- <name>` → `npm run db:push -- --dry-run` → `npm run db:push` → `npm run db:check`. Use the npm scripts, not the bare CLI: they carry the flags, and `supabase db advisors` without `--fail-on error` exits 0 while printing the very finding it was hired to catch.
@@ -60,7 +66,7 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 ## Secrets
 
 - Never read `.env.local`, or any other file holding credentials, by any route: not with the Read tool, and not indirectly through `cat`, `node -e`, a script, or any other shell command. The `Read(.env.local)` deny rule in `.claude/settings.json` only covers the Read tool — this rule covers every path to the file, because a permission pattern cannot constrain an interpreter.
-- The one sanctioned exception is the credential-loading scripts: `npm run collect`, `npm run collect:import` and `npm run catalog:probe` pass `--env-file-if-exists=.env.local` to node, so the process loads the file while nothing reads or prints its contents. Running those commands is not a breach of the rule above; opening the file to see what is in it still is.
+- The one sanctioned exception is the credential-loading scripts: `npm run collect`, `npm run collect:import`, `npm run catalog:probe`, `npm run extract`, `npm run extract:eval` and `npm run extract:report` pass `--env-file-if-exists=.env.local` to node, so the process loads the file while nothing reads or prints its contents. Running those commands is not a breach of the rule above; opening the file to see what is in it still is.
 - To learn whether a variable is set, ask the user. Do not read the file to find out.
 - Never print a secret, or any part of one, into the conversation — that includes prefixes, lengths and fragments.
 
