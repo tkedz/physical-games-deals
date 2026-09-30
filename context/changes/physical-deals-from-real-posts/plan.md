@@ -917,32 +917,32 @@ There are none. The live checks stand in for them:
 
 #### Automated
 
-- [x] 1.1 `npm run lint`, `npm run format:check` and `npm run build` pass
-- [x] 1.2 `node scripts/extract/eval.mts`, run without an env file, exits non-zero with a message naming `OPENROUTER_API_KEY` before reading any file or sending any request
-- [x] 1.3 `git check-ignore -q scripts/extract/eval/posts.json` succeeds, and `scripts/extract/eval/labels.json` is not ignored
+- [x] 1.1 `npm run lint`, `npm run format:check` and `npm run build` pass — 0a43bb1
+- [x] 1.2 `node scripts/extract/eval.mts`, run without an env file, exits non-zero with a message naming `OPENROUTER_API_KEY` before reading any file or sending any request — 0a43bb1
+- [x] 1.3 `git check-ignore -q scripts/extract/eval/posts.json` succeeds, and `scripts/extract/eval/labels.json` is not ignored — 0a43bb1
 
 #### Manual
 
-- [x] 1.4 Tomasz confirms the OpenRouter account, the $10 purchase, the free-model training setting switched on for the evaluation, the key's monthly credit limit, and `OPENROUTER_API_KEY` in `.env.local`, without the file being read
-- [x] 1.5 Tomasz runs the sample query and saves the cell as `scripts/extract/eval/posts.json`
-- [x] 1.6 Tomasz corrects every drafted label in `scripts/extract/eval/labels.json`
-- [x] 1.7 Tomasz runs `npm run extract:eval`, and its output carries no key and no request URL
-- [x] 1.8 `evaluation.md` records the results for all three candidates and a `MODELS` list whose every model has zero digital leaks and an accepted request shape, with zero reasoning tokens on every paid model and, if the free candidate ranked first, Tomasz's choice of route; Tomasz accepts it
-- [x] 1.9 The free-model training setting is off again, unless `evaluation.md` puts a free model in `MODELS`
+- [x] 1.4 Tomasz confirms the OpenRouter account, the $10 purchase, the free-model training setting switched on for the evaluation, the key's monthly credit limit, and `OPENROUTER_API_KEY` in `.env.local`, without the file being read — 0a43bb1
+- [x] 1.5 Tomasz runs the sample query and saves the cell as `scripts/extract/eval/posts.json` — 0a43bb1
+- [x] 1.6 Tomasz corrects every drafted label in `scripts/extract/eval/labels.json` — 0a43bb1
+- [x] 1.7 Tomasz runs `npm run extract:eval`, and its output carries no key and no request URL — 0a43bb1
+- [x] 1.8 `evaluation.md` records the results for all three candidates and a `MODELS` list whose every model has zero digital leaks and an accepted request shape, with zero reasoning tokens on every paid model and, if the free candidate ranked first, Tomasz's choice of route; Tomasz accepts it — 0a43bb1
+- [x] 1.9 The free-model training setting is off again, unless `evaluation.md` puts a free model in `MODELS` — 0a43bb1
 
 ### Phase 2: Tables for deals, extractions and runs
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` and `npm run format:check` pass
-- [ ] 2.2 After Tomasz's push, `npx supabase gen types typescript --linked --schema public` shows `post_extractions`, `deals` and `pipeline_runs` with the planned columns and nullability, and the two new `collected_posts` columns
+- [x] 2.1 `npm run lint` and `npm run format:check` pass
+- [x] 2.2 After Tomasz's push, `npx supabase gen types typescript --linked --schema public` shows `post_extractions`, `deals` and `pipeline_runs` with the planned columns and nullability, and the two new `collected_posts` columns
 
 #### Manual
 
-- [ ] 2.3 Tomasz runs `npm run db:push -- --dry-run`, and it lists exactly the four new migrations
-- [ ] 2.4 Tomasz runs `npm run db:push`, then `npm run db:check` exits 0
-- [ ] 2.5 Tomasz runs `npm run db:status`, and local and remote agree
-- [ ] 2.6 Tomasz's grants query on `information_schema.role_table_grants` shows `select` for `anon` and `authenticated` on `deals` and `pipeline_runs` only, and for `service_role` exactly the planned privileges on the three new tables
+- [x] 2.3 Tomasz runs `npm run db:push -- --dry-run`, and it lists exactly the four new migrations
+- [x] 2.4 Tomasz runs `npm run db:push`, then `npm run db:check` exits 0
+- [x] 2.5 Tomasz runs `npm run db:status`, and local and remote agree
+- [x] 2.6 Tomasz's grants query on `information_schema.role_table_grants` shows `select` for `anon` and `authenticated` on `deals` and `pipeline_runs` only, and for `service_role` exactly the planned privileges on the three new tables
 
 ### Phase 3: Extraction on the cron, backlog run and sample review
 
