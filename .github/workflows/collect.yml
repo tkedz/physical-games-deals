@@ -71,7 +71,11 @@ jobs:
 
       - name: Extract deals
         # Runs after a failed collection too: the backlog can still drain.
-        if: ${{ !cancelled() }}
+        # Setting the repository variable EXTRACT_PAUSED to true skips this step
+        # and leaves collection running; deleting the variable resumes it. A
+        # skipped run records nothing in public.pipeline_runs, so the deals
+        # view's "last refreshed" line keeps the time of the last ok run.
+        if: ${{ !cancelled() && vars.EXTRACT_PAUSED != 'true' }}
         env:
           # Scoped to this step, for the reason given on the Collect step: no
           # other step has any business seeing it.
@@ -82,4 +86,9 @@ jobs:
           # extractor write a public.pipeline_runs row, which a local run never
           # does.
           COLLECT_OUTCOME: ${{ steps.collect.outcome }}
+          # The repository variable EXTRACT_SINCE, when set, limits the run to
+          # posts first seen since then: a date (YYYY-MM-DD, from the start of
+          # that day in Warsaw) or an instant with its offset. Unset, every
+          # pending post is eligible; a value that does not parse fails the step.
+          EXTRACT_SINCE: ${{ vars.EXTRACT_SINCE }}
         run: npm run extract

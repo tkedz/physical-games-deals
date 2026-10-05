@@ -57,6 +57,7 @@ The one unknown is whether a model can tell a boxed copy from a key or a downloa
   - Pending posts go newest first, one model call per link, within a time budget.
   - A post whose reply fails three counted times is given up.
   - An outage (credits, key, rate limit, provider down) fails the run and turns it red, without counting against any post.
+  - Two repository variables let Tomasz pause it, or limit it to posts first seen since a chosen moment, without a deploy. Neither is set at first, so the backlog is processed as below (Phase 3, change 6, added 2026-10-05).
 - **The records exist.**
   - The backlog of about 1,573 links is processed.
   - The model choice rests on a labelled set recorded in `evaluation.md`.
@@ -659,12 +660,32 @@ The client is `createCollectorClient()` from `scripts/collector/supabase.mts`, w
 
 If the share of wrong listed entries is above the threshold Tomasz sets, Phase 4 does not start. The fix, either a prompt iteration with a reset of the affected rows or a narrowing of the sources, is agreed with Tomasz on the review's data.
 
+#### 6. Cut-off and pause (added 2026-10-05)
+
+**Files**: `scripts/extract/pipeline.mts`, `scripts/extract/store.mts`, `scripts/extract/extract.mts`, `.github/workflows/collect.yml`, `CLAUDE.md`
+
+**Intent**: Tomasz can stop and resume extraction, and limit it to posts collected since a chosen moment, from the repository's settings, without a code change or a deploy. The cost of the remaining backlog thereby stays Tomasz's call (`change.md`, 2026-10-05). With neither variable set, nothing changes: the backlog is processed as planned.
+
+**Contract**:
+
+- **Cut-off.** `readCutoff(value)`, pure, reads `EXTRACT_SINCE`:
+  - unset or empty: no cut-off, and every pending post is eligible. This is the default;
+  - a date, `YYYY-MM-DD`: from the start of that day in Warsaw;
+  - an instant with its offset, such as `2026-10-05T12:00:00+02:00`;
+  - anything else stops the run before any read, naming the variable, so that a typo never widens a run.
+- **Reads.** `loadPending(client, since)` takes only the pending rows first seen at or after the cut-off. `countPending` keeps counting every pending link, those before the cut-off included, as `pipeline_runs.links_pending` is documented. The summary names the cut-off.
+- **Pause.** The extract step runs only while the repository variable `EXTRACT_PAUSED` is not `true`; collection runs either way. A paused run records no `pipeline_runs` row, so six hours later the page's stale note appears. Deleting the variable resumes extraction, and everything still pending since the cut-off is processed, the paused period included.
+- **Wiring.** In the workflow, `EXTRACT_SINCE` comes from the repository variable of the same name. `CLAUDE.md`'s `## Deal extraction` names both variables.
+- **Locally**, `--since <value>` sets the cut-off for one run, ahead of `EXTRACT_SINCE`, and reads the same values. The command is then the same in cmd, PowerShell and Git Bash, which disagree on how to set a variable for one command.
+- **Check 3.8.** With a cut-off set, it counts only the posts first seen since the cut-off.
+
 ### Success Criteria:
 
 #### Automated Verification:
 
 - `npm run lint`, `npm run format:check` and `npm run build` pass
 - `node scripts/extract/extract.mts`, run without an env file, exits non-zero naming the first missing variable before any request
+- With placeholder credentials and `EXTRACT_SINCE` set to a value that is not a date, `node scripts/extract/extract.mts` exits non-zero naming `EXTRACT_SINCE` before any request (added 2026-10-05)
 
 #### Manual Verification:
 
@@ -676,6 +697,8 @@ If the share of wrong listed entries is above the threshold Tomasz sets, Phase 4
 - Within two days of scheduled runs the pending count (`processed_at is null and extraction_attempts < 3`) reaches 0, and a later run processes the posts it collected (Tomasz's SQL, twice)
 - Tomasz reviews `npm run extract:report -- --sample 100`, and `review.md` records the results and his answers to PRD questions 2 and 3
 - The PRD's and the roadmap's questions 2 and 3 carry those answers, and the share of wrong listed entries is within Tomasz's threshold
+- With `--since` set to a moment in the future, Tomasz's `npm run extract` reads no pending rows, makes no call and exits 0 (added 2026-10-05)
+- With the repository variable `EXTRACT_PAUSED` set to `true`, a `workflow_dispatch` run of `collect` has Collect green and Extract deals skipped; with the variable deleted, the next run extracts again (added 2026-10-05)
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
 
@@ -948,19 +971,22 @@ There are none. The live checks stand in for them:
 
 #### Automated
 
-- [x] 3.1 `npm run lint`, `npm run format:check` and `npm run build` pass
-- [x] 3.2 `node scripts/extract/extract.mts`, run without an env file, exits non-zero naming the first missing variable before any request
+- [x] 3.1 `npm run lint`, `npm run format:check` and `npm run build` pass — ec2bbb5
+- [x] 3.2 `node scripts/extract/extract.mts`, run without an env file, exits non-zero naming the first missing variable before any request — ec2bbb5
+- [x] 3.11 With placeholder credentials and `EXTRACT_SINCE` set to a value that is not a date, `node scripts/extract/extract.mts` exits non-zero naming `EXTRACT_SINCE` before any request
 
 #### Manual
 
-- [x] 3.3 Tomasz runs `npm run extract -- --limit 3`; the summary reports three links extracted, and no run row is written
-- [x] 3.4 With `OPENROUTER_API_KEY` set to an invalid value in the shell, Tomasz's `npm run extract -- --limit 1` exits non-zero with a systemic failure, and his SQL shows every `extraction_attempts` unchanged
+- [x] 3.3 Tomasz runs `npm run extract -- --limit 3`; the summary reports three links extracted, and no run row is written — ec2bbb5
+- [x] 3.4 With `OPENROUTER_API_KEY` set to an invalid value in the shell, Tomasz's `npm run extract -- --limit 1` exits non-zero with a systemic failure, and his SQL shows every `extraction_attempts` unchanged — ec2bbb5
 - [ ] 3.5 Tomasz adds `OPENROUTER_API_KEY` to the Actions secrets, and a `workflow_dispatch` run of `collect` is green, its log showing links extracted and cost with no credential or request URL
 - [ ] 3.6 That run wrote a `pipeline_runs` row with `outcome = 'ok'` (Tomasz's SQL)
 - [ ] 3.7 In the SQL editor, `deals` read as `anon` returns only game, physical, priced rows, while the owner role also sees the rejected ones (Tomasz's SQL)
 - [ ] 3.8 Within two days of scheduled runs the pending count (`processed_at is null and extraction_attempts < 3`) reaches 0, and a later run processes the posts it collected (Tomasz's SQL, twice)
 - [ ] 3.9 Tomasz reviews `npm run extract:report -- --sample 100`, and `review.md` records the results and his answers to PRD questions 2 and 3
 - [ ] 3.10 The PRD's and the roadmap's questions 2 and 3 carry those answers, and the share of wrong listed entries is within Tomasz's threshold
+- [x] 3.12 With `--since` set to a moment in the future, Tomasz's `npm run extract` reads no pending rows, makes no call and exits 0
+- [ ] 3.13 With the repository variable `EXTRACT_PAUSED` set to `true`, a `workflow_dispatch` run of `collect` has Collect green and Extract deals skipped; with the variable deleted, the next run extracts again
 
 ### Phase 4: Public deals view
 

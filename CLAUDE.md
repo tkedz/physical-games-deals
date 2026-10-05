@@ -37,6 +37,7 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 - The provider is OpenRouter. `scripts/extract/openrouter.mts` is the only file that knows it.
 - `OPENROUTER_API_KEY` is server-only and **never** takes the `NEXT_PUBLIC_` prefix. It lives in the GitHub Actions secrets, scoped to the extract step, and in `.env.local` for the extract scripts.
 - The model list is `MODELS` in `scripts/extract/config.mts`. A model enters it only after passing `npm run extract:eval`.
+- Two repository variables steer the extract step without a deploy. `EXTRACT_PAUSED=true` skips it while collection keeps running. `EXTRACT_SINCE` — a date (`YYYY-MM-DD`, from the start of that day in Warsaw) or an instant with its offset — limits extraction to posts first seen since then; unset, every pending post is extracted. Locally, `npm run extract -- --since <value>` sets the cut-off for one run.
 
 ## Database migrations
 

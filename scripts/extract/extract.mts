@@ -4,14 +4,19 @@
  *
  *   npm run extract
  *   npm run extract -- --limit 3
+ *   npm run extract -- --since 2026-10-05
  *
- * .github/workflows/collect.yml runs it right after the collector. A run reads
- * up to 1,000 pending rows, closes the rows that have no link without a call,
- * and sends every other link to MODELS (config.mts) in one request per link,
- * CONCURRENCY at a time. It stops starting links once RUN_LINK_CAP have been
- * started or RUN_BUDGET_MS is spent, and lets the calls in flight finish;
+ * .github/workflows/collect.yml runs it right after the collector, unless the
+ * repository variable EXTRACT_PAUSED is true. A run reads up to 1,000 pending
+ * rows — only those first seen since EXTRACT_SINCE, when it is set
+ * (readCutoff in pipeline.mts) — closes the rows that have no link without a
+ * call, and sends every other link to MODELS (config.mts) in one request per
+ * link, CONCURRENCY at a time. It stops starting links once RUN_LINK_CAP have
+ * been started or RUN_BUDGET_MS is spent, and lets the calls in flight finish;
  * whatever is left is the next run's. `--limit` caps a local proving run
- * further. Each reply is written in the order store.mts describes.
+ * further, and `--since` sets the cut-off for one run ahead of EXTRACT_SINCE,
+ * in the same words in cmd, PowerShell and Git Bash. Each reply is written in
+ * the order store.mts describes.
  *
  * A systemic failure — the key, the credits, a rate limit, a provider outage —
  * stops the run at once and counts against no post. A failure of one post's
@@ -62,6 +67,7 @@ import {
   parseCount,
   planRun,
   readCollectOutcome,
+  readCutoff,
   shouldStartLink,
   stopsRun,
   summaryLines,
@@ -185,7 +191,9 @@ async function main(): Promise<void> {
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
   });
 
-  const { values } = parseArgs({ options: { limit: { type: "string" } } });
+  const { values } = parseArgs({
+    options: { limit: { type: "string" }, since: { type: "string" } },
+  });
   let limit: number | null = null;
   if (values.limit !== undefined) {
     const parsed = parseCount("--limit", values.limit);
@@ -193,8 +201,13 @@ async function main(): Promise<void> {
     limit = parsed.value;
   }
   const collectOutcome = readCollectOutcome(process.env.COLLECT_OUTCOME);
+  const cutoff =
+    values.since !== undefined
+      ? readCutoff(values.since, "--since")
+      : readCutoff(process.env.EXTRACT_SINCE);
+  if (!cutoff.ok) throw new Error(cutoff.reason);
 
-  const rows = await loadPending(supabase);
+  const rows = await loadPending(supabase, cutoff.since);
   const cap = linkCap(limit, RUN_LINK_CAP);
   const plan = planRun(rows, cap.value);
   await closeWithoutCall(supabase, plan.linkless);
@@ -216,6 +229,7 @@ async function main(): Promise<void> {
 
   console.log("---");
   const summary = summaryLines({
+    since: cutoff.since,
     rows: rows.length,
     window: PAGE_SIZE,
     plan,
@@ -233,7 +247,12 @@ async function main(): Promise<void> {
   console.log(countingLine(outcomes));
 
   const pending = await countPending(supabase);
-  console.log(`Pending links left: ${pending}`);
+  console.log(
+    `Pending links left: ${pending}` +
+      (cutoff.since === null
+        ? ""
+        : ", those first seen before the cut-off included"),
+  );
 
   if (collectOutcome === null) {
     console.log(

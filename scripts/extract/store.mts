@@ -110,17 +110,23 @@ const collectedPostRow: z.ZodType<CollectedPost> = z.object({
 
 /**
  * Up to PAGE_SIZE pending rows — processed_at null and fewer than MAX_ATTEMPTS
- * counted failures — newest first_seen_at first. One page on purpose: the
- * newest posts go first, and the rest of the backlog is a later run's.
+ * counted failures — newest first_seen_at first. With a cut-off (`since`, an
+ * ISO instant from readCutoff), only the rows first seen at or after it. One
+ * page on purpose: the newest posts go first, and the rest of the backlog is a
+ * later run's.
  */
 export async function loadPending(
   client: CollectorClient,
+  since: string | null,
 ): Promise<CollectedPost[]> {
-  const { data, error } = await client
+  let pending = client
     .from("collected_posts")
     .select(POST_COLUMNS)
     .is("processed_at", null)
-    .lt("extraction_attempts", MAX_ATTEMPTS)
+    .lt("extraction_attempts", MAX_ATTEMPTS);
+  if (since !== null) pending = pending.gte("first_seen_at", since);
+
+  const { data, error } = await pending
     .order("first_seen_at", { ascending: false })
     .order("id", { ascending: false })
     .range(0, PAGE_SIZE - 1);
@@ -252,6 +258,8 @@ export async function countFailure(
 /**
  * Distinct links still owed an attempt: processed_at null and fewer than
  * MAX_ATTEMPTS counted failures, as pipeline_runs.links_pending records them.
+ * The run's cut-off does not apply: the links first seen before it are still
+ * owed an attempt, and the count says how many wait.
  */
 export async function countPending(client: CollectorClient): Promise<number> {
   const rows = await readPages(

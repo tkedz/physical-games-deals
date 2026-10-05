@@ -18,6 +18,7 @@ import type { ExtractionOutput } from "./schema.mts";
 // rewriting the specifier, so these have to be the real file names.
 import {
   decideRunOutcome,
+  expiryInstant,
   shouldCountFailures,
   toDealRows,
   type DealRow,
@@ -144,6 +145,42 @@ export function parseCount(
 export function readCollectOutcome(value: string | undefined): string | null {
   const outcome = value?.trim() ?? "";
   return outcome === "" ? null : outcome;
+}
+
+const CUTOFF_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const CUTOFF_INSTANT =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/;
+
+/**
+ * The run's cut-off, as EXTRACT_SINCE or --since gives it (`name` says which,
+ * for the message): the instant from which posts are eligible, judged by when
+ * the collector first saw them, or null for no cut-off — every pending post,
+ * the default.
+ *
+ * A date alone means the start of that day in Warsaw, which expiryInstant
+ * names when given 00:00. An instant has to carry its offset, so that no value
+ * depends on the time zone of the machine reading it. Anything else is refused
+ * rather than read as no cut-off, so that a typo never widens a run.
+ */
+export function readCutoff(
+  value: string | undefined,
+  name = "EXTRACT_SINCE",
+): { ok: true; since: string | null } | { ok: false; reason: string } {
+  const raw = value?.trim() ?? "";
+  if (raw === "") return { ok: true, since: null };
+
+  const since = CUTOFF_DATE.test(raw)
+    ? expiryInstant(raw, "00:00")
+    : CUTOFF_INSTANT.test(raw) && Number.isFinite(Date.parse(raw))
+      ? new Date(Date.parse(raw)).toISOString()
+      : null;
+  if (since !== null) return { ok: true, since };
+  return {
+    ok: false,
+    reason:
+      `${name} takes a date (YYYY-MM-DD, from the start of that day in ` +
+      `Warsaw) or an instant with its offset, such as 2026-10-05T12:00:00+02:00 — not "${raw}"`,
+  };
 }
 
 /**
@@ -364,6 +401,8 @@ export function tallyRun(outcomes: readonly LinkOutcome[]): RunTally {
 
 /** What the run's summary is made of. */
 export type RunSummary = {
+  /** The cut-off the pending rows were read under (readCutoff), or null for none. */
+  since: string | null;
   /** Pending rows read, and the most one read returns. */
   rows: number;
   window: number;
@@ -386,6 +425,9 @@ export function summaryLines(run: RunSummary): string[] {
       ? " — the most one read returns, so older pending rows wait for a later run"
       : "";
   const lines = [
+    run.since === null
+      ? "Cut-off: none — every pending post is eligible"
+      : `Cut-off: posts first seen since ${run.since}; older pending posts wait`,
     `Pending: ${run.plan.links} link(s) in ${run.rows} row(s) read${fullWindow}; ` +
       `${run.plan.linkless.length} row(s) without a link closed without a call`,
   ];
