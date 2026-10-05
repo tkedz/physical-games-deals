@@ -934,27 +934,27 @@ There are none. The live checks stand in for them:
 
 #### Automated
 
-- [x] 2.1 `npm run lint` and `npm run format:check` pass
-- [x] 2.2 After Tomasz's push, `npx supabase gen types typescript --linked --schema public` shows `post_extractions`, `deals` and `pipeline_runs` with the planned columns and nullability, and the two new `collected_posts` columns
+- [x] 2.1 `npm run lint` and `npm run format:check` pass — 02532fe
+- [x] 2.2 After Tomasz's push, `npx supabase gen types typescript --linked --schema public` shows `post_extractions`, `deals` and `pipeline_runs` with the planned columns and nullability, and the two new `collected_posts` columns — 02532fe
 
 #### Manual
 
-- [x] 2.3 Tomasz runs `npm run db:push -- --dry-run`, and it lists exactly the four new migrations
-- [x] 2.4 Tomasz runs `npm run db:push`, then `npm run db:check` exits 0
-- [x] 2.5 Tomasz runs `npm run db:status`, and local and remote agree
-- [x] 2.6 Tomasz's grants query on `information_schema.role_table_grants` shows `select` for `anon` and `authenticated` on `deals` and `pipeline_runs` only, and for `service_role` exactly the planned privileges on the three new tables
+- [x] 2.3 Tomasz runs `npm run db:push -- --dry-run`, and it lists exactly the four new migrations — 02532fe
+- [x] 2.4 Tomasz runs `npm run db:push`, then `npm run db:check` exits 0 — 02532fe
+- [x] 2.5 Tomasz runs `npm run db:status`, and local and remote agree — 02532fe
+- [x] 2.6 Tomasz's grants query on `information_schema.role_table_grants` shows `select` for `anon` and `authenticated` on `deals` and `pipeline_runs` only, and for `service_role` exactly the planned privileges on the three new tables — 02532fe
 
 ### Phase 3: Extraction on the cron, backlog run and sample review
 
 #### Automated
 
-- [ ] 3.1 `npm run lint`, `npm run format:check` and `npm run build` pass
-- [ ] 3.2 `node scripts/extract/extract.mts`, run without an env file, exits non-zero naming the first missing variable before any request
+- [x] 3.1 `npm run lint`, `npm run format:check` and `npm run build` pass
+- [x] 3.2 `node scripts/extract/extract.mts`, run without an env file, exits non-zero naming the first missing variable before any request
 
 #### Manual
 
-- [ ] 3.3 Tomasz runs `npm run extract -- --limit 3`; the summary reports three links extracted, and no run row is written
-- [ ] 3.4 With `OPENROUTER_API_KEY` set to an invalid value in the shell, Tomasz's `npm run extract -- --limit 1` exits non-zero with a systemic failure, and his SQL shows every `extraction_attempts` unchanged
+- [x] 3.3 Tomasz runs `npm run extract -- --limit 3`; the summary reports three links extracted, and no run row is written
+- [x] 3.4 With `OPENROUTER_API_KEY` set to an invalid value in the shell, Tomasz's `npm run extract -- --limit 1` exits non-zero with a systemic failure, and his SQL shows every `extraction_attempts` unchanged
 - [ ] 3.5 Tomasz adds `OPENROUTER_API_KEY` to the Actions secrets, and a `workflow_dispatch` run of `collect` is green, its log showing links extracted and cost with no credential or request URL
 - [ ] 3.6 That run wrote a `pipeline_runs` row with `outcome = 'ok'` (Tomasz's SQL)
 - [ ] 3.7 In the SQL editor, `deals` read as `anon` returns only game, physical, priced rows, while the owner role also sees the rejected ones (Tomasz's SQL)

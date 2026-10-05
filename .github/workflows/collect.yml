@@ -1,11 +1,12 @@
 name: collect
 
 # The collector's four-hourly schedule, carried over unchanged from the
-# repository it used to live in. What did not come along is the commit-and-push
-# step: the entries go into public.collected_posts now, so there is no data file
-# to push — and therefore none of these six daily runs pushes a commit that
-# would trigger `verify` plus a production deploy, which no paths-ignore pattern
-# in ci.yml would have caught.
+# repository it used to live in, and the deal extractor, which runs right after
+# it in the same job. What did not come along is the commit-and-push step: the
+# entries go into public.collected_posts now, so there is no data file to push —
+# and therefore none of these six daily runs pushes a commit that would trigger
+# `verify` plus a production deploy, which no paths-ignore pattern in ci.yml
+# would have caught.
 on:
   schedule:
     # GitHub disables a scheduled workflow in a repository with no activity for
@@ -31,8 +32,10 @@ jobs:
   collect:
     runs-on: ubuntu-latest
     # Fifteen feeds at the collector's 20-second parser timeout is a ~5 minute
-    # worst case, so anything beyond this is a hang, not slow feeds.
-    timeout-minutes: 15
+    # worst case. The extractor then stops starting links after RUN_BUDGET_MS,
+    # 8 minutes (scripts/extract/config.mts), and lets the calls in flight
+    # finish. Anything beyond this is a hang, not slow feeds or a long backlog.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
 
@@ -44,13 +47,15 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      # The collector needs rss-parser and supabase-js, both in dependencies.
-      # Nothing in devDependencies is used here, and leaving that tree out keeps
-      # third-party install code out of the job that later holds a key which
-      # bypasses row-level security.
+      # The collector needs rss-parser and supabase-js, and the extractor
+      # supabase-js and zod, all in dependencies. Nothing in devDependencies is
+      # used here, and leaving that tree out keeps third-party install code out
+      # of the job that later holds the OpenRouter key and a key which bypasses
+      # row-level security.
       - run: npm ci --omit=dev
 
       - name: Collect
+        id: collect
         env:
           # Both values are read from the environment, so no credential ever
           # appears on a command line the runner echoes into the log — the
@@ -63,3 +68,18 @@ jobs:
           # already inlined into the browser bundle by the Next build.
           NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
         run: npm run collect
+
+      - name: Extract deals
+        # Runs after a failed collection too: the backlog can still drain.
+        if: ${{ !cancelled() }}
+        env:
+          # Scoped to this step, for the reason given on the Collect step: no
+          # other step has any business seeing it.
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          # How the Collect step ended. Its presence is also what makes the
+          # extractor write a public.pipeline_runs row, which a local run never
+          # does.
+          COLLECT_OUTCOME: ${{ steps.collect.outcome }}
+        run: npm run extract

@@ -1,0 +1,261 @@
+/**
+ * Extracts deals from the posts still pending: one model call per link,
+ * newest first.
+ *
+ *   npm run extract
+ *   npm run extract -- --limit 3
+ *
+ * .github/workflows/collect.yml runs it right after the collector. A run reads
+ * up to 1,000 pending rows, closes the rows that have no link without a call,
+ * and sends every other link to MODELS (config.mts) in one request per link,
+ * CONCURRENCY at a time. It stops starting links once RUN_LINK_CAP have been
+ * started or RUN_BUDGET_MS is spent, and lets the calls in flight finish;
+ * whatever is left is the next run's. `--limit` caps a local proving run
+ * further. Each reply is written in the order store.mts describes.
+ *
+ * A systemic failure — the key, the credits, a rate limit, a provider outage —
+ * stops the run at once and counts against no post. A failure of one post's
+ * call counts against it only in a run that extracted something else
+ * (deals.mts), so a run in which nothing succeeds leaves every counter alone.
+ * The exit code is 1 on a systemic failure and on a failure of the extractor
+ * itself, 0 otherwise.
+ *
+ * The workflow sets COLLECT_OUTCOME, and the run is then recorded in
+ * public.pipeline_runs; a local run prints its summary only. Nothing printed
+ * carries a key or a request: the OpenRouter client reports a failure as a
+ * reason, a status and OpenRouter's own message.
+ */
+import { parseArgs } from "node:util";
+// The .mts extensions are written out because Node strips the types without
+// rewriting the specifier, so these have to be the real file names.
+import { errorMessage, type CollectorClient } from "../collector/posts.mts";
+import { createCollectorClient } from "../collector/supabase.mts";
+import {
+  CONCURRENCY,
+  MAX_TOKENS,
+  MODELS,
+  REQUEST_TIMEOUT_MS,
+  RUN_BUDGET_MS,
+  RUN_LINK_CAP,
+  TEMPERATURE,
+} from "./config.mts";
+import { isListable } from "./deals.mts";
+import {
+  createOpenRouterClient,
+  readOpenRouterApiKey,
+  type CompletionResult,
+  type OpenRouterClient,
+  type ResponseFormat,
+} from "./openrouter.mts";
+import { buildMessages, type PostGroup } from "./prompt.mts";
+import {
+  extractionSchema,
+  toResponseFormat,
+  type ExtractionOutput,
+} from "./schema.mts";
+// The decisions live next door, in a module with no top-level side effects —
+// this file cannot host them, because it calls main() at the bottom.
+import {
+  countingLine,
+  failuresToCount,
+  linkCap,
+  parseCount,
+  planRun,
+  readCollectOutcome,
+  shouldStartLink,
+  stopsRun,
+  summaryLines,
+  toExtractionRecord,
+  toRunRow,
+  type LinkOutcome,
+} from "./pipeline.mts";
+// Every read and write the run makes.
+import {
+  closeWithoutCall,
+  countFailure,
+  countPending,
+  loadPending,
+  PAGE_SIZE,
+  recordRun,
+  saveExtraction,
+} from "./store.mts";
+
+/** A progress line after every this many links, so a long run shows it is alive. */
+const PROGRESS_EVERY = 25;
+
+type Deps = {
+  supabase: CollectorClient;
+  openrouter: OpenRouterClient;
+  responseFormat: ResponseFormat;
+};
+
+/** One link, end to end: the call, then its writes. Never throws. */
+async function extractLink(group: PostGroup, deps: Deps): Promise<LinkOutcome> {
+  const { link } = group.post;
+
+  let result: CompletionResult<ExtractionOutput>;
+  try {
+    result = await deps.openrouter.complete({
+      messages: buildMessages(group),
+      models: MODELS,
+      responseFormat: deps.responseFormat,
+      schema: extractionSchema,
+      maxTokens: MAX_TOKENS,
+      temperature: TEMPERATURE,
+      timeoutMs: REQUEST_TIMEOUT_MS,
+    });
+  } catch (err) {
+    // The client returns every failed call as a value, so this is a bug.
+    return {
+      status: "error",
+      link,
+      model: null,
+      costUsd: null,
+      error: errorMessage(err),
+    };
+  }
+  if (!result.ok) return { status: "failed", link, failure: result };
+
+  const answer = { model: result.model, costUsd: result.usage.costUsd };
+  try {
+    const record = toExtractionRecord(group, result, new Date().toISOString());
+    await saveExtraction(deps.supabase, record);
+    return {
+      status: "extracted",
+      link,
+      ...answer,
+      deals: record.deals.length,
+      listed: record.deals.filter(isListable).length,
+    };
+  } catch (err) {
+    // A failed write, or a bug: the extractor's own failure, never the post's.
+    return { status: "error", link, ...answer, error: errorMessage(err) };
+  }
+}
+
+/**
+ * Works through the queue with CONCURRENCY workers. Each worker takes the next
+ * link only while shouldStartLink allows it, so a stop or the end of the
+ * budget halts new starts while every call in flight still finishes.
+ */
+async function extractQueue(
+  queue: readonly PostGroup[],
+  deps: Deps,
+  startedMs: number,
+): Promise<LinkOutcome[]> {
+  const outcomes: LinkOutcome[] = [];
+  let next = 0;
+  let stopped = false;
+
+  const worker = async (): Promise<void> => {
+    while (
+      next < queue.length &&
+      shouldStartLink({
+        elapsedMs: performance.now() - startedMs,
+        budgetMs: RUN_BUDGET_MS,
+        stopped,
+      })
+    ) {
+      const group = queue[next];
+      next += 1;
+      const outcome = await extractLink(group, deps);
+      outcomes.push(outcome);
+      if (stopsRun(outcome)) stopped = true;
+      if (outcomes.length % PROGRESS_EVERY === 0) {
+        console.error(`${outcomes.length}/${queue.length} links done`);
+      }
+    }
+  };
+
+  await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+  return outcomes;
+}
+
+async function main(): Promise<void> {
+  const startedMs = performance.now();
+  const startedAt = new Date().toISOString();
+
+  // First, so that a missing credential aborts before anything is read or
+  // sent, naming the first one missing: NEXT_PUBLIC_SUPABASE_URL, then
+  // SUPABASE_SECRET_KEY, then OPENROUTER_API_KEY. The last is picked out
+  // because ProcessEnv declares no OPENROUTER_API_KEY, and TypeScript rejects
+  // it against a parameter whose only property is optional.
+  const supabase = createCollectorClient();
+  const apiKey = readOpenRouterApiKey({
+    OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+  });
+
+  const { values } = parseArgs({ options: { limit: { type: "string" } } });
+  let limit: number | null = null;
+  if (values.limit !== undefined) {
+    const parsed = parseCount("--limit", values.limit);
+    if (!parsed.ok) throw new Error(parsed.reason);
+    limit = parsed.value;
+  }
+  const collectOutcome = readCollectOutcome(process.env.COLLECT_OUTCOME);
+
+  const rows = await loadPending(supabase);
+  const cap = linkCap(limit, RUN_LINK_CAP);
+  const plan = planRun(rows, cap.value);
+  await closeWithoutCall(supabase, plan.linkless);
+
+  console.error(
+    `Extracting ${plan.queue.length} of ${plan.links} pending link(s), ` +
+      `${CONCURRENCY} at a time, for up to ${RUN_BUDGET_MS / 60_000} minutes…`,
+  );
+  const outcomes = await extractQueue(
+    plan.queue,
+    {
+      supabase,
+      openrouter: createOpenRouterClient({ apiKey, fetch }),
+      responseFormat: toResponseFormat(),
+    },
+    startedMs,
+  );
+  if (outcomes.some(stopsRun)) process.exitCode = 1;
+
+  console.log("---");
+  const summary = summaryLines({
+    rows: rows.length,
+    window: PAGE_SIZE,
+    plan,
+    cap,
+    budgetMs: RUN_BUDGET_MS,
+    outcomes,
+  });
+  for (const line of summary) console.log(line);
+
+  // Only now, with the run over: a success after a failure still makes the
+  // failure count.
+  for (const { link, reason } of failuresToCount(outcomes)) {
+    await countFailure(supabase, link, reason);
+  }
+  console.log(countingLine(outcomes));
+
+  const pending = await countPending(supabase);
+  console.log(`Pending links left: ${pending}`);
+
+  if (collectOutcome === null) {
+    console.log(
+      "Run record: not written — COLLECT_OUTCOME is unset, as in every local run",
+    );
+    return;
+  }
+  const run = toRunRow({
+    startedAt,
+    finishedAt: new Date().toISOString(),
+    collectOutcome,
+    outcomes,
+    pending,
+  });
+  await recordRun(supabase, run);
+  console.log(`Run record: written, outcome ${run.outcome}`);
+}
+
+// A failed call is handled above, as a per-post failure or a stop; here we only
+// catch failures of the extractor itself outside a link's own work — a missing
+// credential, a bad option, a failed read or write before or after the calls.
+main().catch((err: unknown) => {
+  console.error(`Extraction aborted: ${errorMessage(err)}`);
+  process.exitCode = 1;
+});

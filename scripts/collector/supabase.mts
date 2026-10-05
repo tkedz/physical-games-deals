@@ -1,7 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
 /**
- * Supabase client for the collector.
+ * Supabase client for the two jobs that hold the secret key: the collector
+ * (collect.mts and import-jsonl.mts), which writes through posts.mts, and the
+ * deal extractor (scripts/extract/extract.mts, with its review report,
+ * report.mts), which reads and writes through scripts/extract/store.mts.
  *
  * It authenticates with SUPABASE_SECRET_KEY, which bypasses row-level security.
  * That is a different posture from all three clients under src/utils/supabase/,

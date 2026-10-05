@@ -49,3 +49,7 @@ _incoming/
 # its labels.json is
 /scripts/extract/eval/*
 !/scripts/extract/eval/labels.json
+
+# the review samples npm run extract:report writes quote the posts too, and are
+# never committed
+/scripts/extract/review/
