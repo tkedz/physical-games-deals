@@ -30,8 +30,15 @@ export const TEMPERATURE = 0;
 /** Room for a digest of a dozen offers; a reply that runs away stops here. */
 export const MAX_TOKENS = 4_096;
 
-/** One request, reply included. A transient failure gets one retry. */
-export const REQUEST_TIMEOUT_MS = 60_000;
+/**
+ * One request, reply included. A transient failure gets one retry. Long enough
+ * for a reply that runs to MAX_TOKENS at about 25 tokens a second, because a
+ * timeout stops the whole run as an outage: on 2026-10-05 two digests of
+ * dozens of Steam offers took longer than the 60 seconds this used to be, and
+ * stopped every run that reached them. A reply that long now ends by itself,
+ * in a success or in `truncated`, which counts against its post.
+ */
+export const REQUEST_TIMEOUT_MS = 180_000;
 
 /**
  * A run stops starting links after this long and lets the calls in flight

@@ -34,8 +34,10 @@ jobs:
     # Fifteen feeds at the collector's 20-second parser timeout is a ~5 minute
     # worst case. The extractor then stops starting links after RUN_BUDGET_MS,
     # 8 minutes (scripts/extract/config.mts), and lets the calls in flight
-    # finish. Anything beyond this is a hang, not slow feeds or a long backlog.
-    timeout-minutes: 20
+    # finish — up to about 6 minutes for one that times out twice at
+    # REQUEST_TIMEOUT_MS. Anything beyond this is a hang, not slow feeds or a
+    # long backlog.
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
 

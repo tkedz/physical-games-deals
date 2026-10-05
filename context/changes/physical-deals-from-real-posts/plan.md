@@ -612,7 +612,7 @@ The client is `createCollectorClient()` from `scripts/collector/supabase.mts`, w
 **Contract**:
 
 - The collect step gets `id: collect`, and the new step below follows it.
-- `timeout-minutes` becomes 20: a worst-case collection of about 5 minutes plus the extraction budget of about 8.
+- `timeout-minutes` becomes 20: a worst-case collection of about 5 minutes plus the extraction budget of about 8. (2026-10-05: 25, because a call in flight can now take 180 seconds twice; see `change.md`.)
 - The header comment and the `npm ci` comment name the extractor too.
 
 ```yaml
@@ -973,7 +973,7 @@ There are none. The live checks stand in for them:
 
 - [x] 3.1 `npm run lint`, `npm run format:check` and `npm run build` pass — ec2bbb5
 - [x] 3.2 `node scripts/extract/extract.mts`, run without an env file, exits non-zero naming the first missing variable before any request — ec2bbb5
-- [x] 3.11 With placeholder credentials and `EXTRACT_SINCE` set to a value that is not a date, `node scripts/extract/extract.mts` exits non-zero naming `EXTRACT_SINCE` before any request
+- [x] 3.11 With placeholder credentials and `EXTRACT_SINCE` set to a value that is not a date, `node scripts/extract/extract.mts` exits non-zero naming `EXTRACT_SINCE` before any request — 2041a48
 
 #### Manual
 
@@ -985,8 +985,8 @@ There are none. The live checks stand in for them:
 - [ ] 3.8 Within two days of scheduled runs the pending count (`processed_at is null and extraction_attempts < 3`) reaches 0, and a later run processes the posts it collected (Tomasz's SQL, twice)
 - [ ] 3.9 Tomasz reviews `npm run extract:report -- --sample 100`, and `review.md` records the results and his answers to PRD questions 2 and 3
 - [ ] 3.10 The PRD's and the roadmap's questions 2 and 3 carry those answers, and the share of wrong listed entries is within Tomasz's threshold
-- [x] 3.12 With `--since` set to a moment in the future, Tomasz's `npm run extract` reads no pending rows, makes no call and exits 0
-- [ ] 3.13 With the repository variable `EXTRACT_PAUSED` set to `true`, a `workflow_dispatch` run of `collect` has Collect green and Extract deals skipped; with the variable deleted, the next run extracts again
+- [x] 3.12 With `--since` set to a moment in the future, Tomasz's `npm run extract` reads no pending rows, makes no call and exits 0 — 2041a48
+- [x] 3.13 With the repository variable `EXTRACT_PAUSED` set to `true`, a `workflow_dispatch` run of `collect` has Collect green and Extract deals skipped; with the variable deleted, the next run extracts again
 
 ### Phase 4: Public deals view
 
