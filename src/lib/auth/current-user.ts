@@ -1,7 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
-import type { User } from "@supabase/supabase-js";
+import { isAuthSessionMissingError, type User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/server";
 
 /**
@@ -20,6 +20,15 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
   const supabase = await createClient();
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
+  // No session is the ordinary signed-out case. Any other error, an Auth
+  // outage for one, renders a signed-in user as signed out, so its code
+  // reaches the server log: never its message, as in src/lib/deals/queries.ts.
+  if (error && !isAuthSessionMissingError(error)) {
+    console.error(
+      `Reading the session failed: ${error.code ?? error.status ?? "no code"}`,
+    );
+  }
   return user;
 });

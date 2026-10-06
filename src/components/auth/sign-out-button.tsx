@@ -10,8 +10,11 @@ import { createClient } from "@/utils/supabase/client";
  * session of the account, so one viewer of a shared demo account would sign
  * out all the others.
  *
- * A failed sign-out leaves the session alive in supabase-js, so the button
- * reports it and stays put instead of navigating.
+ * When the logout request fails with anything but 401, 403 or 404,
+ * supabase-js still deletes the local session before it returns the error
+ * (auth-js `_signOut`). The browser is then signed out while the server's
+ * session row stays unrevoked, so the button finishes as on success. It
+ * reports a failure, and stays put, only while a session is still stored.
  */
 export function SignOutButton() {
   const router = useRouter();
@@ -21,13 +24,14 @@ export function SignOutButton() {
   function handleClick() {
     setFailed(false);
     startTransition(async () => {
+      const supabase = createClient();
       let error: unknown;
       try {
-        ({ error } = await createClient().auth.signOut({ scope: "local" }));
+        ({ error } = await supabase.auth.signOut({ scope: "local" }));
       } catch (thrown) {
         error = thrown;
       }
-      if (error) {
+      if (error && (await hasStoredSession(supabase))) {
         setFailed(true);
         return;
       }
@@ -50,4 +54,16 @@ export function SignOutButton() {
       )}
     </div>
   );
+}
+
+/** False only when the browser provably holds no session. */
+async function hasStoredSession(
+  supabase: ReturnType<typeof createClient>,
+): Promise<boolean> {
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    return error !== null || data.session !== null;
+  } catch {
+    return true;
+  }
 }

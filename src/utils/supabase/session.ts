@@ -17,9 +17,10 @@ export async function updateSession(request: NextRequest): Promise<{
   redirectTo: (pathname: string) => NextResponse;
 }> {
   let supabaseResponse = NextResponse.next({ request });
-  // The cache headers from setAll, recorded for redirectTo(). The library
-  // passes them with the first cookie write only and an empty object after
-  // that, so later writes are merged in rather than replacing them.
+  // The cache headers from setAll, recorded for every response built after
+  // the first cookie write. The library passes them with that write only and
+  // an empty object after it, so later writes are merged in rather than
+  // replacing them.
   let cacheHeaders: Record<string, string> = {};
 
   const supabase = createServerClient(
@@ -41,11 +42,12 @@ export async function updateSession(request: NextRequest): Promise<{
           // Cache headers the library sends with the cookie write. Without
           // them a CDN may cache a response carrying refreshed tokens and
           // serve one user’s session to another. See the SetAllCookies
-          // docs in @supabase/ssr.
-          Object.entries(headers).forEach(([key, value]) =>
+          // docs in @supabase/ssr. The merged set goes on, because a later
+          // call passes an empty object and the response was just rebuilt.
+          cacheHeaders = { ...cacheHeaders, ...headers };
+          Object.entries(cacheHeaders).forEach(([key, value]) =>
             supabaseResponse.headers.set(key, value),
           );
-          cacheHeaders = { ...cacheHeaders, ...headers };
         },
       },
     },

@@ -41,8 +41,9 @@ export function hasRequiredCharacters(password: string): boolean {
 
 /**
  * Mirrors the hosted Auth rules, so a password Supabase would reject as
- * `weak_password` never leaves the form. 72 is bcrypt's limit: Supabase
- * rejects a longer password with `validation_failed`.
+ * `weak_password` never leaves the form. 72 is bcrypt's limit in bytes, which
+ * Supabase counts in UTF-8, so a Polish letter takes two of them; a longer
+ * password comes back as `validation_failed`.
  */
 export const signUpSchema = z
   .object({
@@ -50,7 +51,10 @@ export const signUpSchema = z
     password: z
       .string()
       .min(8, { error: "Hasło musi mieć co najmniej 8 znaków." })
-      .max(72, { error: "Hasło może mieć najwyżej 72 znaki." })
+      .refine((password) => new TextEncoder().encode(password).length <= 72, {
+        error:
+          "Hasło jest za długie: może mieć najwyżej 72 znaki, a polskie litery liczą się podwójnie.",
+      })
       .refine(hasRequiredCharacters, {
         error:
           "Hasło musi zawierać małą i wielką literę, cyfrę oraz znak specjalny.",

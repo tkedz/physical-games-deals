@@ -1,19 +1,21 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { buttonVariants } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrentUser } from "@/lib/auth/current-user";
 
 /**
  * The header every product view shares: a way in for visitors, and who is
  * signed in plus a way out for users.
  *
- * Reading the session makes every view under this layout dynamic. The links
- * avoid the outline and destructive button variants, whose focus indicator is
- * an open ui-init finding.
+ * Reading the session makes every view under this layout dynamic. It happens
+ * inside a Suspense boundary, so the rest of the page streams without waiting
+ * for Auth (node_modules/next/dist/docs/01-app/02-guides/authentication.md,
+ * "Auth and streaming"). The links avoid the outline and destructive button
+ * variants, whose focus indicator is an open ui-init finding.
  */
-export default async function AppLayout({ children }: LayoutProps<"/">) {
-  const user = await getCurrentUser();
-
+export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
     <>
       <header className="border-b">
@@ -22,30 +24,36 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
             Okazje na gry pudełkowe
           </Link>
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            {user ? (
-              <>
-                <span className="min-w-0 text-sm break-all text-muted-foreground">
-                  {user.email}
-                </span>
-                <SignOutButton />
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className={buttonVariants({ variant: "ghost" })}
-                >
-                  Zaloguj się
-                </Link>
-                <Link href="/signup" className={buttonVariants()}>
-                  Załóż konto
-                </Link>
-              </>
-            )}
+            <Suspense fallback={<Skeleton className="h-8 w-48" />}>
+              <HeaderAuth />
+            </Suspense>
           </div>
         </div>
       </header>
       {children}
+    </>
+  );
+}
+
+/** The part of the header that depends on the session. */
+async function HeaderAuth() {
+  const user = await getCurrentUser();
+
+  return user ? (
+    <>
+      <span className="min-w-0 text-sm break-all text-muted-foreground">
+        {user.email}
+      </span>
+      <SignOutButton />
+    </>
+  ) : (
+    <>
+      <Link href="/login" className={buttonVariants({ variant: "ghost" })}>
+        Zaloguj się
+      </Link>
+      <Link href="/signup" className={buttonVariants()}>
+        Załóż konto
+      </Link>
     </>
   );
 }
