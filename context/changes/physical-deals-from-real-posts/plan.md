@@ -997,37 +997,37 @@ There are none. The live checks stand in for them:
 - [x] 3.1 `npm run lint`, `npm run format:check` and `npm run build` pass — ec2bbb5
 - [x] 3.2 `node scripts/extract/extract.mts`, run without an env file, exits non-zero naming the first missing variable before any request — ec2bbb5
 - [x] 3.11 With placeholder credentials and `EXTRACT_SINCE` set to a value that is not a date, `node scripts/extract/extract.mts` exits non-zero naming `EXTRACT_SINCE` before any request — 2041a48
-- [x] 3.14 `npm run lint`, `npm run format:check` and `npm run build` pass with change 7
-- [x] 3.15 After Tomasz's push, `npx supabase gen types typescript --linked --schema public` shows `deals.set_with` as a non-null `string[]`
+- [x] 3.14 `npm run lint`, `npm run format:check` and `npm run build` pass with change 7 — 4ccc5ed
+- [x] 3.15 After Tomasz's push, `npx supabase gen types typescript --linked --schema public` shows `deals.set_with` as a non-null `string[]` — 4ccc5ed
 
 #### Manual
 
 - [x] 3.3 Tomasz runs `npm run extract -- --limit 3`; the summary reports three links extracted, and no run row is written — ec2bbb5
 - [x] 3.4 With `OPENROUTER_API_KEY` set to an invalid value in the shell, Tomasz's `npm run extract -- --limit 1` exits non-zero with a systemic failure, and his SQL shows every `extraction_attempts` unchanged — ec2bbb5
-- [x] 3.5 Tomasz adds `OPENROUTER_API_KEY` to the Actions secrets, and a `workflow_dispatch` run of `collect` is green, its log showing links extracted and cost with no credential or request URL
-- [x] 3.6 That run wrote a `pipeline_runs` row with `outcome = 'ok'` (Tomasz's SQL)
-- [x] 3.7 In the SQL editor, `deals` read as `anon` returns only game, physical, priced rows, while the owner role also sees the rejected ones (Tomasz's SQL)
-- [x] 3.8 Within two days of scheduled runs the pending count (`processed_at is null and extraction_attempts < 3`) reaches 0, and a later run processes the posts it collected (Tomasz's SQL, twice)
-- [x] 3.9 Tomasz reviews `npm run extract:report -- --sample 100`, and `review.md` records the results and his answers to PRD questions 2 and 3
-- [x] 3.10 The PRD's and the roadmap's questions 2 and 3 carry those answers, and the share of wrong listed entries is within Tomasz's threshold
+- [x] 3.5 Tomasz adds `OPENROUTER_API_KEY` to the Actions secrets, and a `workflow_dispatch` run of `collect` is green, its log showing links extracted and cost with no credential or request URL — 4ccc5ed
+- [x] 3.6 That run wrote a `pipeline_runs` row with `outcome = 'ok'` (Tomasz's SQL) — 4ccc5ed
+- [x] 3.7 In the SQL editor, `deals` read as `anon` returns only game, physical, priced rows, while the owner role also sees the rejected ones (Tomasz's SQL) — 4ccc5ed
+- [x] 3.8 Within two days of scheduled runs the pending count (`processed_at is null and extraction_attempts < 3`) reaches 0, and a later run processes the posts it collected (Tomasz's SQL, twice) — 4ccc5ed
+- [x] 3.9 Tomasz reviews `npm run extract:report -- --sample 100`, and `review.md` records the results and his answers to PRD questions 2 and 3 — 4ccc5ed
+- [x] 3.10 The PRD's and the roadmap's questions 2 and 3 carry those answers, and the share of wrong listed entries is within Tomasz's threshold — 4ccc5ed
 - [x] 3.12 With `--since` set to a moment in the future, Tomasz's `npm run extract` reads no pending rows, makes no call and exits 0 — 2041a48
 - [x] 3.13 With the repository variable `EXTRACT_PAUSED` set to `true`, a `workflow_dispatch` run of `collect` has Collect green and Extract deals skipped; with the variable deleted, the next run extracts again — 0b0e837
-- [x] 3.16 Tomasz pushes the `set_with` migration: the dry run lists it alone, and `npm run db:check` exits 0
-- [x] 3.17 `npm run extract:eval` at prompt version 3 shows zero digital leaks, and `evaluation.md` records the run
-- [x] 3.18 Tomasz re-extracts the #58 link from `review.md`, and both of its deals carry the other game in `set_with`
+- [x] 3.16 Tomasz pushes the `set_with` migration: the dry run lists it alone, and `npm run db:check` exits 0 — 4ccc5ed
+- [x] 3.17 `npm run extract:eval` at prompt version 3 shows zero digital leaks, and `evaluation.md` records the run — 4ccc5ed
+- [x] 3.18 Tomasz re-extracts the #58 link from `review.md`, and both of its deals carry the other game in `set_with` — 4ccc5ed
 
 ### Phase 4: Public deals view
 
 #### Automated
 
-- [ ] 4.1 `npm run lint`, `npm run format:check` and `npm run build` pass, with `/` dynamic and `/kitchen-sink` still prerendered as not found
-- [ ] 4.2 With a server Tomasz started, the agent's `curl` gets 200 with deal cards for `/`, 200 with page 1 for `/?page=abc`, and 200 with the past-the-end state for `/?page=999`
+- [x] 4.1 `npm run lint`, `npm run format:check` and `npm run build` pass, with `/` dynamic and `/kitchen-sink` still prerendered as not found
+- [x] 4.2 With a server Tomasz started, the agent's `curl` gets 200 with deal cards for `/`, 200 with page 1 for `/?page=abc`, and 200 with the past-the-end state for `/?page=999`
 
 #### Manual
 
-- [ ] 4.3 Screenshots of the kitchen sink's "Okazje" section at 1280 px and 375 px, saved to `context/changes/physical-deals-from-real-posts/screenshots/`, show every state with no horizontal scroll
-- [ ] 4.4 Screenshots of `/` and `/?page=2` with real data at 1280 px and 375 px show no horizontal scroll, and the skeleton appears on a throttled load
-- [ ] 4.5 On sampled cards, the primary link opens the shop URL present in the post or the post itself, and the source link opens the aggregator post
-- [ ] 4.6 A deal whose `expires_at` has passed (Tomasz's SQL) is absent from `/`
-- [ ] 4.7 Tabbing through cards and pagination shows a visible focus on every link
+- [x] 4.3 Screenshots of the kitchen sink's "Okazje" section at 1280 px and 375 px, saved to `context/changes/physical-deals-from-real-posts/screenshots/`, show every state with no horizontal scroll
+- [x] 4.4 Screenshots of `/` and `/?page=2` with real data at 1280 px and 375 px show no horizontal scroll, and the skeleton appears on a throttled load
+- [x] 4.5 On sampled cards, the primary link opens the shop URL present in the post or the post itself, and the source link opens the aggregator post
+- [x] 4.6 A deal whose `expires_at` has passed (Tomasz's SQL) is absent from `/`
+- [x] 4.7 Tabbing through cards and pagination shows a visible focus on every link
 - [ ] 4.8 After the merge, production `/` lists deals read through the publishable key, and `/kitchen-sink` still returns 404 (the agent's `curl`)

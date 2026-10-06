@@ -1,17 +1,25 @@
-import { Badge } from "@/components/ui/badge";
+import { Suspense } from "react";
+import { DealListSkeleton } from "@/components/deals/deal-list-skeleton";
+import { DealsPage } from "@/components/deals/deals-page";
+import { DealsSection } from "@/components/deals/deals-section";
+import { parsePage } from "@/lib/deals/page";
 
-export default function Home() {
+/**
+ * `/`: every listed deal, newest first, a page at a time.
+ *
+ * The heading renders outside the list's Suspense boundary, so it paints at
+ * once while the list streams in under its skeleton. The boundary is keyed by
+ * the page, so moving to another page brings the skeleton back. A `?page=`
+ * that cannot be read is page 1 — parsePage says why it is not a 404.
+ */
+export default async function Home({ searchParams }: PageProps<"/">) {
+  const page = parsePage((await searchParams).page);
+
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-4 px-4 py-16">
-      <Badge variant="outline">W budowie</Badge>
-      <h1 className="font-heading text-3xl font-semibold tracking-tight">
-        Okazje na gry pudełkowe
-      </h1>
-      <p className="text-muted-foreground">
-        Zbieramy promocje na fizyczne wydania gier z polskich serwisów z
-        okazjami. Wkrótce zobaczysz tu tylko te, które dotyczą gier z Twojej
-        listy.
-      </p>
-    </main>
+    <DealsPage>
+      <Suspense key={page} fallback={<DealListSkeleton />}>
+        <DealsSection page={page} />
+      </Suspense>
+    </DealsPage>
   );
 }
