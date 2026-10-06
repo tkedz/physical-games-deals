@@ -9,9 +9,10 @@
  * .github/workflows/collect.yml runs it right after the collector, unless the
  * repository variable EXTRACT_PAUSED is true. A run reads up to 1,000 pending
  * rows — only those first seen since EXTRACT_SINCE, when it is set
- * (readCutoff in pipeline.mts) — closes the rows that have no link without a
- * call, and sends every other link to MODELS (config.mts) in one request per
- * link, CONCURRENCY at a time. It stops starting links once RUN_LINK_CAP have
+ * (readCutoff in pipeline.mts) — closes without a call the rows that have no
+ * link and the late sightings of links already extracted
+ * (setAsideLateSightings in pipeline.mts), and sends every other link to
+ * MODELS (config.mts) in one request per link, CONCURRENCY at a time. It stops starting links once RUN_LINK_CAP have
  * been started or RUN_BUDGET_MS is spent, and lets the calls in flight finish;
  * whatever is left is the next run's. `--limit` caps a local proving run
  * further, and `--since` sets the cut-off for one run ahead of EXTRACT_SINCE,
@@ -19,9 +20,12 @@
  * the order store.mts describes.
  *
  * A systemic failure — the key, the credits, a rate limit, a provider outage —
- * stops the run at once and counts against no post. A failure of one post's
- * call counts against it only in a run that extracted something else
- * (deals.mts), so a run in which nothing succeeds leaves every counter alone.
+ * stops the run at once. A failure of one post's call counts against it only
+ * in a run that extracted something else (deals.mts), so a run in which
+ * nothing succeeds leaves every counter alone. In a run that did extract, the
+ * failure that stopped it counts against its link as well when it can be the
+ * link's own — a timeout, a 5xx, a write refused for the link's data — so
+ * that one post cannot stop every run (failuresToCount in pipeline.mts).
  * The exit code is 1 on a systemic failure and on a failure of the extractor
  * itself, 0 otherwise.
  *
@@ -61,13 +65,16 @@ import {
 // The decisions live next door, in a module with no top-level side effects —
 // this file cannot host them, because it calls main() at the bottom.
 import {
+  checkCutoffNotAhead,
   countingLine,
   failuresToCount,
+  hasLink,
   linkCap,
   parseCount,
   planRun,
   readCollectOutcome,
   readCutoff,
+  setAsideLateSightings,
   shouldStartLink,
   stopsRun,
   summaryLines,
@@ -80,10 +87,12 @@ import {
   closeWithoutCall,
   countFailure,
   countPending,
+  loadExtractionTimes,
   loadPending,
   PAGE_SIZE,
   recordRun,
   saveExtraction,
+  storeErrorCode,
 } from "./store.mts";
 
 /** A progress line after every this many links, so a long run shows it is alive. */
@@ -118,6 +127,7 @@ async function extractLink(group: PostGroup, deps: Deps): Promise<LinkOutcome> {
       model: null,
       costUsd: null,
       error: errorMessage(err),
+      code: null,
     };
   }
   if (!result.ok) return { status: "failed", link, failure: result };
@@ -134,8 +144,15 @@ async function extractLink(group: PostGroup, deps: Deps): Promise<LinkOutcome> {
       listed: record.deals.filter(isListable).length,
     };
   } catch (err) {
-    // A failed write, or a bug: the extractor's own failure, never the post's.
-    return { status: "error", link, ...answer, error: errorMessage(err) };
+    // A failed write, or a bug: the extractor's own failure, unless Postgres
+    // refused the link's own data, which the code tells (failuresToCount).
+    return {
+      status: "error",
+      link,
+      ...answer,
+      error: errorMessage(err),
+      code: storeErrorCode(err),
+    };
   }
 }
 
@@ -201,16 +218,28 @@ async function main(): Promise<void> {
     limit = parsed.value;
   }
   const collectOutcome = readCollectOutcome(process.env.COLLECT_OUTCOME);
-  const cutoff =
-    values.since !== undefined
-      ? readCutoff(values.since, "--since")
-      : readCutoff(process.env.EXTRACT_SINCE);
+  const cutoffName = values.since !== undefined ? "--since" : "EXTRACT_SINCE";
+  const cutoff = readCutoff(
+    values.since ?? process.env.EXTRACT_SINCE,
+    cutoffName,
+  );
   if (!cutoff.ok) throw new Error(cutoff.reason);
+  const notAhead = checkCutoffNotAhead(
+    cutoff.since,
+    startedAt,
+    collectOutcome !== null,
+    cutoffName,
+  );
+  if (!notAhead.ok) throw new Error(notAhead.reason);
 
   const rows = await loadPending(supabase, cutoff.since);
+  const extractedAt = await loadExtractionTimes(supabase, [
+    ...new Set(rows.map((row) => row.link).filter(hasLink)),
+  ]);
+  const sighted = setAsideLateSightings(rows, extractedAt);
   const cap = linkCap(limit, RUN_LINK_CAP);
-  const plan = planRun(rows, cap.value);
-  await closeWithoutCall(supabase, plan.linkless);
+  const plan = planRun(sighted.rows, cap.value);
+  await closeWithoutCall(supabase, [...plan.linkless, ...sighted.late]);
 
   console.error(
     `Extracting ${plan.queue.length} of ${plan.links} pending link(s), ` +
@@ -232,6 +261,7 @@ async function main(): Promise<void> {
     since: cutoff.since,
     rows: rows.length,
     window: PAGE_SIZE,
+    late: sighted.late.length,
     plan,
     cap,
     budgetMs: RUN_BUDGET_MS,

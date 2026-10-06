@@ -39,9 +39,21 @@ type StoreError = { message: string; code?: string };
 type ReadResult = { data: unknown; error: StoreError | null };
 
 function failed(action: string, error: StoreError): Error {
-  return new Error(
-    `${action} failed: ${error.message}${error.code ? ` (${error.code})` : ""}`,
+  return Object.assign(
+    new Error(
+      `${action} failed: ${error.message}${error.code ? ` (${error.code})` : ""}`,
+    ),
+    { code: error.code ?? null },
   );
+}
+
+/**
+ * The code a failed read or write of the store reported — a SQLSTATE such as
+ * 22P05, or PostgREST's own — or null for any other error.
+ */
+export function storeErrorCode(err: unknown): string | null {
+  if (typeof err !== "object" || err === null || !("code" in err)) return null;
+  return typeof err.code === "string" ? err.code : null;
 }
 
 function chunks<T>(items: readonly T[], size: number): T[][] {
@@ -138,8 +150,40 @@ export async function loadPending(
   );
 }
 
+const extractionTimeRow = z.object({
+  link: z.string(),
+  extracted_at: z.string(),
+});
+
 /**
- * Closes rows that have no link: no call is made for them, and once
+ * When each of the given links was last extracted, from post_extractions. A
+ * link missing from the map has never been extracted.
+ */
+export async function loadExtractionTimes(
+  client: CollectorClient,
+  links: readonly string[],
+): Promise<Map<string, string>> {
+  const times = new Map<string, string>();
+  for (const chunk of chunks(links, LINKS_PER_REQUEST)) {
+    const rows = await readPages(
+      "extraction times from post_extractions",
+      extractionTimeRow,
+      (from, to) =>
+        client
+          .from("post_extractions")
+          .select("link, extracted_at")
+          .in("link", chunk)
+          .order("link")
+          .range(from, to),
+    );
+    for (const row of rows) times.set(row.link, row.extracted_at);
+  }
+  return times;
+}
+
+/**
+ * Closes rows without a call: those with no link, and the late sightings of
+ * links already extracted (setAsideLateSightings in pipeline.mts). Once
  * processed_at is set they are never pending again.
  */
 export async function closeWithoutCall(
@@ -153,7 +197,7 @@ export async function closeWithoutCall(
       .update({ processed_at: processedAt })
       .in("id", chunk);
     if (error) {
-      throw failed("Closing rows without a link in collected_posts", error);
+      throw failed("Closing rows without a call in collected_posts", error);
     }
   }
 }
@@ -170,6 +214,15 @@ export async function closeWithoutCall(
  * A crash before step 3 leaves the rows pending, and the next run extracts the
  * link again and replaces what it finds. Nothing is ever marked processed with
  * its deals missing.
+ *
+ * Step 2 is two requests, not a transaction. When a link is extracted again —
+ * after a deliberate reset, since a late sighting is closed without a call
+ * (setAsideLateSightings in pipeline.mts) — a crash between the delete and
+ * the insert hides the link's old deals until a later run extracts it. That
+ * run comes only while the rows stay within reach: a cut-off later than their
+ * first_seen_at, or more than PAGE_SIZE newer pending rows, leaves them
+ * waiting. Accepted rather than moved into a SQL function, because resets are
+ * rare and deliberate.
  */
 export async function saveExtraction(
   client: CollectorClient,

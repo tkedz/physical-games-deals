@@ -9,7 +9,9 @@
  * message and a retry, so nothing of the error is needed there. postgrest-js
  * resolves most failures as `{ error }` rather than throwing, and retries a
  * failed GET up to three times first, so a failure takes about seven seconds
- * to arrive; a throw from the call is caught and treated the same.
+ * to arrive; a throw from the call is caught and treated the same. The server
+ * log gets the table and PostgREST's code, or the column a row failed on —
+ * never the error's message — so a failure can be told apart afterwards.
  *
  * Server-only, as the reads of a Server Component; like the auth helper in
  * src/lib/auth/current-user.ts, the import needs no package.
@@ -73,26 +75,47 @@ const LISTED_DEAL_COLUMNS =
   "id, link, source, published_at, platform, title, set_with, " +
   "price_amount, currency, discount_percent, expires_at, shop_url, shop_name";
 
+/** PostgREST's code for a failed read, or "no code". */
+function codeOf(error: unknown): string {
+  if (typeof error !== "object" || error === null || !("code" in error)) {
+    return "no code";
+  }
+  return typeof error.code === "string" && error.code !== ""
+    ? error.code
+    : "no code";
+}
+
 /**
- * The rows one read returned, each checked against `row`, or null when the
- * read failed: an error Supabase reported, a throw from the call, or a row of
- * an unexpected shape. The error object is dropped, as the comment at the top
+ * The rows one read of `table` returned, each checked against `row`, or null
+ * when the read failed: an error Supabase reported, a throw from the call, or
+ * a row of an unexpected shape. Only the table and the code or column reach
+ * the server log; the error object is dropped, as the comment at the top
  * explains.
  */
 async function readRows<Row extends z.ZodType>(
+  table: string,
   query: PromiseLike<{ data: unknown; error: unknown }>,
   row: Row,
 ): Promise<z.output<Row>[] | null> {
   let data: unknown;
   try {
     const response = await query;
-    if (response.error !== null) return null;
+    if (response.error !== null) {
+      console.error(`Reading ${table} failed: ${codeOf(response.error)}`);
+      return null;
+    }
     data = response.data;
   } catch {
+    console.error(`Reading ${table} threw`);
     return null;
   }
   const parsed = z.array(row).safeParse(data);
-  return parsed.success ? parsed.data : null;
+  if (parsed.success) return parsed.data;
+  const at = parsed.error.issues[0]?.path.map(String).join(".") ?? "";
+  console.error(
+    `Reading ${table} returned rows of an unexpected shape at ${at || "the top"}`,
+  );
+  return null;
 }
 
 export type DealsPageResult =
@@ -118,6 +141,7 @@ export async function loadDealsPage(
 ): Promise<DealsPageResult> {
   const from = (page - 1) * PAGE_SIZE;
   const rows = await readRows(
+    "deals",
     client
       .from("deals")
       .select(LISTED_DEAL_COLUMNS)
@@ -153,6 +177,7 @@ export async function loadLastRefresh(
   client: SupabaseClient,
 ): Promise<LastRefreshResult> {
   const rows = await readRows(
+    "pipeline_runs",
     client
       .from("pipeline_runs")
       .select("finished_at")

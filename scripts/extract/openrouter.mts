@@ -139,6 +139,20 @@ export function readOpenRouterApiKey(env: {
   return apiKey;
 }
 
+/**
+ * Whether the model that answered is the one asked. OpenRouter reports the
+ * concrete build it served, which may carry a date: asked for
+ * "openai/gpt-4.1-nano", it may answer as "openai/gpt-4.1-nano-2025-04-14".
+ */
+export function isSameModel(asked: string, answered: string): boolean {
+  const base = asked.split(":")[0];
+  const reported = answered.split(":")[0];
+  if (reported === base) return true;
+  return (
+    reported.startsWith(base) && /^-\d[\d-]*$/.test(reported.slice(base.length))
+  );
+}
+
 // The error object OpenRouter puts at the top of the body, or inside the
 // choice when a provider failed mid-generation. Only the fields read here.
 const errorSchema = z.object({

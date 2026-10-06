@@ -1,7 +1,7 @@
 ---
 change_id: physical-deals-from-real-posts
 title: Physical deals from real posts
-status: implemented
+status: impl_reviewed
 created: 2026-09-28
 updated: 2026-10-06
 archived_at: null
@@ -18,3 +18,15 @@ archived_at: null
 - 2026-10-05, Phase 3, change 6, decided by Tomasz before the push: extraction gets a pause and an optional cut-off, both steered by GitHub repository variables, without a deploy. `EXTRACT_PAUSED=true` skips the extract step. `EXTRACT_SINCE` limits runs to posts first seen since a chosen moment. Neither variable is set for now, so the backlog is processed as planned, for about $0.45. If spending runs above expectations, setting `EXTRACT_SINCE` leaves the rest of the backlog unprocessed until Tomasz decides otherwise. No migration is needed: `pipeline_runs.links_pending` keeps counting every pending link, as its column comment says. Recorded as change 6 and steps 3.11–3.13.
 - 2026-10-05, the first `workflow_dispatch` run (step 3.5) extracted 95 links, then stopped red on two timeouts at 60 seconds. The first was a pepper digest of dozens of Steam offers, whose reply does not finish within 60 seconds. The plan classes a timeout as systemic, so a post like that never counts and would stop every run that reaches it. `REQUEST_TIMEOUT_MS` therefore goes to 180 seconds, enough for a `MAX_TOKENS` reply at about 25 tokens a second. Such a post now ends in a success, or in `truncated`, which counts against it. `timeout-minutes` goes to 25 to cover the longer tail.
 - 2026-10-06, the backlog: Tomasz sped the drain up with manual `workflow_dispatch` runs and local `npm run extract` runs instead of waiting two days of schedule. With over 2,000 deals already written, Tomasz chose to skip the last ~400 pending rows, all first seen more than three weeks earlier, rather than extract them. They were marked rather than deleted: `extraction_attempts = 3` and `extraction_error = 'skipped: backlog older than 14 days, 2026-10-06'`. Deleted rows could return as new ones while their entries still stand in a feed, and the marking can be undone by setting `extraction_attempts = 0, extraction_error = null` on that marker. A local run then reported `Pending links left: 0`. That is the first half of check 3.8; the second half waits for a scheduled run that processes the posts it collected.
+- 2026-10-06, Phase 4, adaptations the implementer reported, accepted with the phase. None changes a contract in the plan.
+  - A shared frame, `src/components/deals/deals-page.tsx`, gives `page.tsx`, `loading.tsx` and `error.tsx` one heading, because a page file cannot export it.
+  - `deals-section.tsx` also exports the sync `DealsResults`, `DealsEmpty` and `DealsError`, so the kitchen sink renders the real states from sample data.
+  - Page 1 links as `/`, its only address, rather than `/?page=1`.
+  - The pagination shows "Strona N" between its links.
+- 2026-10-06, implementation review (`reviews/impl-review.md`): the triage changed four behaviours the plan describes otherwise, and moved one route.
+  - A late sighting of an already extracted link is closed without a call (F1).
+  - In a run that extracted other links, the link that stopped the run counts against itself (F2).
+  - A recorded run refuses a cut-off in the future (F4).
+  - `service_role` loses `select` on `pipeline_runs` (F6).
+  - `/` moved into `src/app/(app)/(deals)/` (F7).
+- 2026-10-06, check 3.8: Tomasz confirmed its second half, the one the backlog note above left waiting: a later run processed the posts it collected. Production supports it the same day: `/` lists deals published on 6 October, and an `ok` run finished at 13:12 Warsaw time.

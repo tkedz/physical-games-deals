@@ -25,6 +25,7 @@ import { parseArgs } from "node:util";
 // The .mts extensions are written out because Node strips the types without
 // rewriting the specifier, so these have to be the real file names.
 import type { DealRow } from "./deals.mts";
+import { errorMessage } from "../collector/posts.mts";
 import {
   CANDIDATES,
   MAX_TOKENS,
@@ -39,6 +40,7 @@ import {
   type OpenRouterClient,
   type ResponseFormat,
 } from "./openrouter.mts";
+import { describeFailure } from "./pipeline.mts";
 import {
   aggregatorOf,
   buildMessages,
@@ -88,10 +90,6 @@ type Run = Case & {
   record: CallRecord;
   comparison: Comparison | null;
 };
-
-function errorMessage(err: unknown): string {
-  return err instanceof Error ? err.message : String(err);
-}
 
 function readJson(path: string, name: string, hint: string): unknown {
   let text: string;
@@ -153,13 +151,6 @@ function loadCases(): { cases: Case[]; unlabelled: number } {
     (group) => !labelled.has(group.post.id),
   ).length;
   return { cases, unlabelled };
-}
-
-function describeFailure(failure: Failure): string {
-  return (
-    `${failure.reason} (status ${failure.status ?? "none"})` +
-    (failure.detail === null ? "" : `: ${failure.detail}`)
-  );
 }
 
 async function runCandidate(

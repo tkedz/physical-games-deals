@@ -68,6 +68,45 @@ function toPostGroup(link: string, rows: readonly CollectedPost[]): PostGroup {
   };
 }
 
+/**
+ * Sets aside the late sightings of links already extracted: the pending rows
+ * of a link that post_extractions knows, every one of them first seen after
+ * the link's last extraction. They are the same post, met since in another
+ * feed — a row's id is a hash of its feed and entry
+ * (scripts/collector/posts.mts) — and they are closed without a call. A link
+ * is extracted once (plan.md, "What We're NOT Doing"): a second call would
+ * replace its deals from the late row alone, without the hints of the feeds
+ * that saw it first.
+ *
+ * A pending row first seen before its link's extraction is a deliberate reset
+ * (plan.md, Migration Notes) or a crash before the rows were closed, so its
+ * link is extracted as usual, together with any late row of it. A time that
+ * does not parse leaves the row to be extracted, as before this rule.
+ * `extractedAt` maps each extracted link to its post_extractions.extracted_at.
+ */
+export function setAsideLateSightings(
+  rows: readonly CollectedPost[],
+  extractedAt: ReadonlyMap<string, string>,
+): { rows: CollectedPost[]; late: string[] } {
+  // The links with at least one row that is not a late sighting.
+  const toExtract = new Set<string>();
+  for (const row of rows) {
+    if (!hasLink(row.link)) continue;
+    const at = extractedAt.get(row.link);
+    const late =
+      at !== undefined && Date.parse(row.first_seen_at) > Date.parse(at);
+    if (!late) toExtract.add(row.link);
+  }
+
+  const kept: CollectedPost[] = [];
+  const late: string[] = [];
+  for (const row of rows) {
+    if (hasLink(row.link) && !toExtract.has(row.link)) late.push(row.id);
+    else kept.push(row);
+  }
+  return { rows: kept, late };
+}
+
 export type RunPlan = {
   /** Ids of the rows with no link: nothing listable can come of them. */
   linkless: string[];
@@ -184,6 +223,28 @@ export function readCutoff(
 }
 
 /**
+ * Refuses a cut-off after the run's start in a run that records itself in
+ * pipeline_runs (COLLECT_OUTCOME set): it would extract nothing yet record
+ * `ok`, and the page would call stale data fresh. A local run may look ahead,
+ * as check 3.12 does with --since.
+ */
+export function checkCutoffNotAhead(
+  since: string | null,
+  startedAt: string,
+  recorded: boolean,
+  name: string,
+): { ok: true } | { ok: false; reason: string } {
+  if (since === null || !recorded) return { ok: true };
+  if (!(Date.parse(since) > Date.parse(startedAt))) return { ok: true };
+  return {
+    ok: false,
+    reason:
+      `${name} is ${since}, after this run's start — a recorded run would ` +
+      "extract nothing and still call the data fresh",
+  };
+}
+
+/**
  * Whether a worker may start another link: not once the run has stopped, and
  * not once the time budget is spent. A call already in flight is never cut
  * short: it finishes, and a reply that arrives is saved.
@@ -220,6 +281,8 @@ export type LinkOutcome =
       model: string | null;
       costUsd: number | null;
       error: string;
+      /** What a failed store write reported — a SQLSTATE, or PostgREST's own — or null. */
+      code: string | null;
     };
 
 /**
@@ -242,27 +305,78 @@ export function describeFailure(failure: Failure): string {
 }
 
 /**
- * The per-post failures to count against their posts, each with the reason
- * its rows' extraction_error records. Counted only when the whole run is over,
- * because a success after a failure still makes it count, and then only in a
- * run that extracted something (shouldCountFailures). None in a run that
- * stopped on an extractor error, which counts against nothing. A systemic
- * failure never counts.
+ * Whether the failure that stopped a run can belong to its link rather than
+ * to the service: a call that timed out or met a 5xx or a network failure
+ * after its retry — a reply that long, or an input the provider fails on — or
+ * a write Postgres refused for the link's own data (SQLSTATE class 22, bad
+ * data, or 23, a broken constraint). A key, the credits, a missing endpoint or
+ * a rate limit never belongs to one link.
+ */
+function canBeTheLinks(outcome: LinkOutcome): boolean {
+  if (outcome.status === "failed") {
+    return (
+      outcome.failure.scope === "systemic" &&
+      (outcome.failure.reason === "timeout" ||
+        outcome.failure.reason === "unavailable")
+    );
+  }
+  return outcome.status === "error" && /^2[23]/.test(outcome.code ?? "");
+}
+
+/**
+ * The failures to count against their posts, each with the reason its rows'
+ * extraction_error records. Counted only when the whole run is over, because
+ * a success after a failure still makes it count, and then only in a run that
+ * extracted something (shouldCountFailures): a run in which nothing succeeded
+ * says nothing about its posts.
+ *
+ * - Every per-post failure counts.
+ * - The failure that stopped the run counts against its link too when it can
+ *   be the link's own (canBeTheLinks): other links were extracted, so the
+ *   service worked. Without this, a link whose reply always outlasts the
+ *   timeout would stop every run that reaches it and never be given up. Only
+ *   that one link counts, so an outage that begins mid-run costs one attempt
+ *   on one link at most.
+ * - An extractor error of any other kind leaves the store in doubt, and the
+ *   run counts nothing at all.
  */
 export function failuresToCount(
   outcomes: readonly LinkOutcome[],
 ): { link: string; reason: string }[] {
-  if (outcomes.some((outcome) => outcome.status === "error")) return [];
   const extracted = outcomes.filter(
     (outcome) => outcome.status === "extracted",
   ).length;
   if (!shouldCountFailures({ extracted })) return [];
+  if (
+    outcomes.some(
+      (outcome) => outcome.status === "error" && !canBeTheLinks(outcome),
+    )
+  ) {
+    return [];
+  }
 
-  return outcomes.flatMap((outcome) =>
+  const counted = outcomes.flatMap((outcome) =>
     outcome.status === "failed" && outcome.failure.scope === "post"
       ? [{ link: outcome.link, reason: describeFailure(outcome.failure) }]
       : [],
   );
+  // Outcomes arrive in the order the links finished, so the first that stops
+  // the run is the one that stopped it.
+  const stop = outcomes.find(stopsRun);
+  if (
+    stop !== undefined &&
+    stop.status !== "extracted" &&
+    canBeTheLinks(stop)
+  ) {
+    counted.push({
+      link: stop.link,
+      reason:
+        stop.status === "failed"
+          ? describeFailure(stop.failure)
+          : `extractor error: ${stop.error}`,
+    });
+  }
+  return counted;
 }
 
 /** One post_extractions row. */
@@ -406,6 +520,8 @@ export type RunSummary = {
   /** Pending rows read, and the most one read returns. */
   rows: number;
   window: number;
+  /** Rows closed without a call as late sightings (setAsideLateSightings). */
+  late: number;
   plan: RunPlan;
   cap: { value: number; source: string };
   budgetMs: number;
@@ -429,7 +545,8 @@ export function summaryLines(run: RunSummary): string[] {
       ? "Cut-off: none — every pending post is eligible"
       : `Cut-off: posts first seen since ${run.since}; older pending posts wait`,
     `Pending: ${run.plan.links} link(s) in ${run.rows} row(s) read${fullWindow}; ` +
-      `${run.plan.linkless.length} row(s) without a link closed without a call`,
+      `${run.plan.linkless.length} row(s) without a link and ${run.late} ` +
+      "late sighting(s) of links already extracted closed without a call",
   ];
 
   const beyondCap = run.plan.links - run.plan.queue.length;
@@ -491,16 +608,18 @@ export function summaryLines(run: RunSummary): string[] {
     lines.push(`Failed ×${count}: ${first}`);
   }
 
+  // Whether either stop also counts against its link is the counting line's
+  // to say (countingLine).
   if (tally.systemic !== null) {
     lines.push(
-      `Stopped: ${tally.systemic.reason} is a systemic failure — it hits every ` +
-        "post alike, so no further link was started and it counts against no post",
+      `Stopped: ${tally.systemic.reason} is a systemic failure — it can hit ` +
+        "every post alike, so no further link was started",
     );
   }
   if (tally.error !== null) {
     lines.push(
       "Stopped: a read or write of the extractor's own failed — no further " +
-        "link was started, and nothing is counted against any post",
+        "link was started",
     );
   }
   return lines;
@@ -508,17 +627,25 @@ export function summaryLines(run: RunSummary): string[] {
 
 /** The summary's line on counting, printed once the counting is done. */
 export function countingLine(outcomes: readonly LinkOutcome[]): string {
+  const counted = failuresToCount(outcomes);
+  if (counted.length > 0) {
+    const stop = outcomes.find(stopsRun);
+    const stopCounted =
+      stop !== undefined && counted.some(({ link }) => link === stop.link);
+    return (
+      `Per-post failures: ${counted.length}, each counted against its post` +
+      (stopCounted
+        ? " — the link that stopped the run among them, because other links were extracted"
+        : "")
+    );
+  }
+
   const perPost = outcomes.filter(
     (outcome) =>
       outcome.status === "failed" && outcome.failure.scope === "post",
   ).length;
   if (perPost === 0) return "Per-post failures: none";
-
-  const counted = failuresToCount(outcomes).length;
-  if (counted > 0) {
-    return `Per-post failures: ${counted}, each counted against its post`;
-  }
-  return outcomes.some((outcome) => outcome.status === "error")
+  return outcomes.some((outcome) => outcome.status === "extracted")
     ? `Per-post failures: ${perPost}, not counted — the run stopped on an extractor error`
     : `Per-post failures: ${perPost}, not counted — nothing was extracted in this run`;
 }

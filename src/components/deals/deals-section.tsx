@@ -30,7 +30,7 @@ import { createClient } from "@/utils/supabase/server";
  * It only fetches and picks one. What each outcome looks like is in the sync
  * components below, which the kitchen sink renders from sample data, and
  * every decision is in src/lib/deals. An unexpected throw goes to
- * src/app/(app)/error.tsx.
+ * src/app/(app)/(deals)/error.tsx.
  */
 export async function DealsSection({ page }: { page: number }) {
   // Created for this request: the client carries the request's cookies.
