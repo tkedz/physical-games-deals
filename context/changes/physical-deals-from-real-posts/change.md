@@ -1,7 +1,7 @@
 ---
 change_id: physical-deals-from-real-posts
 title: Physical deals from real posts
-status: implementing
+status: implemented
 created: 2026-09-28
 updated: 2026-10-06
 archived_at: null

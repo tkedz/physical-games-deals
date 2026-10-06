@@ -1020,14 +1020,14 @@ There are none. The live checks stand in for them:
 
 #### Automated
 
-- [x] 4.1 `npm run lint`, `npm run format:check` and `npm run build` pass, with `/` dynamic and `/kitchen-sink` still prerendered as not found
-- [x] 4.2 With a server Tomasz started, the agent's `curl` gets 200 with deal cards for `/`, 200 with page 1 for `/?page=abc`, and 200 with the past-the-end state for `/?page=999`
+- [x] 4.1 `npm run lint`, `npm run format:check` and `npm run build` pass, with `/` dynamic and `/kitchen-sink` still prerendered as not found — 67aa4b3
+- [x] 4.2 With a server Tomasz started, the agent's `curl` gets 200 with deal cards for `/`, 200 with page 1 for `/?page=abc`, and 200 with the past-the-end state for `/?page=999` — 67aa4b3
 
 #### Manual
 
-- [x] 4.3 Screenshots of the kitchen sink's "Okazje" section at 1280 px and 375 px, saved to `context/changes/physical-deals-from-real-posts/screenshots/`, show every state with no horizontal scroll
-- [x] 4.4 Screenshots of `/` and `/?page=2` with real data at 1280 px and 375 px show no horizontal scroll, and the skeleton appears on a throttled load
-- [x] 4.5 On sampled cards, the primary link opens the shop URL present in the post or the post itself, and the source link opens the aggregator post
-- [x] 4.6 A deal whose `expires_at` has passed (Tomasz's SQL) is absent from `/`
-- [x] 4.7 Tabbing through cards and pagination shows a visible focus on every link
-- [ ] 4.8 After the merge, production `/` lists deals read through the publishable key, and `/kitchen-sink` still returns 404 (the agent's `curl`)
+- [x] 4.3 Screenshots of the kitchen sink's "Okazje" section at 1280 px and 375 px, saved to `context/changes/physical-deals-from-real-posts/screenshots/`, show every state with no horizontal scroll — 67aa4b3
+- [x] 4.4 Screenshots of `/` and `/?page=2` with real data at 1280 px and 375 px show no horizontal scroll, and the skeleton appears on a throttled load — 67aa4b3
+- [x] 4.5 On sampled cards, the primary link opens the shop URL present in the post or the post itself, and the source link opens the aggregator post — 67aa4b3
+- [x] 4.6 A deal whose `expires_at` has passed (Tomasz's SQL) is absent from `/` — 67aa4b3
+- [x] 4.7 Tabbing through cards and pagination shows a visible focus on every link — 67aa4b3
+- [x] 4.8 After the merge, production `/` lists deals read through the publishable key, and `/kitchen-sink` still returns 404 (the agent's `curl`) — 67aa4b3
