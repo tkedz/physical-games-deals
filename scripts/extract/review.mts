@@ -233,6 +233,11 @@ function describeDeal(deal: DealRow): string {
       `also ${deal.alternative_titles.map((name) => `"${oneLine(name)}"`).join(", ")}`,
     );
   }
+  if (deal.set_with.length > 0) {
+    parts.push(
+      `set with ${deal.set_with.map((name) => `"${oneLine(name)}"`).join(", ")}`,
+    );
+  }
   if (deal.discount_percent !== null) parts.push(`-${deal.discount_percent}%`);
   if (deal.expires_at !== null) parts.push(`until ${deal.expires_at}`);
   if (deal.shop_name !== null) parts.push(`shop ${oneLine(deal.shop_name)}`);

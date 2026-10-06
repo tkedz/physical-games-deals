@@ -29,6 +29,11 @@ export type DealRow = {
   title: string;
   english_title: string;
   alternative_titles: string[];
+  /**
+   * The other games sold together with this one for price_amount, which is
+   * then the whole set's price. Empty for a game sold on its own.
+   */
+  set_with: string[];
   price_amount: number | null;
   currency: string | null;
   discount_percent: number | null;
@@ -54,6 +59,25 @@ const CURRENCY_ALIASES = new Map([
 function clean(value: string | null): string | null {
   const trimmed = value?.trim() ?? "";
   return trimmed === "" ? null : trimmed;
+}
+
+/**
+ * The names cleaned and in order, without repeats and without any of `known`,
+ * compared without regard to case.
+ */
+function distinctNames(
+  names: readonly string[],
+  known: readonly string[],
+): string[] {
+  const seen = new Set(known.map((name) => name.toLowerCase()));
+  const result: string[] = [];
+  for (const raw of names) {
+    const name = clean(raw);
+    if (name === null || seen.has(name.toLowerCase())) continue;
+    seen.add(name.toLowerCase());
+    result.push(name);
+  }
+  return result;
 }
 
 /**
@@ -242,15 +266,7 @@ export function toDealRows(
       clean(post.title) ??
       "(untitled)";
     const englishTitle = clean(item.englishTitle) ?? title;
-
-    const known = new Set([title.toLowerCase(), englishTitle.toLowerCase()]);
-    const alternativeTitles: string[] = [];
-    for (const alternative of item.alternativeTitles) {
-      const name = clean(alternative);
-      if (name === null || known.has(name.toLowerCase())) continue;
-      known.add(name.toLowerCase());
-      alternativeTitles.push(name);
-    }
+    const ownTitles = [title, englishTitle];
 
     return {
       link: post.link,
@@ -262,7 +278,9 @@ export function toDealRows(
       platform: item.platform,
       title,
       english_title: englishTitle,
-      alternative_titles: alternativeTitles,
+      alternative_titles: distinctNames(item.alternativeTitles, ownTitles),
+      // Without the item's own title: a set names the others only.
+      set_with: distinctNames(item.setWith, ownTitles),
       price_amount: price?.amount ?? null,
       currency: price?.currency ?? null,
       discount_percent: toDiscount(item.discountPercent),

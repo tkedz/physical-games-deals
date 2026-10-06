@@ -3,7 +3,7 @@ project: physical-games-deals
 version: 1
 status: draft
 created: 2026-09-21
-updated: 2026-09-29
+updated: 2026-10-06
 prd_version: 2
 main_goal: speed
 top_blocker: time
@@ -141,8 +141,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Parallel with:** F-03, S-02, S-03
 - **Blockers:** —
 - **Unknowns:**
-  - Whether v1 normalises posts from all three aggregators or collects from all three and normalises one (PRD open question 2). Owner: user. Block: no — the PRD defers it to after the first working extraction run, so this slice is what answers it.
-  - What share of wrong entries is acceptable (PRD open question 3). Owner: user. Block: no — same reason; the PRD says it is decided by looking at the first results.
+  - Whether v1 normalises posts from all three aggregators or collects from all three and normalises one (PRD open question 2). Owner: user. Block: no — the PRD defers it to after the first working extraction run, so this slice is what answers it. Answered 2026-10-06: all three are normalised. Extraction costs about $0.0002 a post, and the same deal from two aggregators affects 48 of 868 listed games (5.5%); those stay separate cards, and merging them is not part of v1 — see `context/changes/physical-deals-from-real-posts/review.md`.
+  - What share of wrong entries is acceptable (PRD open question 3). Owner: user. Block: no — same reason; the PRD says it is decided by looking at the first results. Answered 2026-10-06: up to 5% of the listed deals. The first random sample measured 2.9% (2 of 68 listed deals, both carrying a two-game set's price; no digital edition) — see `review.md`.
   - Which model does the extraction and at what cost per post — `.env.example` records that the choice was postponed to this point. Owner: user. Block: no. Answered 2026-09-29: `mistralai/mistral-small-3.2-24b-instruct` through OpenRouter, alone in `MODELS`, at about $0.0002 per post (prompt version 2). It had zero digital leaks on the 55-post labelled set, while `openai/gpt-4.1-nano` leaked in both runs — see `context/changes/physical-deals-from-real-posts/evaluation.md`.
 - **Risk:** This is the only part of the product whose outcome is genuinely unknown, which is why it is the north star and why it sits as early as its prerequisites permit. Two things decide whether it works: whether freehand Polish posts yield a reliable physical-versus-digital reading — a judgement the catalogue cannot help with, since it identifies games and not editions — and whether extraction runs once per post and stays run, because re-reading the whole corpus on every pass is how the cost guardrail gets broken quietly. One known wrinkle to plan around: the feeds overlap and the collector deduplicates per feed by design, so the same deal arrives several times under different sources.
 - **Status:** in-progress
@@ -202,8 +202,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 ## Open Roadmap Questions
 
 1. **Product name** — deliberately unresolved; the PRD's `project` frontmatter still carries a TODO placeholder while this roadmap uses the repository name. Owner: user. Block: none.
-2. **v1 pipeline scope: collecting versus normalising** — collect from all three aggregators but normalise one, or normalise everything collected. Bears directly on extraction tuning cost and on the same deal arriving from several sources. Owner: user. Block: `S-01` (non-blocking — answered by running S-01).
-3. **Cleanliness threshold** — the acceptable share of entries that do not belong (digital editions, wrong game). Without a number there is no way to say the filter works. Owner: user. Block: `S-01` (non-blocking — answered by looking at S-01's output).
+2. **v1 pipeline scope: collecting versus normalising** — collect from all three aggregators but normalise one, or normalise everything collected. Bears directly on extraction tuning cost and on the same deal arriving from several sources. Owner: user. Block: `S-01` (non-blocking — answered by running S-01). **Answered 2026-10-06: normalise all three.** Duplicates across sources affect 5.5% of listed games and stay separate cards in v1.
+3. **Cleanliness threshold** — the acceptable share of entries that do not belong (digital editions, wrong game). Without a number there is no way to say the filter works. Owner: user. Block: `S-01` (non-blocking — answered by looking at S-01's output). **Answered 2026-10-06: up to 5% of the listed deals.** S-01's first sample measured 2.9%.
 4. **Data volume** — undeclared; the raw-post set grows with time regardless of user count. Owner: user. Block: `F-01` (non-blocking).
 5. **A measurable primary success criterion** — the PRD's criteria are binary; no number has been set for when matching is good enough. Owner: user. Block: `S-04` (non-blocking).
 6. **Behaviour when the catalogue is unreachable** — what the user sees when the catalogue does not answer during a search. Owner: user. Block: **`S-03` (blocking)** — the PRD places it before implementing `FR-003`.

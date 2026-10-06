@@ -51,6 +51,8 @@ export const priceSchema = z.object({
 // The field order is the order a model decoding against the schema writes
 // them in. The item is named first, and `editionEvidence` precedes `edition`,
 // so the quote that settles the edition is written before the verdict on it.
+// `setWith` precedes `price` for the same reason: what the price buys — this
+// game alone, or a set — is settled before the price is written.
 const itemSchema = z.object({
   title: z.string(),
   englishTitle: z.string(),
@@ -59,6 +61,7 @@ const itemSchema = z.object({
   editionEvidence: z.string().nullable(),
   edition: editionSchema,
   platform: platformSchema.nullable(),
+  setWith: z.array(z.string()),
   price: priceSchema.nullable(),
   discountPercent: z.int().nullable(),
   expiresOn: z.string().nullable(),

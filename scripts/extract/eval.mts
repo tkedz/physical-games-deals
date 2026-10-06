@@ -263,6 +263,11 @@ function describeReturned({ item, row }: MarkedItem): string {
   const parts = [row.kind, row.edition, `"${row.english_title}"`];
   if (row.title !== row.english_title) parts.push(`as "${row.title}"`);
   parts.push(row.platform ?? "no platform", formatPrice(rowPrice(row)));
+  if (row.set_with.length > 0) {
+    parts.push(
+      `set with ${row.set_with.map((name) => `"${name}"`).join(", ")}`,
+    );
+  }
   if (row.discount_percent !== null) parts.push(`-${row.discount_percent}%`);
   if (item.expiresOn !== null) {
     parts.push(

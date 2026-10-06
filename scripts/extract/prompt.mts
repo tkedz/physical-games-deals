@@ -16,7 +16,7 @@ import type { ChatMessage } from "./openrouter.mts";
  * Stored with every extraction. Bump it on any change to the instructions or
  * to schema.mts, so that a reply can always be traced to what produced it.
  */
-export const PROMPT_VERSION = 2;
+export const PROMPT_VERSION = 3;
 
 /**
  * Every row sharing one link: the same aggregator post, seen in one feed or
@@ -33,6 +33,8 @@ const INSTRUCTIONS = `You read one post from a Polish video-game deals aggregato
 
 Reply with the JSON object only: {"items": [...]}, one item per offer, in the order the post gives them. An offer is one product, for one platform, at one price, in one shop: the same game for two platforms, or in two shops, is two items, and a digest of several offers gives one item per offer, each judged on its own words. A price given only for comparison — the regular or earlier price, a price comparison site's figure, what used copies usually go for — is not an offer. A post that offers nothing to buy — news, a question, a contest — gives an empty list.
 
+Separately titled games sold together for one price are a set, and a set gives one item per game, each with the set's price and the other games in setWith: "Splatoon Raiders + Star Fox za 354,78 zł" is two items, and so is "Zestaw Forza Horizon 6 + EA SPORTS FC 26 za 317 zł". A "buy two, save the VAT" promotion ("taniej o VAT") is a set too when the post gives one price for two games it names as an example. A collection sold under a title of its own — "Castlevania Anniversary Collection", "Tony Hawk's Pro Skater 1 + 2", "Bau Simulator 2+3" — is one product and one item, however many games it holds. Only games make a set: a console sold with a game is a console bundle, one item.
+
 Fields of an item:
 
 title: the product as the post names it, without its price, shop or platform.
@@ -41,7 +43,7 @@ englishTitle: the game's original title, as its publisher names it international
 
 alternativeTitles: other names the post uses for the same product, such as a Polish title or an abbreviation, repeating neither title nor englishTitle. Empty when there are none.
 
-kind: "game" for a copy of a video game in any edition — standard, deluxe, GOTY, a collector's edition that includes the game, a pre-order, a used copy, or several games sold together as one product. A collector's edition ("Edycja Kolekcjonerska", "kolekcjonerka") with the game inside is "game", however many figures, artbooks or steelbooks come with it. "not_game" for everything else: consoles and console bundles, controllers and other accessories, figures and other merchandise, soundtracks and books, subscriptions (Game Pass, PlayStation Plus, EA Play, Ubisoft+), gift cards and wallet top-ups, DLC, season passes and in-game currency.
+kind: "game" for a copy of a video game in any edition — standard, deluxe, GOTY, a collector's edition that includes the game, a pre-order, a used copy, or a collection of several games sold under a title of its own. A collector's edition ("Edycja Kolekcjonerska", "kolekcjonerka") with the game inside is "game", however many figures, artbooks or steelbooks come with it. "not_game" for everything else: consoles and console bundles, controllers and other accessories, figures and other merchandise, soundtracks and books, subscriptions (Game Pass, PlayStation Plus, EA Play, Ubisoft+), gift cards and wallet top-ups, DLC, season passes and in-game currency.
 
 editionEvidence: the words from the post, quoted exactly and briefly (at most about 15 words), that decide the edition. null when nothing in the post decides it.
 
@@ -59,6 +61,8 @@ Traps:
 - A feed hint of "boxed" means the aggregator files the post under boxed-game offers, and "collectors" under collector's editions. Take it as support for "physical" unless the post's own words point elsewhere.
 
 platform: the platform of this offer, as the post states it — in its title, body, categories or feeds: "ps5", "ps4", "xbox-series" (Xbox Series X or S), "xbox-one", "switch" (Nintendo Switch), "switch-2" (Nintendo Switch 2), "pc", or "other" for any other platform. A copy that also plays on a newer console (a PS4 disc with a free PS5 upgrade) takes the platform on its box. The feed hints "playstation" and "mixed" name no single platform. null when the post states none — never infer it from what you know about the game.
+
+setWith: for a game in a set, the titles of the other games in it, as the post names them; its price is then the whole set's price, never a share of it. Empty for an item sold on its own, a collection included.
 
 price: {"amount", "currency"}: the price the post states for this item now — not the earlier price — with the currency as an ISO 4217 code ("zł" is "PLN", "€" is "EUR"). When the post gives the price in złoty and in another currency, take the złoty one. With a discount code, the price after the code. null when the post states no price for this item.
 

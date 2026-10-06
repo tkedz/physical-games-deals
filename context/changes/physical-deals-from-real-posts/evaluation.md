@@ -92,9 +92,24 @@ The effect on each model:
   - It still reads "Przewaga cenowa" as a discount.
   - It took #22's release date for an expiry date.
 
+### Prompt version 3, set offers (2026-10-06)
+
+Version 3 adds the set rule and the `setWith` field (plan, Phase 3, change 7; `review.md`, #58). Tomasz ran `npm run extract:eval` at 08:07 UTC, and the report is `scripts/extract/eval/report-v3.md`, local and gitignored.
+
+| Model | Replies | Invalid | Unmeasured | Digital leaks | Missed physical | Wrong game | Wrong price | Wrong currency | Wrong platform | Wrong discount | Wrong expiry | Title differs | Reasoning tokens | Latency p50 / p90 | Cost | Cost / reply |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| mistralai/mistral-small-3.2-24b-instruct | 55 of 55 | 0 | 0 | 0 | 1 of 23 | 0 | 0 | 0 | 1 | 1 | 0 | 9 | 0 | 6523 / 18930 ms | $0.0147 | $0.00027 |
+| openai/gpt-4.1-nano | 55 of 55 | 0 | 0 | 0 | 3 of 23 | 0 | 2 | 1 | 1 | 4 | 0 | 5 | 0 | 1973 / 2488 ms | $0.0097 | $0.00018 |
+
+- **Mistral Small 3.2 still has zero digital leaks**, and the same missed deal as before (#49, No More Heroes 3, `unclear`).
+- **One regression:** #3 Slaycation Paradise reads cenograj's "Przewaga cenowa: 30%" as a -30% discount again, as version 1 did. Version 2's rule is unchanged in the prompt; the longer prompt appears to weaken it.
+- **Sets work as intended on the one set in the labelled set.** #42 "Auto fuszerka + Thief Simulator" (Steam, digital) came back as two items, each naming the other in `setWith`. Its label predates the set rule and expects one item, so the second item shows as a title difference, not as an error that counts.
+- **Cost per reply rose from $0.00020 to $0.00027,** because the instructions are longer. That is about $0.75 a month at the measured inflow.
+- **GPT-4.1 nano had zero leaks in this run** for the first time. `MODELS` stays unchanged: one clean run does not outweigh two leaking ones.
+
 ## Verdict
 
-- **Models:** `MODELS = ["mistralai/mistral-small-3.2-24b-instruct"]`, with prompt version 2.
+- **Models:** `MODELS = ["mistralai/mistral-small-3.2-24b-instruct"]`, with prompt version 2, and prompt version 3 from 2026-10-06 (above).
   - Mistral Small 3.2 is the only candidate with zero digital leaks in both runs.
   - GPT-4.1 nano leaked in both, so under the rule it is not eligible as a fallback either: a fallback writes deals too.
 - **Cost per post:** $0.00020 (v2: $0.0111 for 55 posts; 2,163 input and 166 output tokens per post on average). That comes to:

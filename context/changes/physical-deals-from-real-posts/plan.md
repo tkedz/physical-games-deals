@@ -679,6 +679,22 @@ If the share of wrong listed entries is above the threshold Tomasz sets, Phase 4
 - **Locally**, `--since <value>` sets the cut-off for one run, ahead of `EXTRACT_SINCE`, and reads the same values. The command is then the same in cmd, PowerShell and Git Bash, which disagree on how to set a variable for one command.
 - **Check 3.8.** With a cut-off set, it counts only the posts first seen since the cut-off.
 
+#### 7. Set offers (added 2026-10-06)
+
+**Files**: `scripts/extract/schema.mts`, `scripts/extract/prompt.mts`, `scripts/extract/deals.mts`, `scripts/extract/store.mts`, `scripts/extract/review.mts`, `supabase/migrations/<timestamp>_add_set_with_to_deals.sql` (new)
+
+**Intent**: The review found an offer for two games at one price split into two deals, each at the set's price, with nothing marking them as one offer (`review.md`, #58). Tomasz's rule: a set offer belongs in the results for each game in it, and its card says at once that the price is for the set. This is the smallest version of that rule. Deals already extracted stay as they are.
+
+**Contract**:
+
+- **Schema.** Each item gains `setWith`, the other games sold together with it for the stated price, or an empty list. It is required, like every field.
+- **Prompt.** A set of separately titled games at one price gives one item per game, each with the set's price, and the others in `setWith`. A collection sold under a title of its own stays one item with an empty `setWith`. `PROMPT_VERSION` becomes 3.
+- **Table.** `deals` gains `set_with text[] not null default '{}'`, in one additive migration. The existing grants and the select policy cover it.
+- **Mapping.** `toDealRows` copies the names, cleaned, without repeats and without the item's own title.
+- **Report.** The review report shows the set for each item that has one.
+- **Order of release.** The migration is pushed before the code reaches `main`, because the extractor writes the new column.
+- **Phase 4.** The card shows the set; see Phase 4, changes 3 and 4.
+
 ### Success Criteria:
 
 #### Automated Verification:
@@ -686,6 +702,8 @@ If the share of wrong listed entries is above the threshold Tomasz sets, Phase 4
 - `npm run lint`, `npm run format:check` and `npm run build` pass
 - `node scripts/extract/extract.mts`, run without an env file, exits non-zero naming the first missing variable before any request
 - With placeholder credentials and `EXTRACT_SINCE` set to a value that is not a date, `node scripts/extract/extract.mts` exits non-zero naming `EXTRACT_SINCE` before any request (added 2026-10-05)
+- `npm run lint`, `npm run format:check` and `npm run build` pass with change 7 (added 2026-10-06)
+- After Tomasz's push, `npx supabase gen types typescript --linked --schema public` shows `deals.set_with` as a non-null `string[]` (added 2026-10-06)
 
 #### Manual Verification:
 
@@ -699,6 +717,9 @@ If the share of wrong listed entries is above the threshold Tomasz sets, Phase 4
 - The PRD's and the roadmap's questions 2 and 3 carry those answers, and the share of wrong listed entries is within Tomasz's threshold
 - With `--since` set to a moment in the future, Tomasz's `npm run extract` reads no pending rows, makes no call and exits 0 (added 2026-10-05)
 - With the repository variable `EXTRACT_PAUSED` set to `true`, a `workflow_dispatch` run of `collect` has Collect green and Extract deals skipped; with the variable deleted, the next run extracts again (added 2026-10-05)
+- Tomasz pushes the `set_with` migration: the dry run lists it alone, and `npm run db:check` exits 0 (added 2026-10-06)
+- `npm run extract:eval` at prompt version 3 shows zero digital leaks, and `evaluation.md` records the run (added 2026-10-06)
+- Tomasz re-extracts the #58 link from `review.md`, and both of its deals carry the other game in `set_with` (added 2026-10-06)
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
 
@@ -756,7 +777,8 @@ The components, and every state they can be in, land in the kitchen sink first. 
 - **`DealCard`** shows:
   - the title, the price, the primary link and the source link;
   - the platform badge, discount badge and expiry, each only when set;
-  - the shop and aggregator, with the post's date.
+  - the shop and aggregator, with the post's date;
+  - for a set offer, a note that the price is for the set, naming the other games in `set_with` (added 2026-10-06, Phase 3 change 7).
 
   External links open in a new tab with `rel="noopener noreferrer nofollow"`, and say so to assistive technology.
 - **`DealListSkeleton`**: `role="status"` with visible text, sized like the cards.
@@ -781,7 +803,8 @@ The components, and every state they can be in, land in the kitchen sink first. 
   - with a shop link, and with only the post link;
   - without a platform;
   - with a euro price;
-  - with a title long enough to wrap at 375 px.
+  - with a title long enough to wrap at 375 px;
+  - as part of a set (added 2026-10-06).
 - The same section renders `FreshnessNote` in all three states, the skeleton, and the empty and error states.
 - The placeholder samples at `:198-233` give way to the real components.
 
@@ -974,19 +997,24 @@ There are none. The live checks stand in for them:
 - [x] 3.1 `npm run lint`, `npm run format:check` and `npm run build` pass — ec2bbb5
 - [x] 3.2 `node scripts/extract/extract.mts`, run without an env file, exits non-zero naming the first missing variable before any request — ec2bbb5
 - [x] 3.11 With placeholder credentials and `EXTRACT_SINCE` set to a value that is not a date, `node scripts/extract/extract.mts` exits non-zero naming `EXTRACT_SINCE` before any request — 2041a48
+- [x] 3.14 `npm run lint`, `npm run format:check` and `npm run build` pass with change 7
+- [x] 3.15 After Tomasz's push, `npx supabase gen types typescript --linked --schema public` shows `deals.set_with` as a non-null `string[]`
 
 #### Manual
 
 - [x] 3.3 Tomasz runs `npm run extract -- --limit 3`; the summary reports three links extracted, and no run row is written — ec2bbb5
 - [x] 3.4 With `OPENROUTER_API_KEY` set to an invalid value in the shell, Tomasz's `npm run extract -- --limit 1` exits non-zero with a systemic failure, and his SQL shows every `extraction_attempts` unchanged — ec2bbb5
-- [ ] 3.5 Tomasz adds `OPENROUTER_API_KEY` to the Actions secrets, and a `workflow_dispatch` run of `collect` is green, its log showing links extracted and cost with no credential or request URL
-- [ ] 3.6 That run wrote a `pipeline_runs` row with `outcome = 'ok'` (Tomasz's SQL)
-- [ ] 3.7 In the SQL editor, `deals` read as `anon` returns only game, physical, priced rows, while the owner role also sees the rejected ones (Tomasz's SQL)
-- [ ] 3.8 Within two days of scheduled runs the pending count (`processed_at is null and extraction_attempts < 3`) reaches 0, and a later run processes the posts it collected (Tomasz's SQL, twice)
-- [ ] 3.9 Tomasz reviews `npm run extract:report -- --sample 100`, and `review.md` records the results and his answers to PRD questions 2 and 3
-- [ ] 3.10 The PRD's and the roadmap's questions 2 and 3 carry those answers, and the share of wrong listed entries is within Tomasz's threshold
+- [x] 3.5 Tomasz adds `OPENROUTER_API_KEY` to the Actions secrets, and a `workflow_dispatch` run of `collect` is green, its log showing links extracted and cost with no credential or request URL
+- [x] 3.6 That run wrote a `pipeline_runs` row with `outcome = 'ok'` (Tomasz's SQL)
+- [x] 3.7 In the SQL editor, `deals` read as `anon` returns only game, physical, priced rows, while the owner role also sees the rejected ones (Tomasz's SQL)
+- [x] 3.8 Within two days of scheduled runs the pending count (`processed_at is null and extraction_attempts < 3`) reaches 0, and a later run processes the posts it collected (Tomasz's SQL, twice)
+- [x] 3.9 Tomasz reviews `npm run extract:report -- --sample 100`, and `review.md` records the results and his answers to PRD questions 2 and 3
+- [x] 3.10 The PRD's and the roadmap's questions 2 and 3 carry those answers, and the share of wrong listed entries is within Tomasz's threshold
 - [x] 3.12 With `--since` set to a moment in the future, Tomasz's `npm run extract` reads no pending rows, makes no call and exits 0 — 2041a48
-- [x] 3.13 With the repository variable `EXTRACT_PAUSED` set to `true`, a `workflow_dispatch` run of `collect` has Collect green and Extract deals skipped; with the variable deleted, the next run extracts again
+- [x] 3.13 With the repository variable `EXTRACT_PAUSED` set to `true`, a `workflow_dispatch` run of `collect` has Collect green and Extract deals skipped; with the variable deleted, the next run extracts again — 0b0e837
+- [x] 3.16 Tomasz pushes the `set_with` migration: the dry run lists it alone, and `npm run db:check` exits 0
+- [x] 3.17 `npm run extract:eval` at prompt version 3 shows zero digital leaks, and `evaluation.md` records the run
+- [x] 3.18 Tomasz re-extracts the #58 link from `review.md`, and both of its deals carry the other game in `set_with`
 
 ### Phase 4: Public deals view
 

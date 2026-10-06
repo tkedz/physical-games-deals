@@ -310,7 +310,7 @@ export async function loadExtractedLinks(
 
 const DEAL_COLUMNS =
   "link, item_index, source, published_at, kind, edition, platform, title, " +
-  "english_title, alternative_titles, price_amount, currency, " +
+  "english_title, alternative_titles, set_with, price_amount, currency, " +
   "discount_percent, expires_at, shop_url, shop_name, edition_evidence";
 
 const dealRow: z.ZodType<DealRow> = z.object({
@@ -324,6 +324,7 @@ const dealRow: z.ZodType<DealRow> = z.object({
   title: z.string(),
   english_title: z.string(),
   alternative_titles: z.array(z.string()),
+  set_with: z.array(z.string()),
   price_amount: z.number().nullable(),
   currency: z.string().nullable(),
   discount_percent: z.number().nullable(),
