@@ -156,7 +156,7 @@ Only F1 and F2 are warnings. Every other dimension's verdict comes from observat
   - **The only use.** The secret-key client touches the table once, at store.mts:285, with an insert that carries no `.select()`.
   - **The origin.** The plan asked for `select, insert` (plan.md:527), so the plan contradicts CLAUDE.md's "exactly what the writer uses".
 - **Fix**: Add a follow-up migration `revoke select on table public.pipeline_runs from service_role;`, with `-- Revert: grant select …`, pushed by Tomasz. Alternatively, record why `select` stays.
-- **Decision**: FIXED, pending Tomasz's push.
+- **Decision**: FIXED. Tomasz reported the migration pushed on 2026-10-06.
   - **The migration.** `supabase/migrations/20261006124528_revoke_select_on_pipeline_runs_from_service_role.sql`, created with `npm run db:new`, carries both header lines and revokes `select` from `service_role`.
   - **Remaining steps, all Tomasz's.**
     - `npm run db:push -- --dry-run` should list this migration alone.
