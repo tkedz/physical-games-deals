@@ -30,3 +30,8 @@ archived_at: null
   - The schemas cap `gameId` at the Postgres integer maximum and `entryId` at `Number.MAX_SAFE_INTEGER`, and trim `gameSlug` and `gameName`. An unknown or absent `platform` in an action reads as any platform, as in the URL.
   - The views add headings the plan does not name: "Wyniki dla „…”" over each search outcome and "Twoja lista" over each list state. The kitchen sink adds a "Wczytywanie listy" state.
   - `WatchlistError` reuses `RetryButton` from `src/components/deals`.
+- **2026-10-07, Tomasz — RAWG images deferred.** S-03 ships without them, as `plan.md` says under What We're NOT Doing. Thumbnails in search results, and on the watchlist from a stored `game_image_url`, are a candidate for a separate change. Images on deal cards wait until S-04 decides whether deals get RAWG ids.
+- **2026-10-07 — notes for Phase 3 and Phase 4.**
+  - The search views take a non-empty query. Mount the results `Suspense` only when `query` is not null; otherwise `SearchResultsSkeleton` flashes "Szukamy w katalogu…" with nothing searched.
+  - The props the page passes and the action type (`WatchlistAction`) are in `src/components/watchlist/` and `src/lib/watchlist/types.ts`; the schemas in `src/lib/watchlist/rules.ts` return `NewGameEntry`, `NewPhraseEntry` and `{ entryId }`.
+  - Phase 4 needs `vercel env ls` and `vercel logs`, but `vercel` is not on PATH on Tomasz's machine. `.vercel/project.json` exists, so try `npx vercel` with his login. Step 4.6 reuses the reads in `checks/isolation.sql`.

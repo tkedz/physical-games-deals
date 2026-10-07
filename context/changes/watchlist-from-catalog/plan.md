@@ -708,17 +708,17 @@ There is no test runner (CLAUDE.md). The pure functions in `src/lib/watchlist/ru
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes with zero warnings
-- [x] 2.2 `npm run format:check` passes
-- [x] 2.3 `npm run build` succeeds with `/kitchen-sink` still prerendered as not found
-- [x] 2.4 `git status --porcelain src/components/ui` lists only `native-select.tsx` as new, and `git diff --quiet -- package.json package-lock.json components.json src/app/globals.css` exits 0
-- [x] 2.5 `grep -rEn '(zinc|slate|gray|neutral|stone)-[0-9]|(bg|text|border)-(black|white)|#[0-9a-fA-F]{3,8}\b' src/app src/components/watchlist --include=*.tsx` prints nothing
+- [x] 2.1 `npm run lint` passes with zero warnings — cb51bae
+- [x] 2.2 `npm run format:check` passes — cb51bae
+- [x] 2.3 `npm run build` succeeds with `/kitchen-sink` still prerendered as not found — cb51bae
+- [x] 2.4 `git status --porcelain src/components/ui` lists only `native-select.tsx` as new, and `git diff --quiet -- package.json package-lock.json components.json src/app/globals.css` exits 0 — cb51bae
+- [x] 2.5 `grep -rEn '(zinc|slate|gray|neutral|stone)-[0-9]|(bg|text|border)-(black|white)|#[0-9a-fA-F]{3,8}\b' src/app src/components/watchlist --include=*.tsx` prints nothing — cb51bae
 
 #### Manual
 
-- [x] 2.6 With `npm run dev` started by Tomasz, screenshots of the kitchen sink's "Lista obserwowanych" section at 1280 px and 375 px, saved to `context/changes/watchlist-from-catalog/screenshots/`, show every state with no horizontal scroll
-- [x] 2.7 Tab reaches the query field, the platform select and every enabled button in order, each with a visible focus indicator
-- [x] 2.8 Tomasz reads the Polish copy of every state and accepts it
+- [x] 2.6 With `npm run dev` started by Tomasz, screenshots of the kitchen sink's "Lista obserwowanych" section at 1280 px and 375 px, saved to `context/changes/watchlist-from-catalog/screenshots/`, show every state with no horizontal scroll — cb51bae
+- [x] 2.7 Tab reaches the query field, the platform select and every enabled button in order, each with a visible focus indicator — cb51bae
+- [x] 2.8 Tomasz reads the Polish copy of every state and accepts it — cb51bae
 
 ### Phase 3: The private `/watchlist` view, end to end
 
