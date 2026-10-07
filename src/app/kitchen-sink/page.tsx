@@ -21,9 +21,26 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { CatalogSearchForm } from "@/components/watchlist/catalog-search-form";
+import { RawgAttribution } from "@/components/watchlist/rawg-attribution";
+import { SearchResultRow } from "@/components/watchlist/search-result-row";
+import {
+  CatalogUnavailable,
+  SearchNoResults,
+  SearchResultsList,
+  SearchResultsSkeleton,
+} from "@/components/watchlist/search-results";
+import {
+  WatchlistEmpty,
+  WatchlistEntries,
+  WatchlistError,
+  WatchlistSkeleton,
+} from "@/components/watchlist/watchlist-entries";
+import type { CatalogGame, CatalogPlatform } from "@/lib/catalog/types";
 import type { Freshness } from "@/lib/deals/freshness";
 import type { ListedDeal } from "@/lib/deals/queries";
 import { isKitchenSinkVisible } from "@/lib/kitchen-sink";
+import type { WatchlistEntry } from "@/lib/watchlist/types";
 
 export const metadata: Metadata = {
   title: "Kitchen sink",
@@ -143,10 +160,115 @@ const freshnessSamples: Freshness[] = [
   { state: "never" },
 ];
 
+// Sample catalogue answers and list entries for "Lista obserwowanych", in the
+// shapes the catalogue and the list's read return. The platforms carry RAWG's
+// names; the game and entry ids are made up. Between them they hold every
+// variant of a row:
+// - a result the list holds for the chosen platform (Fire Emblem Engage, on
+//   the list for any platform), and results it does not;
+// - a result without a release date (Ys Memoire), and one with four
+//   platforms, long enough to wrap at 375 px (Ys X);
+// - a phrase the list already holds ("fire emblem" against "Fire Emblem");
+// - entries for a game on any platform, a game pinned to PS5, a phrase on any
+//   platform and a pinned phrase, newest first, as the read orders them.
+const catalogPlatforms = {
+  pc: { id: 4, slug: "pc", name: "PC" },
+  ps5: { id: 187, slug: "playstation5", name: "PlayStation 5" },
+  ps4: { id: 18, slug: "playstation4", name: "PlayStation 4" },
+  switch: { id: 7, slug: "nintendo-switch", name: "Nintendo Switch" },
+} as const satisfies Record<string, CatalogPlatform>;
+
+const fireEmblemResults: CatalogGame[] = [
+  {
+    id: 900101,
+    slug: "fire-emblem-three-houses",
+    name: "Fire Emblem: Three Houses",
+    released: "2019-07-26",
+    platforms: [catalogPlatforms.switch],
+    imageUrl: null,
+  },
+  {
+    id: 900102,
+    slug: "fire-emblem-engage",
+    name: "Fire Emblem Engage",
+    released: "2023-01-20",
+    platforms: [catalogPlatforms.switch],
+    imageUrl: null,
+  },
+  {
+    id: 900103,
+    slug: "fire-emblem-warriors-three-hopes",
+    name: "Fire Emblem Warriors: Three Hopes",
+    released: "2022-06-24",
+    platforms: [catalogPlatforms.switch],
+    imageUrl: null,
+  },
+];
+
+const ysResults: CatalogGame[] = [
+  {
+    id: 900201,
+    slug: "ys-x-nordics",
+    name: "Ys X: Nordics",
+    released: "2024-10-25",
+    platforms: [
+      catalogPlatforms.ps5,
+      catalogPlatforms.ps4,
+      catalogPlatforms.switch,
+      catalogPlatforms.pc,
+    ],
+    imageUrl: null,
+  },
+  {
+    id: 900202,
+    slug: "ys-viii-lacrimosa-of-dana",
+    name: "Ys VIII: Lacrimosa of DANA",
+    released: "2017-09-12",
+    platforms: [
+      catalogPlatforms.ps4,
+      catalogPlatforms.switch,
+      catalogPlatforms.pc,
+    ],
+    imageUrl: null,
+  },
+  {
+    id: 900203,
+    slug: "ys-memoire-revelations-in-celceta",
+    name: "Ys Memoire: Revelations in Celceta",
+    released: null,
+    platforms: [catalogPlatforms.ps5, catalogPlatforms.switch],
+    imageUrl: null,
+  },
+];
+
+const sampleEntries: WatchlistEntry[] = [
+  {
+    id: 4,
+    kind: "game",
+    platform: null,
+    game_id: 900102,
+    game_slug: "fire-emblem-engage",
+    game_name: "Fire Emblem Engage",
+    game_released: "2023-01-20",
+  },
+  {
+    id: 3,
+    kind: "game",
+    platform: "ps5",
+    game_id: 900301,
+    game_slug: "silent-hill-2",
+    game_name: "Silent Hill 2",
+    game_released: "2024-10-08",
+  },
+  { id: 2, kind: "phrase", platform: null, phrase: "Fire Emblem" },
+  { id: 1, kind: "phrase", platform: "switch-2", phrase: "Wiedźmin" },
+];
+
 /**
- * Every named state of src/components/ui and of the deals view's components
- * in src/components/deals, with Polish sample copy: the visual check for
- * theme changes and a reference for new views.
+ * Every named state of src/components/ui and of the deals and watchlist views'
+ * components in src/components/deals and src/components/watchlist, with
+ * Polish sample copy: the visual check for theme changes and a reference for
+ * new views.
  *
  * The guard stays first, outside any Suspense boundary: notFound() thrown after
  * streaming starts is a soft 404 served as 200
@@ -352,6 +474,116 @@ export default function KitchenSinkPage() {
         <div className="flex flex-col gap-3">
           <h3 className="font-heading text-base font-medium">Błąd</h3>
           <DealsError />
+        </div>
+      </section>
+
+      {/* The watchlist view's components in every state they can be in, from
+          the sample data above: the visual gate before /watchlist depends on
+          them. No action is passed, so every add and remove button renders
+          inert, and nothing here reaches Supabase or the catalogue. */}
+      <section className="flex flex-col gap-6">
+        <h2 className="font-heading text-xl font-semibold tracking-tight">
+          Lista obserwowanych
+        </h2>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Formularz wyszukiwania
+          </h3>
+          <CatalogSearchForm
+            defaultQuery="fire emblem"
+            defaultPlatform={null}
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Wyniki: do dodania i już na liście
+          </h3>
+          <SearchResultsList
+            query="fire emblem"
+            platform={null}
+            games={fireEmblemResults}
+            entries={sampleEntries}
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Nieudane dodanie
+          </h3>
+          <SearchResultRow
+            game={fireEmblemResults[0]}
+            platform={null}
+            onList={false}
+            initialMessage="Nie udało się zapisać zmiany. Spróbuj ponownie."
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">Brak wyników</h3>
+          <SearchNoResults
+            query="fortune's weave"
+            platform="switch-2"
+            entries={sampleEntries}
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Katalog niedostępny
+          </h3>
+          <CatalogUnavailable
+            query="silent hill"
+            platform="ps5"
+            entries={sampleEntries}
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Zapytanie z dwóch znaków, bez frazy
+          </h3>
+          <SearchResultsList
+            query="ys"
+            platform={null}
+            games={ysResults}
+            entries={sampleEntries}
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Wczytywanie wyników
+          </h3>
+          <SearchResultsSkeleton />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">Lista</h3>
+          <WatchlistEntries entries={sampleEntries} />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">Pusta lista</h3>
+          <WatchlistEmpty />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">Błąd listy</h3>
+          <WatchlistError />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Wczytywanie listy
+          </h3>
+          <WatchlistSkeleton />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">Atrybucja RAWG</h3>
+          <RawgAttribution />
         </div>
       </section>
     </main>

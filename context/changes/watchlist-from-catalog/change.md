@@ -22,3 +22,11 @@ archived_at: null
   - 1.4: `checks/grants.sql` shows `authenticated` with table-level SELECT, INSERT on the seven writable columns and UPDATE on `removed_at` only, and nothing on the table for `anon` or `service_role`. All three roles hold USAGE on `watchlist_entries_id_seq` through Supabase's default privileges, as for the existing tables.
   - 1.5: `checks/isolation.sql` passed all 15 checks and rolled back. Because `authenticated` already holds that sequence usage, the insert alone cannot show that an identity column needs no sequence grant. A local PGlite run without default privileges shows it: the insert passed with usage `false`.
   - 1.2: `npx supabase gen types typescript --linked --schema public` lists `watchlist_entries` with the planned columns and nullability.
+- **2026-10-07 — Phase 2 departures from the plan.**
+  - `native-select.tsx` is the registry's file run through Prettier, which `format:check` applies to `src/components/ui`. Only the formatting differs.
+  - `rules.ts` also exports `pinLabel`, `MAX_QUERY_LENGTH`, `characterCount`, `releaseYear`, the `NewGameEntry` and `NewPhraseEntry` types, and the hidden-field builders `gameEntryFields`, `phraseEntryFields` and `entryRemovalFields`, whose keys come from the schemas.
+  - Lengths count code points, as Postgres's `char_length` does, and the 100-character cut never splits a surrogate pair.
+  - A catalogue date that is not `YYYY-MM-DD` is treated as no date, so such a game can still be added.
+  - The schemas cap `gameId` at the Postgres integer maximum and `entryId` at `Number.MAX_SAFE_INTEGER`, and trim `gameSlug` and `gameName`. An unknown or absent `platform` in an action reads as any platform, as in the URL.
+  - The views add headings the plan does not name: "Wyniki dla „…”" over each search outcome and "Twoja lista" over each list state. The kitchen sink adds a "Wczytywanie listy" state.
+  - `WatchlistError` reuses `RetryButton` from `src/components/deals`.

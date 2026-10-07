@@ -694,31 +694,31 @@ There is no test runner (CLAUDE.md). The pure functions in `src/lib/watchlist/ru
 
 #### Automated
 
-- [x] 1.1 `npm run lint` and `npm run format:check` pass
-- [x] 1.2 After Tomasz's push, `npx supabase gen types typescript --linked --schema public` lists `watchlist_entries` with the planned columns and nullability
+- [x] 1.1 `npm run lint` and `npm run format:check` pass — cea2f1a
+- [x] 1.2 After Tomasz's push, `npx supabase gen types typescript --linked --schema public` lists `watchlist_entries` with the planned columns and nullability — cea2f1a
 
 #### Manual
 
-- [x] 1.3 Tomasz runs `npm run db:push -- --dry-run` (only the new migration listed), `npm run db:push`, `npm run db:check` (exit 0) and `npm run db:status` (local and remote match)
-- [x] 1.4 Tomasz's grants query on `information_schema.role_table_grants` and `information_schema.column_privileges` shows `authenticated` with SELECT, INSERT on the seven writable columns and UPDATE on `removed_at` only, and no privilege for `anon` or `service_role`
-- [x] 1.5 Tomasz's isolation script — one transaction, rolled back, acting as two real user ids through `set local role` and `request.jwt.claims` — proves that: inserts as user A succeed, which also shows the identity column needs no sequence grant; a second active entry for the same game and platform, and a phrase differing only in case, fail with `23505`; the same game with another platform succeeds; user B reads none of A's rows, updates 0 of them and cannot insert with A's `user_id` (`42501`); `anon` cannot select (`42501`); A can set `removed_at`, cannot clear it, and can then add the same entry again
-- [x] 1.6 Tomasz reads the PRD and roadmap changes and confirms they say what he decided
+- [x] 1.3 Tomasz runs `npm run db:push -- --dry-run` (only the new migration listed), `npm run db:push`, `npm run db:check` (exit 0) and `npm run db:status` (local and remote match) — cea2f1a
+- [x] 1.4 Tomasz's grants query on `information_schema.role_table_grants` and `information_schema.column_privileges` shows `authenticated` with SELECT, INSERT on the seven writable columns and UPDATE on `removed_at` only, and no privilege for `anon` or `service_role` — cea2f1a
+- [x] 1.5 Tomasz's isolation script — one transaction, rolled back, acting as two real user ids through `set local role` and `request.jwt.claims` — proves that: inserts as user A succeed, which also shows the identity column needs no sequence grant; a second active entry for the same game and platform, and a phrase differing only in case, fail with `23505`; the same game with another platform succeeds; user B reads none of A's rows, updates 0 of them and cannot insert with A's `user_id` (`42501`); `anon` cannot select (`42501`); A can set `removed_at`, cannot clear it, and can then add the same entry again — cea2f1a
+- [x] 1.6 Tomasz reads the PRD and roadmap changes and confirms they say what he decided — cea2f1a
 
 ### Phase 2: Watchlist views in the kitchen sink
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes with zero warnings
-- [ ] 2.2 `npm run format:check` passes
-- [ ] 2.3 `npm run build` succeeds with `/kitchen-sink` still prerendered as not found
-- [ ] 2.4 `git status --porcelain src/components/ui` lists only `native-select.tsx` as new, and `git diff --quiet -- package.json package-lock.json components.json src/app/globals.css` exits 0
-- [ ] 2.5 `grep -rEn '(zinc|slate|gray|neutral|stone)-[0-9]|(bg|text|border)-(black|white)|#[0-9a-fA-F]{3,8}\b' src/app src/components/watchlist --include=*.tsx` prints nothing
+- [x] 2.1 `npm run lint` passes with zero warnings
+- [x] 2.2 `npm run format:check` passes
+- [x] 2.3 `npm run build` succeeds with `/kitchen-sink` still prerendered as not found
+- [x] 2.4 `git status --porcelain src/components/ui` lists only `native-select.tsx` as new, and `git diff --quiet -- package.json package-lock.json components.json src/app/globals.css` exits 0
+- [x] 2.5 `grep -rEn '(zinc|slate|gray|neutral|stone)-[0-9]|(bg|text|border)-(black|white)|#[0-9a-fA-F]{3,8}\b' src/app src/components/watchlist --include=*.tsx` prints nothing
 
 #### Manual
 
-- [ ] 2.6 With `npm run dev` started by Tomasz, screenshots of the kitchen sink's "Lista obserwowanych" section at 1280 px and 375 px, saved to `context/changes/watchlist-from-catalog/screenshots/`, show every state with no horizontal scroll
-- [ ] 2.7 Tab reaches the query field, the platform select and every enabled button in order, each with a visible focus indicator
-- [ ] 2.8 Tomasz reads the Polish copy of every state and accepts it
+- [x] 2.6 With `npm run dev` started by Tomasz, screenshots of the kitchen sink's "Lista obserwowanych" section at 1280 px and 375 px, saved to `context/changes/watchlist-from-catalog/screenshots/`, show every state with no horizontal scroll
+- [x] 2.7 Tab reaches the query field, the platform select and every enabled button in order, each with a visible focus indicator
+- [x] 2.8 Tomasz reads the Polish copy of every state and accepts it
 
 ### Phase 3: The private `/watchlist` view, end to end
 
