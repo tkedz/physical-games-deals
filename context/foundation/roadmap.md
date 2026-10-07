@@ -3,7 +3,7 @@ project: physical-games-deals
 version: 1
 status: draft
 created: 2026-09-21
-updated: 2026-10-06
+updated: 2026-10-07
 prd_version: 2
 main_goal: speed
 top_blocker: time
@@ -29,7 +29,7 @@ milestone_status: open
 - **Intent:** Prove the product's central claim end to end — that posts written by people, each one worded differently, can be turned automatically into a clean list of boxed-edition deals narrowed to the games a given user actually wants. That is the PRD's primary success criterion; nothing before it counts as the product working.
 - **Source materials:** `context/foundation/prd.md` (v2)
 - **Done when:** every `F-NN` and `S-NN` below is `done`.
-- **Scope anchors:** PRD v2 — `FR-001`, `FR-003`, `FR-004`, `FR-005`, `FR-006` (all must-have); `US-01` with its five acceptance criteria; the `## Access Control` section; the non-functional requirements on freshness, progress feedback, responsiveness and per-user isolation.
+- **Scope anchors:** PRD v2 — `FR-001`, `FR-003`, `FR-004`, `FR-005`, `FR-006`, `FR-010` (all must-have); `US-01` with its five acceptance criteria; the `## Access Control` section; the non-functional requirements on freshness, progress feedback, responsiveness and per-user isolation.
 
 ## Vision recap
 
@@ -37,7 +37,7 @@ A collector of boxed game editions currently tours several deal aggregators by h
 
 This product reverses that: it reads the posts so the collector does not, keeps only boxed editions, and shows only the games on that collector's own list, each with a price and a link back to where the deal came from.
 
-The one trait that, if removed, would make this indistinguishable from any other deal feed is the pairing of two filters that no existing source combines: **physical-only**, decided from the wording of each post, and **matched to this user's own list of titles**, not to keywords or categories.
+The one trait that, if removed, would make this indistinguishable from any other deal feed is the pairing of two filters that no existing source combines: **physical-only**, decided from the wording of each post, and **matched to this user's own list** — catalogue titles, plus phrases of their own where the catalogue falls short — not to shared categories.
 
 ## North star
 
@@ -61,8 +61,8 @@ Choosing it first also settles two of the PRD's open questions by doing rather t
 | F-03 | `game-catalog-provider-proven`       | (foundation) a catalogue provider is chosen and proven on real Polish titles | —                | FR-003, Business Logic          | in-progress |
 | S-01 | `physical-deals-from-real-posts`     | see physical-edition deals extracted from real posts, with price and link    | F-01, F-02       | FR-005, FR-006, US-01           | in-progress |
 | S-02 | `email-password-accounts`            | create an account with e-mail and password, sign in and sign out             | —                | FR-001, Access Control          | in-progress |
-| S-03 | `watchlist-from-catalog`             | search the catalogue, add a game to a watchlist, remove one                  | F-01, F-03, S-02 | FR-003, FR-004, US-01           | blocked  |
-| S-04 | `deals-matched-to-watchlist`         | see only the deals matching their own watchlist, platform rule applied       | S-01, S-03       | US-01, FR-005, Guardrails       | proposed |
+| S-03 | `watchlist-from-catalog`             | search the catalogue, add a game or a phrase to a watchlist, remove one      | F-01, F-03, S-02 | FR-003, FR-004, FR-010, US-01   | in-progress |
+| S-04 | `deals-matched-to-watchlist`         | see only deals for the games and phrases they watch, platform rule applied   | S-01, S-03       | US-01, FR-005, FR-010, Guardrails | proposed |
 
 ## Streams
 
@@ -161,29 +161,30 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ### S-03: A collector keeps a watchlist of games from the catalogue
 
-- **Outcome:** user searches the external catalogue by title, adds a game to their watchlist and optionally pins it to one platform, sees their list, and removes an entry — which disappears from their view for good, while the record that they once tracked it survives in the data. Another user cannot reach that list, including by editing the address.
+- **Outcome:** user searches the external catalogue by title, adds a game or a phrase to their watchlist and optionally pins it to one platform, sees their list, and removes an entry — which disappears from their view for good, while the record that they once tracked it survives in the data. A phrase covers what the catalogue does not know, such as a new release. Another user cannot reach that list, including by editing the address.
 - **Change ID:** `watchlist-from-catalog`
-- **PRD refs:** `FR-003`, `FR-004`; `US-01`; `## Business Logic` (game identity comes from the catalogue, platform is a separate optional value); the guardrail on watchlist isolation
+- **PRD refs:** `FR-003`, `FR-004`, `FR-010`; `US-01`; `## Business Logic` (game identity comes from the catalogue, platform is a separate optional value); the guardrail on watchlist isolation
 - **Prerequisites:** F-01, F-03, S-02
 - **Parallel with:** F-02, S-01
 - **Blockers:** —
 - **Unknowns:**
-  - What the user sees when the catalogue does not answer while they are searching (PRD open question 6). Owner: user. Block: yes — the PRD states it is "do rozstrzygnięcia przed implementacją FR-003", and the catalogue sits on the main path of adding a game, so the slice has no defined behaviour for its most likely failure until this is answered.
+  - What the user sees when the catalogue does not answer while they are searching (PRD open question 6). Owner: user. Block: yes — the PRD states it is "do rozstrzygnięcia przed implementacją FR-003", and the catalogue sits on the main path of adding a game, so the slice has no defined behaviour for its most likely failure until this is answered. Answered 2026-10-06: whatever the reason, one generic message says the catalogue is temporarily unavailable; the list keeps working, and the typed text can still be watched as a phrase.
   - Whether the chosen catalogue covers the Polish boxed titles this product exists for (PRD open question 7). Owner: user. Block: yes — a negative answer reopens the ruling that only catalogued games may be watched, which changes what this slice builds rather than when. `F-03` resolves it. Resolved by F-03 on 2026-09-26: PASS.
-- **Risk:** Marked blocked rather than merely risky because both unknowns change the slice's shape, not its timing, and one of them the PRD explicitly puts before implementation. Both are cheap to resolve and `F-03` resolves the harder one, so this is a short block, not a stalled slice. Sequenced after `S-02` because the list belongs to a user, and after `F-01` because isolation here is enforced by the database rather than by application code.
-- **Status:** blocked
+- **Risk:** Marked blocked rather than merely risky because both unknowns change the slice's shape, not its timing, and one of them the PRD explicitly puts before implementation. Both are cheap to resolve and `F-03` resolves the harder one, so this is a short block, not a stalled slice. Unblocked 2026-10-06: question 6 answered, question 7 resolved by `F-03`. Sequenced after `S-02` because the list belongs to a user, and after `F-01` because isolation here is enforced by the database rather than by application code.
+- **Status:** in-progress
 
 ### S-04: The deals list narrows to the collector's own watchlist
 
-- **Outcome:** user opens the deals view and sees only deals for games on their watchlist. A watchlist entry pinned to a platform admits only that platform's offers; an entry with no platform admits any. When nothing matches, the view says so and states when the data was last refreshed, so an empty list reads as "no deals" rather than "something is broken".
+- **Outcome:** user opens the deals view and sees only deals for games and phrases on their watchlist. A watchlist entry pinned to a platform admits only that platform's offers; an entry with no platform admits any. When nothing matches, the view says so and states when the data was last refreshed, so an empty list reads as "no deals" rather than "something is broken".
 - **Change ID:** `deals-matched-to-watchlist`
-- **PRD refs:** `US-01` and its acceptance criteria 1 and 2; `FR-005` (the matching half); `## Business Logic` (the second of the two filtering decisions); the guardrail on one user's matched deals never reaching another
+- **PRD refs:** `US-01` and its acceptance criteria 1 and 2; `FR-005` (the matching half); `FR-010` (what a phrase matches); `## Business Logic` (the second of the two filtering decisions); the guardrail on one user's matched deals never reaching another
 - **Prerequisites:** S-01, S-03
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:**
   - No number has been set for what counts as the matching working well enough — how many hits on a watchlist in the first week (PRD open question 5). Owner: user. Block: no; the PRD records it as non-blocking.
   - Deals carry titles, not catalogue ids. S-01 stores each deal's original title and the alternative titles its post uses, with no RAWG call (`context/changes/physical-deals-from-real-posts/plan.md`), so whether this slice resolves them to a RAWG `id` or matches by name is decided here, together with the edition and platform rules. Owner: user. Block: no — the titles are stored either way.
+  - What a phrase on the watchlist matches (Open Roadmap Question 9). Owner: user. Block: no. Answered 2026-10-06: a phrase matches when it occurs in `title`, `english_title` or any entry of `alternative_titles`, ignoring letter case and Polish diacritics, and the platform rule applies to it as it does to a game. `ł` has no Unicode decomposition, so the diacritic folding must map it explicitly.
 - **Risk:** The slice that completes the PRD's primary success criterion, and the only one depending on both tracks, so it is last by necessity rather than by choice. The load-bearing detail is that one absent platform means "any platform" while a present one means "only this one" — a single field with two behaviours, which the PRD's own example (Silent Hill 2 with and without PS5) exists to pin down. Worth building against that example directly.
 - **Status:** proposed
 
@@ -196,7 +197,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | F-03       | `game-catalog-provider-proven`       | Choose a game catalogue and prove its Polish coverage            | yes                   | No prerequisites — can run alongside anything                     |
 | S-01       | `physical-deals-from-real-posts`     | Show physical-edition deals extracted from collected posts       | no                    | Waits on F-01, F-02. This is the north star                       |
 | S-02       | `email-password-accounts`            | E-mail and password accounts with sign-in and sign-out           | yes                   | No prerequisites — fills an evening blocked on the pipeline       |
-| S-03       | `watchlist-from-catalog`             | Watchlist of catalogue games, with optional platform             | no                    | Blocked on PRD open questions 6 and 7                             |
+| S-03       | `watchlist-from-catalog`             | Watchlist of catalogue games and phrases, with optional platform | yes                   | Planned 2026-10-07: `context/changes/watchlist-from-catalog/plan.md` |
 | S-04       | `deals-matched-to-watchlist`         | Narrow the deals list to the user's watchlist                    | no                    | Waits on S-01 and S-03. Completes the primary success criterion   |
 
 ## Open Roadmap Questions
@@ -206,10 +207,10 @@ Foundations below assume these are present and do NOT re-scaffold them.
 3. **Cleanliness threshold** — the acceptable share of entries that do not belong (digital editions, wrong game). Without a number there is no way to say the filter works. Owner: user. Block: `S-01` (non-blocking — answered by looking at S-01's output). **Answered 2026-10-06: up to 5% of the listed deals.** S-01's first sample measured 2.9%.
 4. **Data volume** — undeclared; the raw-post set grows with time regardless of user count. Owner: user. Block: `F-01` (non-blocking).
 5. **A measurable primary success criterion** — the PRD's criteria are binary; no number has been set for when matching is good enough. Owner: user. Block: `S-04` (non-blocking).
-6. **Behaviour when the catalogue is unreachable** — what the user sees when the catalogue does not answer during a search. Owner: user. Block: **`S-03` (blocking)** — the PRD places it before implementing `FR-003`.
+6. **Behaviour when the catalogue is unreachable** — what the user sees when the catalogue does not answer during a search. Owner: user. Block: **`S-03` (blocking)** — the PRD places it before implementing `FR-003`. **Answered 2026-10-06: one generic message.** Whatever the reason, the user is told the catalogue is temporarily unavailable; the watchlist keeps working, and the typed text can still be watched as a phrase.
 7. **Catalogue coverage of the Polish market** — whether the chosen catalogue knows the titles a Polish collector of boxed editions cares about. The ruling that only catalogued games may be watched makes this coverage the ceiling on the product's usefulness. Owner: user. Block: **`S-03` (blocking)** — `F-03` resolves it. **Answered 2026-09-26: PASS.** All 12 of the user's titles were found within the first five results, both Polish names included — see `context/changes/game-catalog-provider-proven/coverage.md`.
 8. **Is the old collector still running?** — surfaced by the baseline probe, not by the PRD. The collector runs from a different repository; these feeds retain roughly two days, so if it has been switched off, every day until `F-02` lands is lost permanently. Owner: user. Block: none — but the answer sets how urgent `F-02` is. **Answered 2026-09-23: yes, it ran throughout.** Confirmed against the data rather than from memory — the export staged for `F-02`'s import runs from 2026-09-16 to 2026-09-23 without a gap, so no collection days were lost between the baseline probe and the move into this repository.
-9. **Watching keywords, not only catalogued games** — the user's idea (2026-09-26): besides games identified in the catalogue, let a user watch a keyword. It contradicts the PRD's ruling "Gra nieobecna w katalogu nie może zostać dodana do listy obserwowanych" (`prd.md:98`). `F-03` supplies the evidence: Fire Emblem: Fortune's Weave, a new release offered in collected posts, is not in RAWG — the catalogue lags new releases. Owner: user. Block: `S-03` (non-blocking — `F-03`'s verdict is PASS, so the ruling stands unless the user reopens it; a yes changes the shape of `S-03` and the matching in `S-04`).
+9. **Watching keywords, not only catalogued games** — the user's idea (2026-09-26): besides games identified in the catalogue, let a user watch a keyword. It contradicts the PRD's ruling "Gra nieobecna w katalogu nie może zostać dodana do listy obserwowanych" (`prd.md:98`). `F-03` supplies the evidence: Fire Emblem: Fortune's Weave, a new release offered in collected posts, is not in RAWG — the catalogue lags new releases. Owner: user. Block: `S-03` (non-blocking — `F-03`'s verdict is PASS, so the ruling stands unless the user reopens it; a yes changes the shape of `S-03` and the matching in `S-04`). **Answered 2026-10-06: yes, as phrases.** Phrases join `S-03` as a second kind of watchlist entry, beside catalogue games; the PRD replaces the ruling above with `FR-010` and a phrase rule in `## Business Logic`. A phrase matches a deal when any of the deal's titles contains it, ignoring letter case and Polish diacritics, and a pinned platform narrows it as it does a game. It has no catalogue identity, so a typo silently matches nothing — the accepted cost of watching what the catalogue does not know.
 
 ## Parked
 
