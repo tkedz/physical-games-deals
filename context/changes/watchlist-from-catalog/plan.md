@@ -744,14 +744,14 @@ There is no test runner (CLAUDE.md). The pure functions in `src/lib/watchlist/ru
 
 #### Automated
 
-- [x] 4.1 `vercel env ls` lists `RAWG_API_KEY` for Production and Preview
-- [x] 4.2 `npm run lint` and `npm run format:check` pass
-- [ ] 4.3 `curl -sI https://physical-games-deals.vercel.app/watchlist` answers `307` with `location: /login`
-- [ ] 4.4 `vercel logs` for the production deployment, read after the acceptance searches, contains neither `api.rawg.io` nor `key=`
+- [x] 4.1 `vercel env ls` lists `RAWG_API_KEY` for Production and Preview — 91b5218
+- [x] 4.2 `npm run lint` and `npm run format:check` pass — 91b5218
+- [x] 4.3 `curl -sI https://physical-games-deals.vercel.app/watchlist` answers `307` with `location: /login` — 91b5218
+- [x] 4.4 `vercel logs` for the production deployment, read after the acceptance searches, contains neither `api.rawg.io` nor `key=` — 91b5218
 
 #### Manual
 
-- [ ] 4.5 Tomasz signs in to production with the demo account and builds its watchlist through the UI — at least three games, one of them pinned to a platform, and one phrase — and the rawg.io link is visible
-- [ ] 4.6 A second, temporary account on production sees an empty list; Tomasz's SQL check (the read parts of the Phase 1 script, rolled back) shows it reads none of the demo account's rows; the temporary account is deleted afterwards
-- [ ] 4.7 After more than an hour idle, opening `/watchlist` from the address bar keeps the session, with no redirect to `/login`
-- [ ] 4.8 Live search, adding, the duplicate message and removal work on production as they did in Phase 3
+- [x] 4.5 Tomasz signs in to production with the demo account and builds its watchlist through the UI — at least three games, one of them pinned to a platform, and one phrase — and the rawg.io link is visible — 91b5218
+- [x] 4.6 A second, temporary account on production sees an empty list; Tomasz's SQL check (the read parts of the Phase 1 script, rolled back) shows it reads none of the demo account's rows; the temporary account is deleted afterwards — 91b5218
+- [x] 4.7 After more than an hour idle, opening `/watchlist` from the address bar keeps the session, with no redirect to `/login` — 91b5218
+- [x] 4.8 Live search, adding, the duplicate message and removal work on production as they did in Phase 3 — 91b5218

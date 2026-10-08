@@ -1,7 +1,7 @@
 ---
 change_id: watchlist-from-catalog
 title: Watchlist of catalogue games and phrases, with optional platform
-status: implementing
+status: implemented
 created: 2026-10-07
 updated: 2026-10-08
 archived_at: null
@@ -55,3 +55,11 @@ archived_at: null
   - Tomasz added `RAWG_API_KEY` in the Vercel dashboard as a Sensitive variable (`vercel env ls` type `Secret`), for Production and Preview.
   - The work happens on `main`, so "merge" is Tomasz's push of `main`. The phase's commit lands before that push, because the acceptance (4.3–4.8) needs the deployed code; its Progress rows land in the epilogue commit.
   - The app's first variable read only at runtime ships through `vercel build` + `vercel deploy --prebuilt`. The production search is the proof that it reaches the functions: a log line `misconfigured, status none` would mean it does not.
+- **2026-10-08 — Phase 4 verified on production.**
+  - 4.1: `vercel env ls` lists `RAWG_API_KEY`, type `Secret`, for Production and Preview.
+  - 4.3: signed out, production `/watchlist` answered `307` with `Location: /login`, from deployment `physical-games-deals-lx15em9n7` (`08b31ab` and `91b5218`).
+  - The prebuilt deployment hands `RAWG_API_KEY` to the functions at runtime: every production search returned results.
+  - 4.4: that deployment's logs for the hour of the acceptance — 50 lines, 28 of them `/watchlist` requests — hold no `api.rawg.io`, no `key=`, no `rawg` in any case and no catalogue failure.
+  - 4.5 and 4.8: the agent drove the UI through Chrome DevTools after Tomasz signed in. `kolekcjoner@przyklad22.pl` turned out to be the demo account, the one Phase 3 tested on as well. Its three test entries were removed through the UI; their rows stay as records (FR-004). The demo watchlist now holds Metroid Prime 4: Beyond (Switch 2), Borderlands 4, Split Fiction and the phrase „Dragon's Dogma”, each with deals on `/` that day. A stale second tab got "Ta pozycja jest już na liście.".
+  - 4.6: the temporary account `izolacja-s03-prod@przyklad22.pl` saw an empty list. `checks/production-isolation.sql` was dry-run in PGlite first, where a select policy opened to everyone and a select grant to anon were both caught. In the SQL editor it passed all checks. Tomasz then deleted both temporary accounts, this one and Phase 3's `izolacja-s03@przyklad22.pl`.
+  - 4.7: the demo account's tab sat idle from about 13:20 to 14:25. `/watchlist` opened from the address bar answered `200`, with no redirect to `/login`, and showed the demo address and its four entries.
