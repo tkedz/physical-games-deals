@@ -1,8 +1,11 @@
 /**
  * Every state of the user's list: the entries, none, a failed read, and the
- * wait for one of them. Sync views, which the kitchen sink renders from sample
- * data. Each sits under the same "Twoja lista" heading, so the heading stays
- * put while the list loads.
+ * wait for one of them.
+ *
+ * WatchlistSection reads the list and picks one. What each state looks like is
+ * in the sync views after it, which the kitchen sink renders from sample data.
+ * Each sits under the same "Twoja lista" heading, so the heading stays put
+ * while the list loads.
  */
 import { CircleAlert } from "lucide-react";
 import type { ReactNode } from "react";
@@ -17,7 +20,30 @@ import {
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WatchlistEntryRow } from "@/components/watchlist/watchlist-entry-row";
+import { getCurrentUser } from "@/lib/auth/current-user";
+import { getActiveEntries } from "@/lib/watchlist/current-entries";
 import type { WatchlistAction, WatchlistEntry } from "@/lib/watchlist/types";
+
+/**
+ * The user's list, which page.tsx wraps in Suspense: the active entries,
+ * newest first, the empty state, or the failed read. Without a user it renders
+ * nothing, before it reaches the database, for the reason
+ * SearchResultsSection gives.
+ */
+export async function WatchlistSection({
+  removeAction,
+}: {
+  removeAction: WatchlistAction;
+}) {
+  if ((await getCurrentUser()) === null) return null;
+
+  const list = await getActiveEntries();
+  if (!list.ok) return <WatchlistError />;
+  if (list.entries.length === 0) return <WatchlistEmpty />;
+  return (
+    <WatchlistEntries entries={list.entries} removeAction={removeAction} />
+  );
+}
 
 /** The list's heading, above whichever state it is in. */
 function ListFrame({ children }: { children: ReactNode }) {

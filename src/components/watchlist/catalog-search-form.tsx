@@ -1,7 +1,7 @@
 "use client";
 
 import Form from "next/form";
-import { useEffect, useId, useRef, type ChangeEvent } from "react";
+import { useEffect, useId, useRef, useState, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -43,8 +43,9 @@ const LIVE_SEARCH_MIN_LENGTH = 3;
  * - at once when the query is cleared, so the results go away;
  * - at once when the platform changes.
  *
- * Both fields are uncontrolled, their defaults taken from the URL, so a
- * results navigation never resets or re-focuses what the user is typing.
+ * Both fields are uncontrolled and take their defaults from the URL once, when
+ * the form mounts, so a results navigation never resets or re-focuses what the
+ * user is typing.
  * `maxLength` counts UTF-16 units, so the field holds at most the 100
  * characters parseSearchState keeps, and nothing typed here is cut.
  */
@@ -58,6 +59,11 @@ export function CatalogSearchForm({
   const queryId = useId();
   const platformId = useId();
   const pendingSearch = useRef<number | undefined>(undefined);
+  // The query the form mounted with, kept for its lifetime. Each search
+  // changes `defaultQuery` through the URL, but Base UI's input keeps its
+  // first default anyway, and in development it reports a changed one as an
+  // error (useControlled in @base-ui/utils).
+  const [initialQuery] = useState(defaultQuery ?? "");
 
   // A search still waiting when the form goes away is dropped, so it cannot
   // navigate back here after the user has left.
@@ -107,7 +113,7 @@ export function CatalogSearchForm({
           type="search"
           autoComplete="off"
           maxLength={MAX_QUERY_LENGTH}
-          defaultValue={defaultQuery ?? ""}
+          defaultValue={initialQuery}
           onChange={handleQueryChange}
         />
       </Field>

@@ -1,9 +1,12 @@
 /**
  * Every outcome of a search, shown below the form: results, none, or a
- * catalogue that failed, and the wait for one of them. Sync views, which the
- * kitchen sink renders from sample data. Each takes the search and the user's
- * list, and the actions when there are any; without them the buttons render
- * inert. Without a query there is no outcome, and nothing renders.
+ * catalogue that failed, and the wait for one of them.
+ *
+ * SearchResultsSection fetches and picks one. What each outcome looks like is
+ * in the sync views after it, which the kitchen sink renders from sample data.
+ * Each takes the search and the user's list, and the actions when there are
+ * any; without them the buttons render inert. Without a query there is no
+ * outcome, and page.tsx renders none.
  */
 import { CircleAlert } from "lucide-react";
 import type { ReactNode } from "react";
@@ -18,13 +21,82 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { PhraseOffer } from "@/components/watchlist/phrase-offer";
 import { SearchResultRow } from "@/components/watchlist/search-result-row";
+import { getCurrentUser } from "@/lib/auth/current-user";
 import type { CatalogGame } from "@/lib/catalog/types";
+import { searchCatalog } from "@/lib/watchlist/catalog";
+import { getActiveEntries } from "@/lib/watchlist/current-entries";
 import { isGameOnList } from "@/lib/watchlist/rules";
 import type {
   PinnablePlatform,
   WatchlistAction,
   WatchlistEntry,
 } from "@/lib/watchlist/types";
+
+/**
+ * The outcome of the search in the URL, which page.tsx wraps in a Suspense
+ * boundary keyed by the search. It asks the catalogue and reads the user's
+ * list in parallel, then shows the results, none, or the catalogue's failure,
+ * with the real actions on the buttons.
+ *
+ * - Without a user it renders nothing, before it reaches the catalogue or the
+ *   database. The proxy's redirect is a first filter only, and this section
+ *   renders on its own.
+ * - A list that could not be read counts as empty here: every result offers
+ *   "Obserwuj", and the database still refuses a duplicate. The list below
+ *   the search shows the failure, with its retry.
+ */
+export async function SearchResultsSection({
+  query,
+  platform,
+  addGameAction,
+  addPhraseAction,
+}: {
+  /** The query as parseSearchState reads it, never empty. */
+  query: string;
+  /** The platform chosen in the form; null means any platform. */
+  platform: PinnablePlatform | null;
+  addGameAction: WatchlistAction;
+  addPhraseAction: WatchlistAction;
+}) {
+  if ((await getCurrentUser()) === null) return null;
+
+  const [catalog, list] = await Promise.all([
+    searchCatalog(query),
+    getActiveEntries(),
+  ]);
+  const entries = list.ok ? list.entries : [];
+
+  if (!catalog.ok) {
+    return (
+      <CatalogUnavailable
+        query={query}
+        platform={platform}
+        entries={entries}
+        addPhraseAction={addPhraseAction}
+      />
+    );
+  }
+  if (catalog.value.length === 0) {
+    return (
+      <SearchNoResults
+        query={query}
+        platform={platform}
+        entries={entries}
+        addPhraseAction={addPhraseAction}
+      />
+    );
+  }
+  return (
+    <SearchResultsList
+      query={query}
+      platform={platform}
+      games={catalog.value}
+      entries={entries}
+      addGameAction={addGameAction}
+      addPhraseAction={addPhraseAction}
+    />
+  );
+}
 
 /** What every outcome knows: the search, the list, and how to add a phrase. */
 type SearchOutcomeProps = {

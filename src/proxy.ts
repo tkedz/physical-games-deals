@@ -18,6 +18,10 @@ export async function proxy(request: NextRequest) {
   const decision = decideAccess({
     pathname: request.nextUrl.pathname,
     isSignedIn: user !== null,
+    // Next's own test for a Server Action call: a POST carrying the action's
+    // id in this header (node_modules/next/dist/server/lib/server-action-request-meta.js).
+    isServerAction:
+      request.method === "POST" && request.headers.has("next-action"),
   });
 
   return decision.kind === "redirect" ? redirectTo(decision.to) : response;

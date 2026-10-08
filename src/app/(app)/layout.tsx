@@ -6,8 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrentUser } from "@/lib/auth/current-user";
 
 /**
- * The header every product view shares: a way in for visitors, and who is
- * signed in plus a way out for users.
+ * The header every product view shares: a way in for visitors; for users, a
+ * link to their watchlist, who is signed in, and a way out.
  *
  * Reading the session makes every view under this layout dynamic. It happens
  * inside a Suspense boundary, so the rest of the page streams without waiting
@@ -41,6 +41,9 @@ async function HeaderAuth() {
 
   return user ? (
     <>
+      <Link href="/watchlist" className={buttonVariants({ variant: "ghost" })}>
+        Obserwowane
+      </Link>
       <span className="min-w-0 text-sm break-all text-muted-foreground">
         {user.email}
       </span>

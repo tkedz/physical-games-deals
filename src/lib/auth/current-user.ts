@@ -5,8 +5,9 @@ import { isAuthSessionMissingError, type User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/server";
 
 /**
- * The signed-in user for this request, or null. Never redirects: every view is
- * public, and a view decides for itself what a visitor sees.
+ * The signed-in user for this request, or null. Never redirects: the proxy
+ * sends visitors away from private views (src/lib/auth/access.ts), and every
+ * other view decides for itself what a visitor sees.
  *
  * `getUser()` asks the Auth server, so a revoked session reads as signed out.
  * Without a session cookie it returns before any network request, so a
