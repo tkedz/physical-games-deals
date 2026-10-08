@@ -79,6 +79,7 @@ The gate was exercised against a **lint** failure. That a **type** error also bl
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Vercel project env (Production + Preview) | Same value in both — one Supabase project exists |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Vercel project env (Production + Preview) | As above |
+| `RAWG_API_KEY` | Vercel project env (Production + Preview) | Since `watchlist-from-catalog`. Server-only, read at runtime by the `/watchlist` search; never `NEXT_PUBLIC_`, because it rides in the RAWG request URL |
 | `VERCEL_TOKEN` | GitHub repository secret | Account-scoped ("All projects") — see the token finding below |
 | `VERCEL_ORG_ID` | GitHub repository secret | Identifier, not a credential |
 | `VERCEL_PROJECT_ID` | GitHub repository secret | Identifier, not a credential |

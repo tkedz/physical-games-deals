@@ -28,7 +28,7 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 ## Game catalogue
 
 - The provider is RAWG. The contract is `src/lib/catalog/types.ts`; `src/lib/catalog/rawg.ts` is the only file that knows RAWG.
-- `RAWG_API_KEY` is server-only and **never** takes the `NEXT_PUBLIC_` prefix. It rides in the request URL (`?key=`), so request URLs are never logged, thrown or returned.
+- `RAWG_API_KEY` is server-only and **never** takes the `NEXT_PUBLIC_` prefix. It rides in the request URL (`?key=`), so request URLs are never logged, thrown or returned. It lives in Vercel's project environment variables, for Production and Preview, and in `.env.local` for `npm run dev` and `npm run catalog:probe`.
 - Files under `src/lib/catalog/` are also loaded by Node, so only whole-statement `import type` crosses between them. Scripts importing `src/` run with `--disable-warning=MODULE_TYPELESS_PACKAGE_JSON`.
 - RAWG's terms require an active link to rawg.io on every page showing its data.
 

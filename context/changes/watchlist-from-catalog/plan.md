@@ -724,28 +724,28 @@ There is no test runner (CLAUDE.md). The pure functions in `src/lib/watchlist/ru
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes with zero warnings
-- [x] 3.2 `npm run format:check` passes
-- [x] 3.3 `npm run build` succeeds and lists `/watchlist` as a dynamic route
-- [x] 3.4 `grep -rn "NEXT_PUBLIC_RAWG" src` prints nothing, and `grep -ln "server-only" src/lib/watchlist/catalog.ts src/lib/watchlist/current-entries.ts` lists both files
-- [x] 3.5 With Tomasz's `npm run dev` running and no session, `curl -sI http://localhost:3000/watchlist` answers `307` with `location: /login`
+- [x] 3.1 `npm run lint` passes with zero warnings — 08b31ab
+- [x] 3.2 `npm run format:check` passes — 08b31ab
+- [x] 3.3 `npm run build` succeeds and lists `/watchlist` as a dynamic route — 08b31ab
+- [x] 3.4 `grep -rn "NEXT_PUBLIC_RAWG" src` prints nothing, and `grep -ln "server-only" src/lib/watchlist/catalog.ts src/lib/watchlist/current-entries.ts` lists both files — 08b31ab
+- [x] 3.5 With Tomasz's `npm run dev` running and no session, `curl -sI http://localhost:3000/watchlist` answers `307` with `location: /login` — 08b31ab
 
 #### Manual
 
-- [x] 3.6 Signed in under `npm run dev`: typing "silent hill" shows results after a pause without interrupting the typing; Enter on "Ys" searches; the browser's Back button leaves `/watchlist` instead of stepping through earlier queries
-- [x] 3.7 Duplicate rule for games: Silent Hill 2 with PS5 is added and shows at the top of the list; adding it again with PS5 is blocked ("Na liście"), and when forced from a second tab opened earlier it shows "Ta pozycja jest już na liście."; Silent Hill 2 with any platform is added beside it
-- [x] 3.8 Phrases: "Fire Emblem" is added from the search; "fire emblem " is then reported as already on the list; a two-character query offers no phrase
-- [x] 3.9 Removal: a removed entry disappears from the list and can be added again
-- [x] 3.10 Isolation: a second test account sees an empty list, and its entries never appear for the first account
-- [x] 3.11 Failure path: with `RAWG_API_KEY` overridden to an invalid value for one `npm run dev` (`$env:RAWG_API_KEY="invalid"` in PowerShell — `.env.local` is never opened), a search shows "Katalog gier jest chwilowo niedostępny" with the phrase offer, the list still loads, and the terminal logs the reason and the status without a URL
-- [x] 3.12 Signed out, the header shows no "Obserwowane" link; screenshots of the live view, signed in, at 1280 px and 375 px are saved to `context/changes/watchlist-from-catalog/screenshots/`
+- [x] 3.6 Signed in under `npm run dev`: typing "silent hill" shows results after a pause without interrupting the typing; Enter on "Ys" searches; the browser's Back button leaves `/watchlist` instead of stepping through earlier queries — 08b31ab
+- [x] 3.7 Duplicate rule for games: Silent Hill 2 with PS5 is added and shows at the top of the list; adding it again with PS5 is blocked ("Na liście"), and when forced from a second tab opened earlier it shows "Ta pozycja jest już na liście."; Silent Hill 2 with any platform is added beside it — 08b31ab
+- [x] 3.8 Phrases: "Fire Emblem" is added from the search; "fire emblem " is then reported as already on the list; a two-character query offers no phrase — 08b31ab
+- [x] 3.9 Removal: a removed entry disappears from the list and can be added again — 08b31ab
+- [x] 3.10 Isolation: a second test account sees an empty list, and its entries never appear for the first account — 08b31ab
+- [x] 3.11 Failure path: with `RAWG_API_KEY` overridden to an invalid value for one `npm run dev` (`$env:RAWG_API_KEY="invalid"` in PowerShell — `.env.local` is never opened), a search shows "Katalog gier jest chwilowo niedostępny" with the phrase offer, the list still loads, and the terminal logs the reason and the status without a URL — 08b31ab
+- [x] 3.12 Signed out, the header shows no "Obserwowane" link; screenshots of the live view, signed in, at 1280 px and 375 px are saved to `context/changes/watchlist-from-catalog/screenshots/` — 08b31ab
 
 ### Phase 4: Production and records
 
 #### Automated
 
-- [ ] 4.1 `vercel env ls` lists `RAWG_API_KEY` for Production and Preview
-- [ ] 4.2 `npm run lint` and `npm run format:check` pass
+- [x] 4.1 `vercel env ls` lists `RAWG_API_KEY` for Production and Preview
+- [x] 4.2 `npm run lint` and `npm run format:check` pass
 - [ ] 4.3 `curl -sI https://physical-games-deals.vercel.app/watchlist` answers `307` with `location: /login`
 - [ ] 4.4 `vercel logs` for the production deployment, read after the acceptance searches, contains neither `api.rawg.io` nor `key=`
 

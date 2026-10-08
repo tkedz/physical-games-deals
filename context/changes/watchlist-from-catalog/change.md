@@ -51,3 +51,7 @@ archived_at: null
   - The proxy fix held in the browser: with B signed out in another tab, "Usuń" in a stale tab landed on `/login`, not on `error.tsx`.
   - Observed, not changed: RAWG timed out (5 s) on 3 of about 15 searches. `refresh()` re-runs the search after an add or a removal, so such a timeout replaces the results with the outage message right after a successful add. The plan rules out caching and retries for this slice.
   - Observed, not changed: the first `/` render after a long idle logged `Reading pipeline_runs failed: PGRST303` once, and a reload cleared it. The deals read predates this change.
+- **2026-10-08 — Phase 4 departures from the plan.**
+  - Tomasz added `RAWG_API_KEY` in the Vercel dashboard as a Sensitive variable (`vercel env ls` type `Secret`), for Production and Preview.
+  - The work happens on `main`, so "merge" is Tomasz's push of `main`. The phase's commit lands before that push, because the acceptance (4.3–4.8) needs the deployed code; its Progress rows land in the epilogue commit.
+  - The app's first variable read only at runtime ships through `vercel build` + `vercel deploy --prebuilt`. The production search is the proof that it reaches the functions: a log line `misconfigured, status none` would mean it does not.
