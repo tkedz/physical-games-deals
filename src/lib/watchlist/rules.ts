@@ -1,69 +1,33 @@
 /**
- * The watchlist's rules: which platforms an entry can be pinned to, how the
- * search reads the URL, when a query can become a phrase, what is already on
- * the list, and what the three Server Actions accept.
+ * The watchlist's rules: how the search reads the URL, when a query can
+ * become a phrase, what is already on the list, and what the three Server
+ * Actions accept. The platforms an entry can be pinned to, and how long a
+ * query may be, live in ./vocabulary.ts, which the browser loads without zod;
+ * they are re-exported here.
  *
  * Pure — no framework import and no I/O — so the view, the actions and a
  * future test runner all call the same code (context/foundation/lessons.md).
  * A character is a Unicode code point throughout, as Postgres's char_length
- * counts it, so the limits here are the database's own
- * (supabase/migrations/20261007141021_create_watchlist_entries.sql).
+ * counts it, so the limits on a phrase, the game id and the platform are the
+ * database's own (supabase/migrations/20261007141021_create_watchlist_entries.sql).
+ * The game's slug and name are held tighter here than in the table, which
+ * checks no length on either: an accepted risk, recorded in
+ * context/foundation/infrastructure.md.
  */
 import { z } from "zod";
 import type { CatalogGame } from "@/lib/catalog/types";
-import { platformLabel } from "@/lib/deals/format";
 import type { PinnablePlatform, SearchState, WatchlistEntry } from "./types";
+import { characterCount, MAX_QUERY_LENGTH, parsePlatform } from "./vocabulary";
 
-/**
- * The platforms an entry can be pinned to, in the order the select offers
- * them. `satisfies` ties the list to the deals vocabulary: a value it does not
- * have, `other` included, fails to compile.
- */
-export const PINNABLE_PLATFORMS = [
-  "ps5",
-  "ps4",
-  "xbox-series",
-  "xbox-one",
-  "switch",
-  "switch-2",
-  "pc",
-] as const satisfies readonly PinnablePlatform[];
-
-const PINNABLE: ReadonlySet<string> = new Set(PINNABLE_PLATFORMS);
-
-/**
- * A platform from untrusted input, a search param or a form field: one of
- * PINNABLE_PLATFORMS, or null — any platform — for anything else, an empty,
- * absent or repeated value included.
- */
-function parsePlatform(raw: unknown): PinnablePlatform | null {
-  return typeof raw === "string" && PINNABLE.has(raw)
-    ? (raw as PinnablePlatform)
-    : null;
-}
-
-/**
- * How the view names a pin: the platform as a deal card names it, or
- * "Dowolna platforma" for an entry without one.
- */
-export function pinLabel(platform: PinnablePlatform | null): string {
-  return platform === null ? "Dowolna platforma" : platformLabel(platform);
-}
-
-/** The most characters a query keeps, and a phrase may have. */
-export const MAX_QUERY_LENGTH = 100;
+export {
+  characterCount,
+  MAX_QUERY_LENGTH,
+  PINNABLE_PLATFORMS,
+  pinLabel,
+} from "./vocabulary";
 
 /** The fewest characters a phrase may have. */
 const MIN_PHRASE_LENGTH = 3;
-
-/**
- * How many characters a text has, counted as Postgres's char_length counts
- * them: in code points, so an emoji is one character where String#length
- * counts two UTF-16 units.
- */
-export function characterCount(text: string): number {
-  return Array.from(text).length;
-}
 
 /** The first `max` characters of a text, never splitting a surrogate pair. */
 function firstCharacters(text: string, max: number): string {

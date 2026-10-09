@@ -11,9 +11,12 @@
  * no package.
  *
  * Nothing here logs the request URL, the error object or a response body,
- * because the URL carries the key. Next's `logging.fetches` option would
- * print the URL of every fetch in the dev terminal — and with it the key, or
- * the start of it when the URL is shortened — so it stays off.
+ * because the URL carries the key. Next prints fetch URLs in two places, both
+ * in development, so both stay off: `logging.fetches` prints the URL of every
+ * fetch in the dev terminal — and with it the key, or the start of it when the
+ * URL is shortened — and the Server Components HMR cache warns with the URL
+ * when a response body fails to stream in (`serverComponentsHmrCache: false`
+ * in next.config.ts).
  */
 import "server-only";
 

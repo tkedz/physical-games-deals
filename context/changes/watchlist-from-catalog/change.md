@@ -1,9 +1,9 @@
 ---
 change_id: watchlist-from-catalog
 title: Watchlist of catalogue games and phrases, with optional platform
-status: implemented
+status: impl_reviewed
 created: 2026-10-07
-updated: 2026-10-08
+updated: 2026-10-09
 archived_at: null
 ---
 
@@ -63,3 +63,15 @@ archived_at: null
   - 4.5 and 4.8: the agent drove the UI through Chrome DevTools after Tomasz signed in. `kolekcjoner@przyklad22.pl` turned out to be the demo account, the one Phase 3 tested on as well. Its three test entries were removed through the UI; their rows stay as records (FR-004). The demo watchlist now holds Metroid Prime 4: Beyond (Switch 2), Borderlands 4, Split Fiction and the phrase „Dragon's Dogma”, each with deals on `/` that day. A stale second tab got "Ta pozycja jest już na liście.".
   - 4.6: the temporary account `izolacja-s03-prod@przyklad22.pl` saw an empty list. `checks/production-isolation.sql` was dry-run in PGlite first, where a select policy opened to everyone and a select grant to anon were both caught. In the SQL editor it passed all checks. Tomasz then deleted both temporary accounts, this one and Phase 3's `izolacja-s03@przyklad22.pl`.
   - 4.7: the demo account's tab sat idle from about 13:20 to 14:25. `/watchlist` opened from the address bar answered `200`, with no redirect to `/login`, and showed the demo address and its four entries.
+- **2026-10-09 — Phase 2 verification, recorded after the fact.** Tomasz confirms that 2.7 (Tab reaches the query field, the platform select and every enabled button in order, each with a visible focus indicator) and 2.8 (he read and accepted the Polish copy of every state) ran in Phase 2, before `cb51bae`.
+- **2026-10-09 — departures not recorded at the time.**
+  - `removeEntrySchema` has no `platform`, although the plan gives each of the three schemas one: a removal by id needs none.
+  - The action buttons carry `aria-describedby` pointing at the game's name or the phrase, and the search form has `role="search"`.
+  - `context/foundation/infrastructure.md:111` adds that rotating `RAWG_API_KEY` needs a redeploy.
+- **2026-10-09 — implementation review** (`reviews/impl-review.md`, verdict NEEDS ATTENTION, no critical findings). Departures made in triage:
+  - F1: `next.config.ts` sets `experimental.serverComponentsHmrCache: false`, a file the plan did not touch. Under `next dev` that cache logs a fetch's URL, and with it the RAWG key, when a response body fails to stream in. The header of `src/lib/watchlist/catalog.ts` names both Next paths that print fetch URLs.
+  - F7: `PINNABLE_PLATFORMS`, `parsePlatform`, `pinLabel`, `MAX_QUERY_LENGTH` and `characterCount` move from `rules.ts` to the new `src/lib/watchlist/vocabulary.ts`, without zod. `rules.ts` re-exports them, and `catalog-search-form.tsx` imports from the new module. Before, `/watchlist` loaded zod in the browser (a 417 KB chunk, about 98 KB gzipped); now only `/login` and `/signup` do.
+  - F3: the header of `rules.ts` no longer says all its limits are the database's own. The slug and the name of a game are held tighter than the table holds them.
+  - F2: a Risk Register row in `context/foundation/infrastructure.md` accepts, for the MVP, that one account can spend the shared RAWG quota or grow `watchlist_entries` without bound, and names the trigger to act on.
+  - F4: an unknown under S-04 in `context/foundation/roadmap.md`. Phrase duplicates fold case but not diacritics, so matching must show a deal once, and S-04 decides whether duplicates should fold diacritics too.
+  - F5, measured, not changed: in dev with live RAWG, as the demo account with a throwaway phrase „metroid”. With a search open, an add took 971 ms and 864 ms and a removal 1047 ms, from the click to the updated list. A removal without a search took 539 ms. `refresh()` re-running the search adds about 0.4–0.5 s at today's latency. The demo list is unchanged; two removed „metroid” rows stay as records.

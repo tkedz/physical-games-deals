@@ -14,7 +14,7 @@ import {
   MAX_QUERY_LENGTH,
   PINNABLE_PLATFORMS,
   pinLabel,
-} from "@/lib/watchlist/rules";
+} from "@/lib/watchlist/vocabulary";
 import type { PinnablePlatform } from "@/lib/watchlist/types";
 
 // While the user types, the search runs once they pause this long…
