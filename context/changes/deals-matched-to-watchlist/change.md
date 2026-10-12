@@ -1,7 +1,7 @@
 ---
 change_id: deals-matched-to-watchlist
 title: Deals matched to the watchlist, in a private view
-status: implemented
+status: impl_reviewed
 created: 2026-10-09
 updated: 2026-10-12
 archived_at: null
@@ -82,3 +82,23 @@ archived_at: null
   - 4.4: PRD open question 5 and Open Roadmap Question 5 carry the measured result.
   - Tomasz accepted the measurement and its two judgement calls: „Dragon’s Dogma 2 Dark Arisen” counts as Dragon's Dogma 2, and the Fortnite bundle as Fortnite. He confirmed 4.3.
   - Tomasz deleted all three temporary accounts in Authentication → Users: `dopasowanie-s04@przyklad22.pl` and `weryfikacja-s04@przyklad22.pl` from Phase 3, and `pomiar-s04@przyklad22.pl`. Their entries went with them.
+- **2026-10-12 — implementation review triage.** The findings and the decisions are in `reviews/impl-review.md`.
+  - `supabase/migrations/20261012130317_bound_game_match_key.sql` replaces `public.game_match_key`, for F1 and F2. It then recomputes the keys with `update public.deals set title = title`.
+  - F1:
+    - A name longer than 1000 characters keys to `''`.
+    - The year pattern drops its leading `\s*`, and spells `[0-9]` and ASCII whitespace in place of `\d` and `\s`.
+    - The length checks on `game_name` and `game_slug` stay deferred, as the risk row in `context/foundation/infrastructure.md` records.
+  - F2: a step before the trailing pattern drops only "edition" after a number or after hd, remake, remastered or remaster, and only "edycja" before one.
+    - „Just Dance 2025 Edition” keys to `just dance 2025`, and „Shadow of the Colossus HD Edition” to `shadow of the colossus hd`.
+    - The trailing pattern stays the plan's, unchanged. A lookahead inside it gave the same keys at about 35 times the cost on a long input.
+    - This departs from the plan's pattern (`plan.md:310-315`), which strips any one word before "edition". The plan's own text keeps Remake, Remastered and HD (`plan.md:53`).
+  - `supabase/checks/matching.sql` gains seven keys and two checks of the cap, 80 checks in all. The seven keys are „Silent Hill 2 (2001) ”, the Just Dance 2024 and 2025 editions, HD, Remastered and Remake before "Edition", and „Edycja HD”.
+  - PGlite (0.5.8, PostgreSQL 18.3):
+    - The check passed all 80, directly and through the `auth.users` fallback.
+    - The settle step held, and the fold parity held over 1,238 comparisons.
+    - The review's 40,000-character attack on the year pattern went from 2.4 s to 1 ms, and the slowest inputs under the cap took 4–6 ms.
+  - F3: `CLAUDE.md` has a rule for new functions in `public`, after the one for tables. Each revokes EXECUTE from every role, then grants it back to each role that calls it.
+  - F4: in `acceptance.md`, the Dark Arisen alternative now also moves deal 2833, which carries the same name.
+    - That alternative gives recall 38 / 39 and a wrong share of 1 / 39. With the Fortnite exclusion too, it gives 38 / 38 and 1 / 39. Both stay within the threshold.
+    - The misses' full titles and the settle step's count on production wait for a read-only query in the SQL editor.
+  - Tomasz pushes the migration and reruns `supabase/checks/matching.sql` in the SQL editor.

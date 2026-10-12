@@ -86,11 +86,13 @@ None. Each of the 39 deals on `/my-deals` is one of the 20 games.
 
 These calls decide the expected set. The result holds under each alternative.
 
-- **Dragon’s Dogma 2 Dark Arisen counts as Dragon's Dogma 2.** The titles say "2", and the platforms are PS5, Xbox Series and Switch 2, where the second game is sold, not the first. If they are the first game's Dark Arisen instead, recall is 39 / 40 = 97.5%.
-- **The Fortnite bundle counts as Fortnite.** Without it, recall is 39 / 42 = 92.9%. With both of these exclusions, it is 39 / 39.
+- **Dragon’s Dogma 2 Dark Arisen counts as Dragon's Dogma 2.** The titles say "2", and the platforms are PS5, Xbox Series and Switch 2, where the second game is sold, not the first. If they are the first game's Dark Arisen instead, so is deal 2833, which carries the same name and reached the view: recall is 38 / 39 = 97.4%, and the wrong share 1 / 39 = 2.6%.
+- **The Fortnite bundle counts as Fortnite.** Without it, recall is 39 / 42 = 92.9%. With both of these exclusions, recall is 38 / 38 = 100%, and the wrong share stays 1 / 39 = 2.6%.
 - **Two catalogue choices were corrected.** For „Saints Row” and „Fortnite”, the first result with the exact name was the 2006 game and a 2021 Android entry. They were replaced by „Saints Row (2022)” and „Fortnite Battle Royale” (2017), the games the deals are of. The replaced entries stay on the account as removed rows.
   - Saints Row's key is `saints row` either way.
   - Neither Fortnite key matches the bundle.
+
+The implementation review corrected the alternatives' figures (F4): the first version moved 2301–2303 but not 2833.
 
 ## Notes for a later tuning round
 

@@ -1,6 +1,7 @@
 -- Truth table for the deal-matching rule of
--- supabase/migrations/20261012070050_match_deals_to_watchlist.sql: the fold,
--- the game key, the keys stored on deals, the matched_deals view and its
+-- supabase/migrations/20261012070050_match_deals_to_watchlist.sql, with
+-- game_match_key as 20261012130317_bound_game_match_key.sql replaced it: the
+-- fold, the game key, the keys stored on deals, the matched_deals view and its
 -- grants, and the folded phrase index.
 --
 -- Run it in the Supabase SQL editor as it is, once the migration is pushed,
@@ -126,7 +127,14 @@ begin
       (26, 'key', 'Front Mission 3 Remake', 'front mission 3 remake'),
       (27, 'key', 'Super Smash Bros. Ultimate', 'super smash bros ultimate'),
       (28, 'key', 'Pokémon Gold', 'pokemon gold'),
-      (29, 'key', 'Deluxe Edition', '')
+      (29, 'key', 'Deluxe Edition', ''),
+      (30, 'key', 'Silent Hill 2 (2001) ', 'silent hill 2'),
+      (31, 'key', 'Just Dance 2025 Edition', 'just dance 2025'),
+      (32, 'key', 'Just Dance 2024 Edition', 'just dance 2024'),
+      (33, 'key', 'Shadow of the Colossus HD Edition', 'shadow of the colossus hd'),
+      (34, 'key', 'Dark Souls Remastered Edition', 'dark souls remastered'),
+      (35, 'key', 'Resident Evil 2 Remake Edition', 'resident evil 2 remake'),
+      (36, 'key', 'Shadow of the Colossus Edycja HD', 'shadow of the colossus hd')
     ) as t(step, fn, input, expected)
     order by t.step
   loop
@@ -144,6 +152,29 @@ begin
     exception when others then
       failures := failures + 1;
       report := array_append(report, format('FAIL %s „%s”: %s %s', c.fn, c.input, sqlstate, sqlerrm));
+    end;
+  end loop;
+
+  -- The cap of 20261012130317_bound_game_match_key.sql: a name of 1000
+  -- characters keys as any other, and a longer one keys to '', which matches
+  -- nothing, so no input costs more than a key of 1000 characters.
+  for c in
+    select * from (values (1000, repeat('a', 1000)), (1001, '')) as t(size, expected)
+    order by t.size
+  loop
+    begin
+      got := public.game_match_key(repeat('a', c.size));
+      if got is not distinct from c.expected then
+        report := array_append(report, format('ok   key of %s characters → %s',
+          c.size, case when got = '' then '''''' else 'kept whole' end));
+      else
+        failures := failures + 1;
+        report := array_append(report, format('FAIL key of %s characters → %s characters, expected %s',
+          c.size, char_length(got), char_length(c.expected)));
+      end if;
+    exception when others then
+      failures := failures + 1;
+      report := array_append(report, format('FAIL key of %s characters: %s %s', c.size, sqlstate, sqlerrm));
     end;
   end loop;
 
