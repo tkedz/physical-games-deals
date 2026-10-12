@@ -82,7 +82,7 @@
   - The keys are recomputed.
   - Not as proposed: the `game_name` and `game_slug` length checks stay deferred. The cap closes both ways in, and the risk register had deferred them on purpose; its row now records the cap.
   - Results in PGlite: `matching.sql` passed 74 of 74, the 40,000-character attack fell from 2.4 s to 1 ms, and inputs just under the cap took 3–5 ms.
-  - Pending: Tomasz's push and the SQL-editor rerun.
+  - On production: Tomasz pushed the migration on 2026-10-12. `db:check` and `db:status` were clean, and `matching.sql` passed 80 of 80 in the SQL editor.
 
 ### F2 — The edition slot strips years and the words the rule keeps
 

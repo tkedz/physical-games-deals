@@ -104,4 +104,4 @@ archived_at: null
       - The misses' titles confirm the causes in `acceptance.md`, which now lists them.
       - Deal 2833 matched through its alternative title „Dragon's Dogma 2”.
       - The settle step of `20261012070050` removed no row on production.
-  - Tomasz pushes the migration and reruns `supabase/checks/matching.sql` in the SQL editor.
+  - Tomasz pushed the migration on 2026-10-12. `db:check` and `db:status` were clean, and `supabase/checks/matching.sql` passed all 80 checks in the SQL editor.
