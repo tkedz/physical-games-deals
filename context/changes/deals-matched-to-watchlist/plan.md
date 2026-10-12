@@ -799,31 +799,31 @@ Duplicates:
 
 #### Automated
 
-- [x] 2.1 `npm run build` passes and still prerenders `/kitchen-sink` as a 404 for production
-- [x] 2.2 `npm run lint` and `npm run format:check` pass
-- [x] 2.3 `package.json`, `components.json` and `src/app/globals.css` are unchanged, and no new view uses the `outline` or `destructive` button variant
+- [x] 2.1 `npm run build` passes and still prerenders `/kitchen-sink` as a 404 for production — e37137b
+- [x] 2.2 `npm run lint` and `npm run format:check` pass — e37137b
+- [x] 2.3 `package.json`, `components.json` and `src/app/globals.css` are unchanged, and no new view uses the `outline` or `destructive` button variant — e37137b
 
 #### Manual
 
-- [x] 2.4 The kitchen sink's „Moje okazje” section, under `npm run dev`, renders every state at 1280 px and at 375 px without horizontal scroll, captured in `context/changes/deals-matched-to-watchlist/screenshots/`
-- [x] 2.5 Tab reaches every link and button of each state in order, each with a visible focus indicator
-- [x] 2.6 Tomasz reads and accepts the Polish copy of every state and of the new phrase rule line
+- [x] 2.4 The kitchen sink's „Moje okazje” section, under `npm run dev`, renders every state at 1280 px and at 375 px without horizontal scroll, captured in `context/changes/deals-matched-to-watchlist/screenshots/` — e37137b
+- [x] 2.5 Tab reaches every link and button of each state in order, each with a visible focus indicator — e37137b
+- [x] 2.6 Tomasz reads and accepts the Polish copy of every state and of the new phrase rule line — e37137b
 
 ### Phase 3: `/my-deals` end to end in dev
 
 #### Automated
 
-- [ ] 3.1 `npm run build`, `npm run lint` and `npm run format:check` pass
-- [ ] 3.2 `foldForMatching` and `public.fold_for_matching` return identical text for every fold case of `supabase/checks/matching.sql`, from a scratch script against PGlite
-- [ ] 3.3 Against `npm run dev`, signed out: `/my-deals` and `/my-deals?page=2` answer 307 to `/login`, and `/` still answers 200 with 30 cards
+- [x] 3.1 `npm run build`, `npm run lint` and `npm run format:check` pass
+- [x] 3.2 `foldForMatching` and `public.fold_for_matching` return identical text for every fold case of `supabase/checks/matching.sql`, from a scratch script against PGlite
+- [x] 3.3 Against `npm run dev`, signed out: `/my-deals` and `/my-deals?page=2` answer 307 to `/login`, and `/` still answers 200 with 30 cards
 
 #### Manual
 
-- [ ] 3.4 Signed in as the demo account (Tomasz signs in, the agent drives Chrome DevTools): `/my-deals` lists only deals for its active entries, newest first, none twice, and the Switch 2 pin on Metroid Prime 4: Beyond admits no `switch` deal
-- [ ] 3.5 A temporary account goes from the empty-list state, through the no-matches state with its freshness line, to a watched game's deals appearing on `/my-deals` with no step beyond adding it
-- [ ] 3.6 With „Wiedźmin” on the temporary account's list, a search for „wiedzmin” shows „Ta fraza jest już na liście”
-- [ ] 3.7 `/my-deals?page=999` shows the past-the-end state, and the header shows „Moje okazje” on every view and wraps at 375 px
-- [ ] 3.8 A tab left on `/my-deals` after signing out in another tab lands on `/login` when reloaded
+- [x] 3.4 Signed in as the demo account (Tomasz signs in, the agent drives Chrome DevTools): `/my-deals` lists only deals for its active entries, newest first, none twice, and the Switch 2 pin on Metroid Prime 4: Beyond admits no `switch` deal
+- [x] 3.5 A temporary account goes from the empty-list state, through the no-matches state with its freshness line, to a watched game's deals appearing on `/my-deals` with no step beyond adding it
+- [x] 3.6 With „Wiedźmin” on the temporary account's list, a search for „wiedzmin” shows „Ta fraza jest już na liście”
+- [x] 3.7 `/my-deals?page=999` shows the past-the-end state, and the header shows „Moje okazje” on every view and wraps at 375 px
+- [x] 3.8 A tab left on `/my-deals` after signing out in another tab lands on `/login` when reloaded
 
 ### Phase 4: Production acceptance and records
 

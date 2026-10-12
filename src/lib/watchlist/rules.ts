@@ -1,9 +1,9 @@
 /**
  * The watchlist's rules: how the search reads the URL, when a query can
- * become a phrase, what is already on the list, and what the three Server
- * Actions accept. The platforms an entry can be pinned to, and how long a
- * query may be, live in ./vocabulary.ts, which the browser loads without zod;
- * they are re-exported here.
+ * become a phrase, how matching folds text, what is already on the list, and
+ * what the three Server Actions accept. The platforms an entry can be pinned
+ * to, and how long a query may be, live in ./vocabulary.ts, which the browser
+ * loads without zod; they are re-exported here.
  *
  * Pure — no framework import and no I/O — so the view, the actions and a
  * future test runner all call the same code (context/foundation/lessons.md).
@@ -72,9 +72,99 @@ export function toPhrase(query: string): string | null {
     : null;
 }
 
-/** A phrase as the duplicate rule compares it: trimmed, in lower case. */
+/**
+ * A phrase as the unique index on lower(phrase) compares it: trimmed, in lower
+ * case.
+ */
 function phraseKey(phrase: string): string {
   return phrase.trim().toLowerCase();
+}
+
+// The translate table of public.fold_for_matching, copied character for
+// character and in the same order: each character of FOLD_FROM becomes the
+// character of FOLD_TO at its position. A-Z are lowered here, never by
+// toLowerCase, which would also lower letters the table leaves alone, as the
+// SQL fold does not. The Latin diacritics fold to their base letter, ł
+// included. The six apostrophes that close FOLD_FROM stand past FOLD_TO's end,
+// so they are deleted.
+const FOLD_FROM =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+  "ĄĆĘŁŃÓŚŹŻ" +
+  "ąćęłńóśźż" +
+  "ÀÁÂÃÄÅàáâãäå" +
+  "ÇČçč" +
+  "ĎĐďđ" +
+  "ÈÉÊËĚèéêëě" +
+  "ÌÍÎÏìíîï" +
+  "ŇÑňñ" +
+  "ÒÔÕÖØŐòôõöøő" +
+  "Řř" +
+  "Šš" +
+  "Ťť" +
+  "ÙÚÛÜŮŰùúûüůű" +
+  "ÝŸýÿ" +
+  "Žž" +
+  "'’‘`´ʼ";
+const FOLD_TO =
+  "abcdefghijklmnopqrstuvwxyz" +
+  "acelnoszz" +
+  "acelnoszz" +
+  "aaaaaaaaaaaa" +
+  "cccc" +
+  "dddd" +
+  "eeeeeeeeee" +
+  "iiiiiiii" +
+  "nnnn" +
+  "oooooooooooo" +
+  "rr" +
+  "ss" +
+  "tt" +
+  "uuuuuuuuuuuu" +
+  "yyyy" +
+  "zz";
+
+/**
+ * A translate table as Postgres's translate() reads one, by code point: a
+ * character of `from` maps to the character of `to` at the same position, or
+ * to nothing — it is deleted — when `to` is shorter. A character listed twice
+ * in `from` keeps its first position.
+ */
+function translateTable(from: string, to: string): ReadonlyMap<string, string> {
+  const targets = Array.from(to);
+  const table = new Map<string, string>();
+  Array.from(from).forEach((character, position) => {
+    if (!table.has(character)) table.set(character, targets[position] ?? "");
+  });
+  return table;
+}
+
+// Built once, when the module loads.
+const FOLD_TABLE = translateTable(FOLD_FROM, FOLD_TO);
+
+/**
+ * Text as matching compares it. The twin of public.fold_for_matching in
+ * supabase/migrations/20261012070050_match_deals_to_watchlist.sql, and the two
+ * must stay identical (CLAUDE.md, Deal matching): the folded phrase index
+ * refuses a phrase by the SQL fold, and the phrase pre-check below predicts
+ * that refusal by this one. The same four steps, in the same order:
+ * 1. every character through the table above, by code point;
+ * 2. "&" read as " and ";
+ * 3. every run of characters outside [a-z0-9] turned into one space, the
+ *    pattern reading code points (the `u` flag), as Postgres does;
+ * 4. the spaces at both ends trimmed.
+ */
+export function foldForMatching(value: string): string {
+  const translated = Array.from(
+    value,
+    (character) => FOLD_TABLE.get(character) ?? character,
+  ).join("");
+  // btrim() trims spaces only. After step 3 the text holds no character
+  // outside [a-z0-9] but single spaces, so trim() removes exactly what it
+  // does.
+  return translated
+    .replaceAll("&", " and ")
+    .replace(/[^a-z0-9]+/gu, " ")
+    .trim();
 }
 
 /**
@@ -97,9 +187,15 @@ export function isGameOnList(
 }
 
 /**
- * Whether the list already holds this phrase on this platform, ignoring
- * letter case and surrounding spaces, as the database's unique index on
- * lower(phrase) does. Null equals null, as for games.
+ * Whether the list already holds this phrase on this platform: true in every
+ * case where the database would refuse it as a duplicate. Either of two
+ * unique indexes on public.watchlist_entries refuses a phrase:
+ * - the folded one, when both phrases fold to the same text and that text is
+ *   not empty, so „wiedzmin” is on a list that holds „Wiedźmin”;
+ * - the one on lower(phrase), when both are equal ignoring letter case and
+ *   surrounding spaces, which also holds phrases that fold to nothing, such as
+ *   „!!!”, to one entry.
+ * Null equals null, as for games.
  */
 export function isPhraseOnList(
   entries: readonly WatchlistEntry[],
@@ -107,11 +203,13 @@ export function isPhraseOnList(
   platform: PinnablePlatform | null,
 ): boolean {
   const key = phraseKey(phrase);
+  const folded = foldForMatching(phrase);
   return entries.some(
     (entry) =>
       entry.kind === "phrase" &&
-      phraseKey(entry.phrase) === key &&
-      entry.platform === platform,
+      entry.platform === platform &&
+      ((folded !== "" && foldForMatching(entry.phrase) === folded) ||
+        phraseKey(entry.phrase) === key),
   );
 }
 

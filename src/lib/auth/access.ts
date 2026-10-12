@@ -7,13 +7,14 @@ export type AccessDecision =
 const AUTH_PAGES: ReadonlySet<string> = new Set(["/login", "/signup"]);
 
 // The views only a signed-in user may open, matched the same way.
-const PRIVATE_PAGES: ReadonlySet<string> = new Set(["/watchlist"]);
+const PRIVATE_PAGES: ReadonlySet<string> = new Set(["/watchlist", "/my-deals"]);
 
 /**
  * The proxy's access rule, as a pure function of the path and the session
  * state. A signed-in user who opens an auth page is sent to `/`, because there
- * is nothing left for them to do there. A visitor who opens a private page is
- * sent to `/login`. Every other path is public.
+ * is nothing left for them to do there. A visitor who opens a private page,
+ * `/watchlist` or `/my-deals`, is sent to `/login`. Every other path is
+ * public.
  *
  * The redirect is a first filter, not the boundary: a private view checks the
  * user again where it reads or writes, and RLS guards its rows.

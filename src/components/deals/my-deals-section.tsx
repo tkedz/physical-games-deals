@@ -3,9 +3,10 @@
  * matches, an empty watchlist, a page past the end, a failed read, and the
  * wait for one of them.
  *
- * What each state looks like is in the sync components here, which the
- * kitchen sink renders from sample data. They reuse the parts of `/`: the
- * deal list and its cards, the freshness line, the pagination and the retry.
+ * MyDealsSection reads and picks one. What each state looks like is in the
+ * sync components after it, which the kitchen sink renders from sample data.
+ * They reuse the parts of `/`: the deal list and its cards, the freshness
+ * line, the pagination and the retry.
  */
 import { CircleAlert } from "lucide-react";
 import Link from "next/link";
@@ -23,9 +24,58 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
-import type { Freshness } from "@/lib/deals/freshness";
+import { getCurrentUser } from "@/lib/auth/current-user";
+import { decideFreshness, type Freshness } from "@/lib/deals/freshness";
 import { pageHref } from "@/lib/deals/page";
-import type { ListedDeal } from "@/lib/deals/queries";
+import {
+  loadLastRefresh,
+  loadMatchedDealsPage,
+  type ListedDeal,
+} from "@/lib/deals/queries";
+import { getActiveEntries } from "@/lib/watchlist/current-entries";
+import { createClient } from "@/utils/supabase/server";
+
+/**
+ * Everything on `/my-deals` below the heading, which page.tsx wraps in
+ * Suspense.
+ *
+ * - Without a user it renders nothing, before it reaches the database, as the
+ *   `/watchlist` sections do. The proxy's redirect to /login is a first
+ *   filter only (src/lib/auth/access.ts), and this section renders on its
+ *   own. Without a session the reads would run as anon, which holds no grant
+ *   on the view, and fail into the error state.
+ * - With one, it reads the list, the page of matched deals and the last
+ *   refresh in parallel, then picks a state: the inline error when any read
+ *   failed, the empty list when the list has no active entries, and
+ *   otherwise the matched deals under the freshness line.
+ *
+ * It only fetches and picks one: the matching runs in the database, in
+ * public.matched_deals, and the freshness is decided in src/lib/deals. An
+ * unexpected throw goes to src/app/(app)/my-deals/error.tsx.
+ */
+export async function MyDealsSection({ page }: { page: number }) {
+  if ((await getCurrentUser()) === null) return null;
+
+  // Created for this request: the client carries the request's cookies.
+  const client = await createClient();
+  const now = new Date();
+  const [list, matchedPage, lastRefresh] = await Promise.all([
+    getActiveEntries(),
+    loadMatchedDealsPage(client, page, now),
+    loadLastRefresh(client),
+  ]);
+
+  if (!list.ok || !matchedPage.ok || !lastRefresh.ok) return <MyDealsError />;
+  if (list.entries.length === 0) return <MyDealsNoEntries />;
+  return (
+    <MyDealsResults
+      page={page}
+      freshness={decideFreshness(lastRefresh.finishedAt, now)}
+      deals={matchedPage.deals}
+      hasOlder={matchedPage.hasOlder}
+    />
+  );
+}
 
 /**
  * Reads that succeeded, for a list with entries: the freshness line, then the

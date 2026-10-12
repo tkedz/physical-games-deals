@@ -1,8 +1,9 @@
 /**
- * The two reads behind `/`: a page of listed deals, and when the last
- * successful run finished. The client is passed in, so the caller decides
- * whose session reads — on `/`, a client from src/utils/supabase/server.ts,
- * created for the request, holding the publishable key.
+ * The reads behind `/` and `/my-deals`: a page of listed deals — every one, or
+ * the signed-in user's matches — and when the last successful run finished.
+ * The client is passed in, so the caller decides whose session reads — a
+ * client from src/utils/supabase/server.ts, created for the request, holding
+ * the publishable key, and on `/my-deals` the user's session.
  *
  * A failed read comes back as a value, `{ ok: false }`: never a throw, and
  * never the error itself. The page answers every failure with the same inline
@@ -10,8 +11,9 @@
  * resolves most failures as `{ error }` rather than throwing, and retries a
  * failed GET up to three times first, so a failure takes about seven seconds
  * to arrive; a throw from the call is caught and treated the same. The server
- * log gets the table and PostgREST's code, or the column a row failed on —
- * never the error's message — so a failure can be told apart afterwards.
+ * log gets the relation read (a table, or the view behind `/my-deals`) and
+ * PostgREST's code, or the column a row failed on — never the error's
+ * message — so a failure can be told apart afterwards.
  *
  * Server-only, as the reads of a Server Component; like the auth helper in
  * src/lib/auth/current-user.ts, the import needs no package.
@@ -86,14 +88,14 @@ function codeOf(error: unknown): string {
 }
 
 /**
- * The rows one read of `table` returned, each checked against `row`, or null
- * when the read failed: an error Supabase reported, a throw from the call, or
- * a row of an unexpected shape. Only the table and the code or column reach
- * the server log; the error object is dropped, as the comment at the top
- * explains.
+ * The rows one read of `relation` returned, each checked against `row`, or
+ * null when the read failed: an error Supabase reported, a throw from the
+ * call, or a row of an unexpected shape. Only the relation and the code or
+ * column reach the server log; the error object is dropped, as the comment at
+ * the top explains.
  */
 async function readRows<Row extends z.ZodType>(
-  table: string,
+  relation: string,
   query: PromiseLike<{ data: unknown; error: unknown }>,
   row: Row,
 ): Promise<z.output<Row>[] | null> {
@@ -101,19 +103,19 @@ async function readRows<Row extends z.ZodType>(
   try {
     const response = await query;
     if (response.error !== null) {
-      console.error(`Reading ${table} failed: ${codeOf(response.error)}`);
+      console.error(`Reading ${relation} failed: ${codeOf(response.error)}`);
       return null;
     }
     data = response.data;
   } catch {
-    console.error(`Reading ${table} threw`);
+    console.error(`Reading ${relation} threw`);
     return null;
   }
   const parsed = z.array(row).safeParse(data);
   if (parsed.success) return parsed.data;
   const at = parsed.error.issues[0]?.path.map(String).join(".") ?? "";
   console.error(
-    `Reading ${table} returned rows of an unexpected shape at ${at || "the top"}`,
+    `Reading ${relation} returned rows of an unexpected shape at ${at || "the top"}`,
   );
   return null;
 }
@@ -122,28 +124,38 @@ export type DealsPageResult =
   { ok: true; deals: ListedDeal[]; hasOlder: boolean } | { ok: false };
 
 /**
- * One page of listed deals, newest first by the post's publication time, with
- * the id breaking ties, so that pages neither overlap nor skip a row.
+ * Where a page of listed deals is read from: public.deals for every one, and
+ * public.matched_deals, the view of public.deals that keeps the deals matching
+ * the caller's active watchlist entries.
+ */
+type ListedDealsRelation = "deals" | "matched_deals";
+
+/**
+ * One page of the listed deals in `relation`, newest first by the post's
+ * publication time, with the id breaking ties, so that pages neither overlap
+ * nor skip a row. Both relations are read the same way.
  *
  * - The select policy on public.deals admits only listed rows: a game, a
- *   physical copy, a price. The query states the same predicate anyway, so a
- *   policy widened for some other reader cannot widen this page.
+ *   physical copy, a price. The view runs as the caller, so the policy holds
+ *   under it too, and the view states the same predicate. The query states it
+ *   anyway, so a policy widened for some other reader cannot widen this page.
  * - A deal is hidden from its `expires_at` on: the column holds the
  *   exclusive end of the offer, so `expires_at > now` keeps exactly the
  *   offers still running. One without a date stays.
  * - It reads one row past the page: whether that row exists says whether an
  *   older page does, without a count query.
  */
-export async function loadDealsPage(
+async function loadListedDealsPage(
   client: SupabaseClient,
+  relation: ListedDealsRelation,
   page: number,
   now: Date,
 ): Promise<DealsPageResult> {
   const from = (page - 1) * PAGE_SIZE;
   const rows = await readRows(
-    "deals",
+    relation,
     client
-      .from("deals")
+      .from(relation)
       .select(LISTED_DEAL_COLUMNS)
       .eq("kind", "game")
       .eq("edition", "physical")
@@ -163,6 +175,29 @@ export async function loadDealsPage(
     deals: rows.slice(0, PAGE_SIZE),
     hasOlder: rows.length > PAGE_SIZE,
   };
+}
+
+/** One page of every listed deal, for `/`. */
+export function loadDealsPage(
+  client: SupabaseClient,
+  page: number,
+  now: Date,
+): Promise<DealsPageResult> {
+  return loadListedDealsPage(client, "deals", page, now);
+}
+
+/**
+ * One page of the listed deals that match the caller's active watchlist
+ * entries, each once, for `/my-deals`. The view runs as the caller, so the
+ * client must carry a signed-in user's session: anon holds no grant on it,
+ * and its read fails.
+ */
+export function loadMatchedDealsPage(
+  client: SupabaseClient,
+  page: number,
+  now: Date,
+): Promise<DealsPageResult> {
+  return loadListedDealsPage(client, "matched_deals", page, now);
 }
 
 export type LastRefreshResult =
