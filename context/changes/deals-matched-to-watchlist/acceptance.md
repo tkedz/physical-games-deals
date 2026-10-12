@@ -69,14 +69,19 @@ The view kept these titles apart from the watched game, rightly:
 
 ## Misses
 
-| Deal | Platform | Title on the card | Cause |
+| Deal | Platform | Titles | Cause |
 | --- | --- | --- | --- |
-| 2301 | PS5 | Dragon’s Dogma 2 Dark Arisen | "Dark Arisen" names an edition the qualifier list does not know, so the key stays `dragons dogma 2 dark arisen`. |
-| 2302 | Xbox Series X\|S | Dragon’s Dogma 2 Dark Arisen | As 2301. |
-| 2303 | Switch 2 | Dragon’s Dogma 2 Dark Arisen | As 2301. |
-| 2829 | Switch | Fortnite Darkfire & Ice Bundle | A content bundle named after its items. Neither "bundle" nor the pack's name is a qualifier, and the catalogue names the game "Fortnite Battle Royale", which no deal title contains. |
+| 2301 | PS5 | „Dragon’s Dogma 2 Dark Arisen”, `english_title` „Dragon's Dogma 2 Dark Arisen”, no alternative titles | "Dark Arisen" names an edition the qualifier list does not know, so both titles key to `dragons dogma 2 dark arisen`. |
+| 2302 | Xbox Series X\|S | As 2301 | As 2301. |
+| 2303 | Switch 2 | As 2301 | As 2301. |
+| 2829 | Switch | „Fortnite Darkfire & Ice Bundle”, the same `english_title`, no alternative titles | A content bundle named after its items. Neither "bundle" nor the pack's name is a qualifier, and the catalogue names the game "Fortnite Battle Royale", which no deal title contains. Both titles key to `fortnite darkfire and ice bundle`. |
 
-Deal 2833, „Dragon's Dogma II 2 Dark Arisen I PS5 I PlayStation 5 I PL”, did reach the view. Its card title alone keys to `dragons dogma ii 2 dark arisen i ps5 i playstation 5 i`. So it matched through a title the card does not show: `english_title` or one of `alternative_titles`.
+Deal 2833, „Dragon's Dogma II 2 Dark Arisen I PS5 I PlayStation 5 I PL”, did reach the view.
+- It matched through its alternative title „Dragon's Dogma 2”, which keys to `dragons dogma 2`.
+- Its card title keys to `dragons dogma ii 2 dark arisen i ps5 i playstation 5 i`.
+- Its `english_title`, „Dragon's Dogma II”, keys to `dragons dogma ii`, which the rule keeps apart: it has no numeral equivalence.
+
+The titles in this section were read from `public.deals` on 2026-10-12, during the implementation review (F4).
 
 ## Wrong matches
 

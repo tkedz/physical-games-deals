@@ -100,5 +100,8 @@ archived_at: null
   - F3: `CLAUDE.md` has a rule for new functions in `public`, after the one for tables. Each revokes EXECUTE from every role, then grants it back to each role that calls it.
   - F4: in `acceptance.md`, the Dark Arisen alternative now also moves deal 2833, which carries the same name.
     - That alternative gives recall 38 / 39 and a wrong share of 1 / 39. With the Fortnite exclusion too, it gives 38 / 38 and 1 / 39. Both stay within the threshold.
-    - The misses' full titles and the settle step's count on production wait for a read-only query in the SQL editor.
+    - Tomasz ran a read-only query in the SQL editor, and its report fills the two gaps.
+      - The misses' titles confirm the causes in `acceptance.md`, which now lists them.
+      - Deal 2833 matched through its alternative title „Dragon's Dogma 2”.
+      - The settle step of `20261012070050` removed no row on production.
   - Tomasz pushes the migration and reruns `supabase/checks/matching.sql` in the SQL editor.

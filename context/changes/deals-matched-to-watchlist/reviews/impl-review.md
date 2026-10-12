@@ -138,9 +138,9 @@
   - the phrase rows grouped by `removed_at` around the push.
 
   The results go into acceptance.md and change.md, with the alternative's figures corrected.
-- **Decision**: PARTLY FIXED.
-  - Done: acceptance.md's Dark Arisen alternative now moves deal 2833 too, giving 38 / 39 and 1 / 39, or 38 / 38 and 1 / 39 with the Fortnite exclusion. A line under the list records the correction.
-  - Pending: Tomasz runs the read-only query (dry-run in PGlite). Its report then fills in the misses' full titles in acceptance.md and the settle step's count in change.md.
+- **Decision**: FIXED.
+  - acceptance.md's Dark Arisen alternative now moves deal 2833 too, giving 38 / 39 and 1 / 39, or 38 / 38 and 1 / 39 with the Fortnite exclusion. A line under the list records the correction.
+  - Tomasz ran the read-only query (dry-run in PGlite first). Its report filled the Misses table with every title and confirmed each cause. It showed that deal 2833 matched through its alternative title „Dragon's Dogma 2”. It also showed that the settle step removed no row on production; change.md records all three facts.
 
 ### F5 — A decomposed accent folds into a word break
 
@@ -159,6 +159,5 @@
 
 ## Triage summary
 
-- Fixed: F1, F2 (implemented as a pre-step instead of lookaheads), F3
-- Partly fixed: F4 (the arithmetic; the full titles and the settle count wait for Tomasz's read-only query)
+- Fixed: F1, F2 (implemented as a pre-step instead of lookaheads), F3, F4
 - Skipped: F5 (deferred to the next change of the fold)
