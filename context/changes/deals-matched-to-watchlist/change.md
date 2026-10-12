@@ -64,3 +64,21 @@ archived_at: null
     - After he added the phrase, the search that `refresh()` re-runs got no answer from RAWG within 5 s (`unavailable, status none`). The results area showed „Katalog gier jest chwilowo niedostępny”, and the dev overlay showed the server's own log line from `catalog.ts`, with no URL and no key.
     - The add itself succeeded. This is the S-03 behaviour recorded on 2026-10-08; this change does not touch the catalogue.
   - Tomasz deletes both temporary accounts in Authentication → Users at the end of Phase 4, together with Phase 4's own.
+- **2026-10-12 — Phase 4 departures from the plan.**
+  - Tomasz pushed `main` at `ce9438b`. The push also carried `906e072`, S-03's implementation review fixes, which had not been pushed before.
+  - `gh` is not signed in on this machine, so the agent could not watch the CI run. Instead it polled production until `/my-deals` turned from 404 to 307, about 100 s after the push. `vercel inspect` then named the deployment.
+  - For two games, the first catalogue result with the exact name was not the deals' game: „Saints Row” (2006) and „Fortnite” (2021, Android). The agent replaced them with „Saints Row (2022)” and „Fortnite Battle Royale” (2017), as the plan's „the result that is the same game” asks. `acceptance.md` records both.
+  - The demo account's production check used the browser's existing production session, so Tomasz did not have to sign in.
+- **2026-10-12 — Phase 4 verified on production.**
+  - 4.1: deployment `physical-games-deals-ipkndymyu-tkedz` (`dpl_FWg4o4NGfrAc2qesUkeNe3y4q8Nj`), signed out.
+    - `/my-deals` and `/my-deals?page=2` answered `307` with `Location: /login`.
+    - `/` answered `200` with 30 cards.
+    - `/kitchen-sink` answered `404`.
+  - 4.2: `acceptance.md` records the measurement on a temporary account, `pomiar-s04@przyklad22.pl`, that watches 20 games. Recall was 39 / 43 = 90.7%, and the wrong share was 0 / 39. No tuning round was needed.
+  - 4.3: each account sees only the matches of its own entries.
+    - `pomiar-s04` sees its 39 deals and none of the demo account's (Split Fiction, Borderlands 4, Metroid Prime 4: Beyond, Dragon's Dogma: Dark Arisen).
+    - The demo account sees the same 15 deals on production as in dev. Deal 2833 appears for both, because both accounts' own entries match it: the demo's phrase „Dragon's Dogma” and the temporary account's game Dragon’s Dogma 2.
+    - A signed-in `/my-deals` answered `cache-control: private, no-cache, no-store, max-age=0, must-revalidate`.
+  - 4.4: PRD open question 5 and Open Roadmap Question 5 carry the measured result.
+  - Tomasz accepted the measurement and its two judgement calls: „Dragon’s Dogma 2 Dark Arisen” counts as Dragon's Dogma 2, and the Fortnite bundle as Fortnite. He confirmed 4.3.
+  - Tomasz deleted all three temporary accounts in Authentication → Users: `dopasowanie-s04@przyklad22.pl` and `weryfikacja-s04@przyklad22.pl` from Phase 3, and `pomiar-s04@przyklad22.pl`. Their entries went with them.

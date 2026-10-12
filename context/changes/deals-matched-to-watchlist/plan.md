@@ -813,26 +813,26 @@ Duplicates:
 
 #### Automated
 
-- [x] 3.1 `npm run build`, `npm run lint` and `npm run format:check` pass
-- [x] 3.2 `foldForMatching` and `public.fold_for_matching` return identical text for every fold case of `supabase/checks/matching.sql`, from a scratch script against PGlite
-- [x] 3.3 Against `npm run dev`, signed out: `/my-deals` and `/my-deals?page=2` answer 307 to `/login`, and `/` still answers 200 with 30 cards
+- [x] 3.1 `npm run build`, `npm run lint` and `npm run format:check` pass — ce9438b
+- [x] 3.2 `foldForMatching` and `public.fold_for_matching` return identical text for every fold case of `supabase/checks/matching.sql`, from a scratch script against PGlite — ce9438b
+- [x] 3.3 Against `npm run dev`, signed out: `/my-deals` and `/my-deals?page=2` answer 307 to `/login`, and `/` still answers 200 with 30 cards — ce9438b
 
 #### Manual
 
-- [x] 3.4 Signed in as the demo account (Tomasz signs in, the agent drives Chrome DevTools): `/my-deals` lists only deals for its active entries, newest first, none twice, and the Switch 2 pin on Metroid Prime 4: Beyond admits no `switch` deal
-- [x] 3.5 A temporary account goes from the empty-list state, through the no-matches state with its freshness line, to a watched game's deals appearing on `/my-deals` with no step beyond adding it
-- [x] 3.6 With „Wiedźmin” on the temporary account's list, a search for „wiedzmin” shows „Ta fraza jest już na liście”
-- [x] 3.7 `/my-deals?page=999` shows the past-the-end state, and the header shows „Moje okazje” on every view and wraps at 375 px
-- [x] 3.8 A tab left on `/my-deals` after signing out in another tab lands on `/login` when reloaded
+- [x] 3.4 Signed in as the demo account (Tomasz signs in, the agent drives Chrome DevTools): `/my-deals` lists only deals for its active entries, newest first, none twice, and the Switch 2 pin on Metroid Prime 4: Beyond admits no `switch` deal — ce9438b
+- [x] 3.5 A temporary account goes from the empty-list state, through the no-matches state with its freshness line, to a watched game's deals appearing on `/my-deals` with no step beyond adding it — ce9438b
+- [x] 3.6 With „Wiedźmin” on the temporary account's list, a search for „wiedzmin” shows „Ta fraza jest już na liście” — ce9438b
+- [x] 3.7 `/my-deals?page=999` shows the past-the-end state, and the header shows „Moje okazje” on every view and wraps at 375 px — ce9438b
+- [x] 3.8 A tab left on `/my-deals` after signing out in another tab lands on `/login` when reloaded — ce9438b
 
 ### Phase 4: Production acceptance and records
 
 #### Automated
 
-- [ ] 4.1 Production, signed out: `/my-deals` answers 307 to `/login`, `/` answers 200 with cards, and `/kitchen-sink` answers 404
+- [x] 4.1 Production, signed out: `/my-deals` answers 307 to `/login`, `/` answers 200 with cards, and `/kitchen-sink` answers 404
 
 #### Manual
 
-- [ ] 4.2 `acceptance.md` records the production measurement: at least 80% of the watched games' deals on `/` reach `/my-deals`, and at most 5% of the deals on `/my-deals` are another game
-- [ ] 4.3 The temporary account and the demo account each see only their own matches on production, and a signed-in `/my-deals` response carries a `private` or `no-store` `cache-control`
-- [ ] 4.4 PRD open question 5 and the roadmap carry the measured result, and Tomasz has deleted the temporary accounts
+- [x] 4.2 `acceptance.md` records the production measurement: at least 80% of the watched games' deals on `/` reach `/my-deals`, and at most 5% of the deals on `/my-deals` are another game
+- [x] 4.3 The temporary account and the demo account each see only their own matches on production, and a signed-in `/my-deals` response carries a `private` or `no-store` `cache-control`
+- [x] 4.4 PRD open question 5 and the roadmap carry the measured result, and Tomasz has deleted the temporary accounts
