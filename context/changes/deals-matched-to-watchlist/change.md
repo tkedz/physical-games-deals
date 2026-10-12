@@ -1,7 +1,7 @@
 ---
 change_id: deals-matched-to-watchlist
 title: Deals matched to the watchlist, in a private view
-status: implementing
+status: implemented
 created: 2026-10-09
 updated: 2026-10-12
 archived_at: null

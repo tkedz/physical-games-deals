@@ -829,10 +829,10 @@ Duplicates:
 
 #### Automated
 
-- [x] 4.1 Production, signed out: `/my-deals` answers 307 to `/login`, `/` answers 200 with cards, and `/kitchen-sink` answers 404
+- [x] 4.1 Production, signed out: `/my-deals` answers 307 to `/login`, `/` answers 200 with cards, and `/kitchen-sink` answers 404 — f2bf0df
 
 #### Manual
 
-- [x] 4.2 `acceptance.md` records the production measurement: at least 80% of the watched games' deals on `/` reach `/my-deals`, and at most 5% of the deals on `/my-deals` are another game
-- [x] 4.3 The temporary account and the demo account each see only their own matches on production, and a signed-in `/my-deals` response carries a `private` or `no-store` `cache-control`
-- [x] 4.4 PRD open question 5 and the roadmap carry the measured result, and Tomasz has deleted the temporary accounts
+- [x] 4.2 `acceptance.md` records the production measurement: at least 80% of the watched games' deals on `/` reach `/my-deals`, and at most 5% of the deals on `/my-deals` are another game — f2bf0df
+- [x] 4.3 The temporary account and the demo account each see only their own matches on production, and a signed-in `/my-deals` response carries a `private` or `no-store` `cache-control` — f2bf0df
+- [x] 4.4 PRD open question 5 and the roadmap carry the measured result, and Tomasz has deleted the temporary accounts — f2bf0df
