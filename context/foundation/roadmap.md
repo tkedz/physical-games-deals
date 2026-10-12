@@ -3,7 +3,7 @@ project: physical-games-deals
 version: 1
 status: draft
 created: 2026-09-21
-updated: 2026-10-07
+updated: 2026-10-12
 prd_version: 2
 main_goal: speed
 top_blocker: time
@@ -62,7 +62,7 @@ Choosing it first also settles two of the PRD's open questions by doing rather t
 | S-01 | `physical-deals-from-real-posts`     | see physical-edition deals extracted from real posts, with price and link    | F-01, F-02       | FR-005, FR-006, US-01           | in-progress |
 | S-02 | `email-password-accounts`            | create an account with e-mail and password, sign in and sign out             | —                | FR-001, Access Control          | in-progress |
 | S-03 | `watchlist-from-catalog`             | search the catalogue, add a game or a phrase to a watchlist, remove one      | F-01, F-03, S-02 | FR-003, FR-004, FR-010, US-01   | in-progress |
-| S-04 | `deals-matched-to-watchlist`         | see only deals for the games and phrases they watch, platform rule applied   | S-01, S-03       | US-01, FR-005, FR-010, Guardrails | proposed |
+| S-04 | `deals-matched-to-watchlist`         | see only deals for the games and phrases they watch, platform rule applied   | S-01, S-03       | US-01, FR-005, FR-010, Guardrails | in-progress |
 
 ## Streams
 
@@ -175,19 +175,19 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ### S-04: The deals list narrows to the collector's own watchlist
 
-- **Outcome:** user opens the deals view and sees only deals for games and phrases on their watchlist. A watchlist entry pinned to a platform admits only that platform's offers; an entry with no platform admits any. When nothing matches, the view says so and states when the data was last refreshed, so an empty list reads as "no deals" rather than "something is broken".
+- **Outcome:** user opens their own deals view, `/my-deals`, and sees only deals for the games and phrases on their watchlist; `/` stays the public list of every deal. A watchlist entry pinned to a platform admits only that platform's offers; an entry with no platform admits any. When nothing matches, the view says so and states when the data was last refreshed, so an empty list reads as "no deals" rather than "something is broken".
 - **Change ID:** `deals-matched-to-watchlist`
 - **PRD refs:** `US-01` and its acceptance criteria 1 and 2; `FR-005` (the matching half); `FR-010` (what a phrase matches); `## Business Logic` (the second of the two filtering decisions); the guardrail on one user's matched deals never reaching another
 - **Prerequisites:** S-01, S-03
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:**
-  - No number has been set for what counts as the matching working well enough — how many hits on a watchlist in the first week (PRD open question 5). Owner: user. Block: no; the PRD records it as non-blocking.
-  - Deals carry titles, not catalogue ids. S-01 stores each deal's original title and the alternative titles its post uses, with no RAWG call (`context/changes/physical-deals-from-real-posts/plan.md`), so whether this slice resolves them to a RAWG `id` or matches by name is decided here, together with the edition and platform rules. Owner: user. Block: no — the titles are stored either way.
-  - What a phrase on the watchlist matches (Open Roadmap Question 9). Owner: user. Block: no. Answered 2026-10-06: a phrase matches when it occurs in `title`, `english_title` or any entry of `alternative_titles`, ignoring letter case and Polish diacritics, and the platform rule applies to it as it does to a game. `ł` has no Unicode decomposition, so the diacritic folding must map it explicitly.
-  - Two phrases that differ only in Polish diacritics can both sit on one watchlist (`watchlist-from-catalog` implementation review, F4, 2026-10-09). S-03 judges duplicates on letter case alone — `lower(phrase)` in the unique index, `isPhraseOnList` in the app — while matching also folds diacritics, so „Wiedzmin” and „Wiedźmin” match exactly the same deals. Matching must therefore show a deal once, however many entries match it. Whether the duplicate rule should fold diacritics too is decided here: changing it needs a new unique index, and a migration that settles any pair already stored. Owner: user. Block: no.
+  - No number has been set for what counts as the matching working well enough — how many hits on a watchlist in the first week (PRD open question 5). Owner: user. Block: no; the PRD records it as non-blocking. Answered 2026-10-09: at least 80% of the watched games' deals reach `/my-deals`, and at most 5% of the deals there are another game. This slice's acceptance measures both on production, with about 20 watched games.
+  - Deals carry titles, not catalogue ids. S-01 stores each deal's original title and the alternative titles its post uses, with no RAWG call (`context/changes/physical-deals-from-real-posts/plan.md`), so whether this slice resolves them to a RAWG `id` or matches by name is decided here, together with the edition and platform rules. Owner: user. Block: no — the titles are stored either way. Answered 2026-10-09: by name, with no catalogue call. A game entry matches a deal when the match key of its catalogue name equals the match key of the deal's `title`, `english_title` or one of its `alternative_titles`. A match key is the normalised text without a trailing "(YYYY)", one leading "the" or "gra [platform]", and trailing edition, platform and packaging words; Remake, Remastered and HD stay, because they name separate releases. The platform rule compares the entry's pin with the deal's own platform. Resolving deals to a catalogue id is parked (see Parked).
+  - What a phrase on the watchlist matches (Open Roadmap Question 9). Owner: user. Block: no. Answered 2026-10-06: a phrase matches when it occurs in `title`, `english_title` or any entry of `alternative_titles`, ignoring letter case and Polish diacritics, and the platform rule applies to it as it does to a game. `ł` has no Unicode decomposition, so the diacritic folding must map it explicitly. Answered 2026-10-09: the normalisation is broadened to every Latin diacritic of one fixed table, `ł` included, and to punctuation. Apostrophes are removed, "&" reads "and", and every other run of characters outside letters and digits is one space, so „Dragon's Dogma” finds „Dragon’s Dogma 2” and „pokemon” finds „Pokémon”.
+  - Two phrases that differ only in Polish diacritics can both sit on one watchlist (`watchlist-from-catalog` implementation review, F4, 2026-10-09). S-03 judges duplicates on letter case alone — `lower(phrase)` in the unique index, `isPhraseOnList` in the app — while matching also folds diacritics, so „Wiedzmin” and „Wiedźmin” match exactly the same deals. Matching must therefore show a deal once, however many entries match it. Whether the duplicate rule should fold diacritics too is decided here: changing it needs a new unique index, and a migration that settles any pair already stored. Owner: user. Block: no. Answered 2026-10-09: duplicates are judged on the same normalisation. A unique index on the folded phrase joins the `lower(phrase)` one, the migration marks the newer of any pair already stored as removed, and the view shows each deal once, however many entries match it.
 - **Risk:** The slice that completes the PRD's primary success criterion, and the only one depending on both tracks, so it is last by necessity rather than by choice. The load-bearing detail is that one absent platform means "any platform" while a present one means "only this one" — a single field with two behaviours, which the PRD's own example (Silent Hill 2 with and without PS5) exists to pin down. Worth building against that example directly.
-- **Status:** proposed
+- **Status:** in-progress
 
 ## Backlog Handoff
 
@@ -199,7 +199,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-01       | `physical-deals-from-real-posts`     | Show physical-edition deals extracted from collected posts       | no                    | Waits on F-01, F-02. This is the north star                       |
 | S-02       | `email-password-accounts`            | E-mail and password accounts with sign-in and sign-out           | yes                   | No prerequisites — fills an evening blocked on the pipeline       |
 | S-03       | `watchlist-from-catalog`             | Watchlist of catalogue games and phrases, with optional platform | yes                   | Planned 2026-10-07: `context/changes/watchlist-from-catalog/plan.md` |
-| S-04       | `deals-matched-to-watchlist`         | Narrow the deals list to the user's watchlist                    | no                    | Waits on S-01 and S-03. Completes the primary success criterion   |
+| S-04       | `deals-matched-to-watchlist`         | Show each user the deals matching their watchlist, at /my-deals  | no                    | Waits on S-01 and S-03. Completes the primary success criterion   |
 
 ## Open Roadmap Questions
 
@@ -207,7 +207,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 2. **v1 pipeline scope: collecting versus normalising** — collect from all three aggregators but normalise one, or normalise everything collected. Bears directly on extraction tuning cost and on the same deal arriving from several sources. Owner: user. Block: `S-01` (non-blocking — answered by running S-01). **Answered 2026-10-06: normalise all three.** Duplicates across sources affect 5.5% of listed games and stay separate cards in v1.
 3. **Cleanliness threshold** — the acceptable share of entries that do not belong (digital editions, wrong game). Without a number there is no way to say the filter works. Owner: user. Block: `S-01` (non-blocking — answered by looking at S-01's output). **Answered 2026-10-06: up to 5% of the listed deals.** S-01's first sample measured 2.9%.
 4. **Data volume** — undeclared; the raw-post set grows with time regardless of user count. Owner: user. Block: `F-01` (non-blocking).
-5. **A measurable primary success criterion** — the PRD's criteria are binary; no number has been set for when matching is good enough. Owner: user. Block: `S-04` (non-blocking).
+5. **A measurable primary success criterion** — the PRD's criteria are binary; no number has been set for when matching is good enough. Owner: user. Block: `S-04` (non-blocking). **Answered 2026-10-09: at least 80% found, at most 5% wrong.** On production, at least 80% of the watched games' deals reach `/my-deals`, and at most 5% of the deals there are another game. `S-04`'s acceptance measures both, with about 20 watched games.
 6. **Behaviour when the catalogue is unreachable** — what the user sees when the catalogue does not answer during a search. Owner: user. Block: **`S-03` (blocking)** — the PRD places it before implementing `FR-003`. **Answered 2026-10-06: one generic message.** Whatever the reason, the user is told the catalogue is temporarily unavailable; the watchlist keeps working, and the typed text can still be watched as a phrase.
 7. **Catalogue coverage of the Polish market** — whether the chosen catalogue knows the titles a Polish collector of boxed editions cares about. The ruling that only catalogued games may be watched makes this coverage the ceiling on the product's usefulness. Owner: user. Block: **`S-03` (blocking)** — `F-03` resolves it. **Answered 2026-09-26: PASS.** All 12 of the user's titles were found within the first five results, both Polish names included — see `context/changes/game-catalog-provider-proven/coverage.md`.
 8. **Is the old collector still running?** — surfaced by the baseline probe, not by the PRD. The collector runs from a different repository; these feeds retain roughly two days, so if it has been switched off, every day until `F-02` lands is lost permanently. Owner: user. Block: none — but the answer sets how urgent `F-02` is. **Answered 2026-09-23: yes, it ran throughout.** Confirmed against the data rather than from memory — the export staged for `F-02`'s import runs from 2026-09-16 to 2026-09-23 without a gap, so no collection days were lost between the baseline probe and the move into this repository.
@@ -224,6 +224,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Promising completeness** — Why parked: PRD `## Non-Goals`. A quality exclusion, not a functional one — some posts will be misread and some will never reach a source.
 - **An admin panel** — Why parked: PRD `## Access Control` puts source lists and processing rules outside the interface in the MVP.
 - **Observability beyond the user-facing freshness timestamp** — Why parked: the baseline reports none, and no requirement forces it. `US-01`'s "when was this last refreshed" is covered inside `S-01`. Under `top_blocker: time`, proper logging and error tracking wait.
+- **Resolving deals to a catalogue id** — Why parked: `S-04` matches games by name, and the catalogue provider is not settled for good: RAWG serves the MVP, and IGDB may replace it. What it would unlock: matching by id rather than by name, and images on deal cards. What it costs: a pipeline step, the provider's key in GitHub Actions, about one catalogue search per deal, and parent lookups for editions that carry an id of their own (`context/changes/game-catalog-provider-proven/coverage.md`, handoff to S-04).
 
 ## Milestone History
 

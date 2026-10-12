@@ -21,7 +21,7 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 - Three clients: @src/utils/supabase/client.ts ("use client"), @src/utils/supabase/server.ts (Server Components / Actions / Route Handlers), @src/utils/supabase/session.ts (for `src/proxy.ts` only). Supabase's own docs call that last one `utils/supabase/middleware.ts`.
 - Call `createClient()` from `server.ts` fresh on every request. Never hold the result in a module-level variable — session cookies are per-request.
 - In @src/utils/supabase/session.ts, do not move `await supabase.auth.getUser()`. `updateSession()` returns `supabaseResponse` together with the user, and any redirect goes through its `redirectTo()`, which copies the cookies and cache headers. Returning any other response causes random logouts.
-- Every path is public except `/watchlist`: `src/proxy.ts` sends signed-in users from `/login` and `/signup` to `/`, and signed-out users from `/watchlist` to `/login` (@src/lib/auth/access.ts). Nothing enforces privacy by default — a private view needs its own rule there, and its data stays behind RLS either way. Server Action calls pass the proxy, so every action checks the user itself.
+- Every path is public except `/watchlist` and `/my-deals`: `src/proxy.ts` sends signed-in users from `/login` and `/signup` to `/`, and signed-out users from both to `/login` (@src/lib/auth/access.ts). Nothing enforces privacy by default — a private view needs its own rule there, and its data stays behind RLS either way. Server Action calls pass the proxy, so every action checks the user itself.
 - The public key is `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (not `..._ANON_KEY`). `SUPABASE_SECRET_KEY` bypasses RLS and **never** takes the `NEXT_PUBLIC_` prefix. Full list: @.env.example
 - Per-user data isolation rests on Postgres RLS, not on filtering in application code.
 
@@ -38,6 +38,14 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 - `OPENROUTER_API_KEY` is server-only and **never** takes the `NEXT_PUBLIC_` prefix. It lives in the GitHub Actions secrets, scoped to the extract step, and in `.env.local` for the extract scripts.
 - The model list is `MODELS` in `scripts/extract/config.mts`. A model enters it only after passing `npm run extract:eval`.
 - Two repository variables steer the extract step without a deploy. `EXTRACT_PAUSED=true` skips it while collection keeps running. `EXTRACT_SINCE` — a date (`YYYY-MM-DD`, from the start of that day in Warsaw) or an instant with its offset — limits extraction to posts first seen since then; unset, every pending post is extracted. Locally, `npm run extract -- --since <value>` sets the cut-off for one run.
+
+## Deal matching
+
+- `/my-deals` reads `public.matched_deals`, a `security_invoker` view: the listed deals that match the caller's active watchlist entries.
+- The rule is `public.fold_for_matching` and `public.game_match_key`, in `supabase/migrations/20261012070050_match_deals_to_watchlist.sql`. `deals.match_keys` and `deals.match_text` are generated columns computed from them.
+- `foldForMatching` in `src/lib/watchlist/rules.ts` mirrors `public.fold_for_matching` for the phrase pre-check, and must stay identical to it.
+- `create or replace function` neither recomputes the stored keys nor rebuilds an index. A migration that changes a matching function also runs `update public.deals set title = title`, and, for the fold, settles the phrases that newly fold alike and runs `reindex index public.watchlist_entries_active_phrase_folded`.
+- `supabase/checks/matching.sql` is the rule's truth table. Rerun it in the SQL editor after every change to the rule; it ends in an error on purpose and rolls itself back.
 
 ## Database migrations
 
