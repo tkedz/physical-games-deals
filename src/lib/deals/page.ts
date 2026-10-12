@@ -1,12 +1,17 @@
 /**
- * Which page of `/` a request asks for, and where each page lives.
+ * Which page of a list of deals a request asks for, and where each page lives.
+ * Two lists are paged this way: `/`, every listed deal, and `/my-deals`, the
+ * signed-in user's matches.
  *
- * Pure, with no framework import, so the page, its pagination links and a
+ * Pure, with no framework import, so the pages, their pagination links and a
  * future test runner all call the same code.
  */
 
 /** Deals per page, newest first. */
 export const PAGE_SIZE = 30;
+
+/** The address of a list of deals: its first page, and the base of the rest. */
+export type DealListPath = "/" | "/my-deals";
 
 const POSITIVE_INTEGER = /^[1-9]\d*$/;
 
@@ -28,7 +33,10 @@ export function parsePage(raw: string | string[] | undefined): number {
   return Number.isSafeInteger(page * PAGE_SIZE) ? page : 1;
 }
 
-/** The address of a page. The first page is `/` itself, so it has one URL. */
-export function pageHref(page: number): string {
-  return page > 1 ? `/?page=${page}` : "/";
+/**
+ * The address of a page of the list at `basePath`. The first page is the base
+ * path itself, so it has one URL; a later page is `<basePath>?page=<n>`.
+ */
+export function pageHref(page: number, basePath: DealListPath): string {
+  return page > 1 ? `${basePath}?page=${page}` : basePath;
 }

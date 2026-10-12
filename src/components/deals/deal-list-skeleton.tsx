@@ -10,18 +10,23 @@ import { Skeleton } from "@/components/ui/skeleton";
 const PLACEHOLDER_CARDS = 3;
 
 /**
- * Stands in for the list while it loads: the list's Suspense fallback on `/`,
- * and the body of its loading.tsx.
+ * Stands in for a list of deals while it loads: the list's Suspense fallback,
+ * and the body of the route's loading.tsx, on `/` and on `/my-deals`.
  *
  * A status region with visible text, so the wait is announced as well as
- * shown. The text sits where the freshness line will, and each placeholder is
- * built from the deal card's own parts at its line heights, so the page does
- * not jump when the list arrives.
+ * shown; each list names its own wait in `statusLine`. The text sits where the
+ * freshness line will, and each placeholder is built from the deal card's own
+ * parts at its line heights, so the page does not jump when the list arrives.
  */
-export function DealListSkeleton() {
+export function DealListSkeleton({
+  statusLine = "Wczytujemy okazje…",
+}: {
+  /** The visible status text; without it, the one `/` shows. */
+  statusLine?: string;
+}) {
   return (
     <div role="status" className="flex flex-col gap-4">
-      <p className="text-sm text-muted-foreground">Wczytujemy okazje…</p>
+      <p className="text-sm text-muted-foreground">{statusLine}</p>
       {Array.from({ length: PLACEHOLDER_CARDS }, (_, index) => (
         <Card key={index}>
           <CardHeader>

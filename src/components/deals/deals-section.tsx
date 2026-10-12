@@ -73,7 +73,7 @@ export function DealsResults({
       {deals.length > 0 ? (
         <>
           <DealList deals={deals} />
-          <DealsPagination page={page} hasOlder={hasOlder} />
+          <DealsPagination page={page} hasOlder={hasOlder} basePath="/" />
         </>
       ) : (
         <DealsEmpty page={page} />
@@ -113,7 +113,7 @@ export function DealsEmpty({ page }: { page: number }) {
       </EmptyHeader>
       <EmptyContent>
         <Link
-          href={pageHref(1)}
+          href={pageHref(1, "/")}
           className={buttonVariants({ variant: "secondary" })}
         >
           Wróć do najnowszych okazji

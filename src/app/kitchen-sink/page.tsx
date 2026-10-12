@@ -3,6 +3,12 @@ import { notFound } from "next/navigation";
 import { DealListSkeleton } from "@/components/deals/deal-list-skeleton";
 import { DealsError, DealsResults } from "@/components/deals/deals-section";
 import { FreshnessNote } from "@/components/deals/freshness-note";
+import {
+  MyDealsError,
+  MyDealsNoEntries,
+  MyDealsResults,
+  MyDealsSkeleton,
+} from "@/components/deals/my-deals-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -147,6 +153,15 @@ const sampleDeals: ListedDeal[] = [
   },
 ];
 
+// "Moje okazje" shows the same sample deals, split across its two pages of
+// results. They take ids of their own, because a card's title id is built from
+// the deal's id and "Okazje" already shows every sample deal: element ids must
+// stay unique on the page.
+const myDealsSamples: ListedDeal[] = sampleDeals.map((deal) => ({
+  ...deal,
+  id: deal.id + 100,
+}));
+
 // The freshness line's three states, decided already: passed in as data, not
 // worked out from the clock.
 const freshSample: Freshness = {
@@ -154,9 +169,14 @@ const freshSample: Freshness = {
   finishedAt: "2026-10-06T06:07:00.000Z",
 };
 
+const staleSample: Freshness = {
+  state: "stale",
+  finishedAt: "2026-10-05T18:07:00.000Z",
+};
+
 const freshnessSamples: Freshness[] = [
   freshSample,
-  { state: "stale", finishedAt: "2026-10-05T18:07:00.000Z" },
+  staleSample,
   { state: "never" },
 ];
 
@@ -474,6 +494,92 @@ export default function KitchenSinkPage() {
         <div className="flex flex-col gap-3">
           <h3 className="font-heading text-base font-medium">Błąd</h3>
           <DealsError />
+        </div>
+      </section>
+
+      {/* The `/my-deals` view's components in every state they can be in,
+          from the sample data above: the visual gate before `/my-deals`
+          depends on them. Nothing here reaches Supabase. */}
+      <section className="flex flex-col gap-6">
+        <h2 className="font-heading text-xl font-semibold tracking-tight">
+          Moje okazje
+        </h2>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Lista ze starszą stroną
+          </h3>
+          <MyDealsResults
+            page={1}
+            freshness={freshSample}
+            deals={myDealsSamples.slice(0, 3)}
+            hasOlder
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Strona 2: nowsze i starsze
+          </h3>
+          <MyDealsResults
+            page={2}
+            freshness={freshSample}
+            deals={myDealsSamples.slice(3)}
+            hasOlder
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Brak dopasowań, dane aktualne
+          </h3>
+          <MyDealsResults
+            page={1}
+            freshness={freshSample}
+            deals={[]}
+            hasOlder={false}
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Brak dopasowań, dane nieaktualne
+          </h3>
+          <MyDealsResults
+            page={1}
+            freshness={staleSample}
+            deals={[]}
+            hasOlder={false}
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Pusta lista obserwowanych
+          </h3>
+          <MyDealsNoEntries />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Strona za końcem listy
+          </h3>
+          <MyDealsResults
+            page={4}
+            freshness={freshSample}
+            deals={[]}
+            hasOlder={false}
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">Błąd</h3>
+          <MyDealsError />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">Wczytywanie</h3>
+          <MyDealsSkeleton />
         </div>
       </section>
 

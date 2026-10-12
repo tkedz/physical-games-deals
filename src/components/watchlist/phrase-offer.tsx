@@ -44,7 +44,7 @@ export function PhraseOffer({
     <div className="flex flex-col items-start gap-2 border-t pt-4">
       <p id={ruleId} className="text-sm text-muted-foreground">
         Fraza pasuje do okazji, których tytuł ją zawiera, bez względu na
-        wielkość liter i polskie znaki.
+        wielkość liter, znaki diakrytyczne i interpunkcję.
       </p>
       {isPhraseOnList(entries, phrase, platform) ? (
         <Button variant="secondary" disabled aria-describedby={ruleId}>

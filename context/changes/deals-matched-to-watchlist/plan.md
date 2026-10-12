@@ -784,30 +784,30 @@ Duplicates:
 
 #### Automated
 
-- [x] 1.1 `supabase/checks/matching.sql` passes in a PGlite run over every migration, and reports a failure when the migration is broken on purpose (the `service_role` EXECUTE grant dropped; the view's platform condition removed)
-- [x] 1.2 In PGlite, two phrases that fold alike, added before the migration, leave the older active and the newer removed, and the folded index builds
-- [x] 1.3 `npx supabase gen types typescript --linked --schema public` lists `deals.match_keys`, `deals.match_text` and the `matched_deals` view (run after Tomasz's push)
-- [x] 1.4 `npm run build`, `npm run lint` and `npm run format:check` pass
+- [x] 1.1 `supabase/checks/matching.sql` passes in a PGlite run over every migration, and reports a failure when the migration is broken on purpose (the `service_role` EXECUTE grant dropped; the view's platform condition removed) — 4585492
+- [x] 1.2 In PGlite, two phrases that fold alike, added before the migration, leave the older active and the newer removed, and the folded index builds — 4585492
+- [x] 1.3 `npx supabase gen types typescript --linked --schema public` lists `deals.match_keys`, `deals.match_text` and the `matched_deals` view (run after Tomasz's push) — 4585492
+- [x] 1.4 `npm run build`, `npm run lint` and `npm run format:check` pass — 4585492
 
 #### Manual
 
-- [x] 1.5 Tomasz runs `npm run db:push -- --dry-run`, `npm run db:push`, `npm run db:check` and `npm run db:status`: only the new migration is applied, with no error-level finding and no drift
-- [x] 1.6 Tomasz runs `supabase/checks/matching.sql` in the Supabase SQL editor and gets "Rolled back on purpose. All checks passed."
-- [x] 1.7 Tomasz reads the PRD, roadmap and `CLAUDE.md` changes and accepts them
+- [x] 1.5 Tomasz runs `npm run db:push -- --dry-run`, `npm run db:push`, `npm run db:check` and `npm run db:status`: only the new migration is applied, with no error-level finding and no drift — 4585492
+- [x] 1.6 Tomasz runs `supabase/checks/matching.sql` in the Supabase SQL editor and gets "Rolled back on purpose. All checks passed." — 4585492
+- [x] 1.7 Tomasz reads the PRD, roadmap and `CLAUDE.md` changes and accepts them — 4585492
 
 ### Phase 2: `/my-deals` states in the kitchen sink
 
 #### Automated
 
-- [ ] 2.1 `npm run build` passes and still prerenders `/kitchen-sink` as a 404 for production
-- [ ] 2.2 `npm run lint` and `npm run format:check` pass
-- [ ] 2.3 `package.json`, `components.json` and `src/app/globals.css` are unchanged, and no new view uses the `outline` or `destructive` button variant
+- [x] 2.1 `npm run build` passes and still prerenders `/kitchen-sink` as a 404 for production
+- [x] 2.2 `npm run lint` and `npm run format:check` pass
+- [x] 2.3 `package.json`, `components.json` and `src/app/globals.css` are unchanged, and no new view uses the `outline` or `destructive` button variant
 
 #### Manual
 
-- [ ] 2.4 The kitchen sink's „Moje okazje” section, under `npm run dev`, renders every state at 1280 px and at 375 px without horizontal scroll, captured in `context/changes/deals-matched-to-watchlist/screenshots/`
-- [ ] 2.5 Tab reaches every link and button of each state in order, each with a visible focus indicator
-- [ ] 2.6 Tomasz reads and accepts the Polish copy of every state and of the new phrase rule line
+- [x] 2.4 The kitchen sink's „Moje okazje” section, under `npm run dev`, renders every state at 1280 px and at 375 px without horizontal scroll, captured in `context/changes/deals-matched-to-watchlist/screenshots/`
+- [x] 2.5 Tab reaches every link and button of each state in order, each with a visible focus indicator
+- [x] 2.6 Tomasz reads and accepts the Polish copy of every state and of the new phrase rule line
 
 ### Phase 3: `/my-deals` end to end in dev
 
