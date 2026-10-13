@@ -832,8 +832,8 @@ Fill §6.1 and §6.2 of `context/foundation/test-plan.md` with the patterns this
 
 #### Automated
 
-- [x] 7.1 Every path cited in §6.1 and §6.2 exists in the repository
+- [x] 7.1 Every path cited in §6.1 and §6.2 exists in the repository — 80bc6af
 
 #### Manual
 
-- [x] 7.2 Tomasz reads §6.1 and §6.2 and confirms that a new matching case and a new rule unit test could be added from them alone
+- [x] 7.2 Tomasz reads §6.1 and §6.2 and confirms that a new matching case and a new rule unit test could be added from them alone — 80bc6af
