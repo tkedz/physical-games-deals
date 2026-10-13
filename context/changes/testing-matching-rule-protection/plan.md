@@ -753,29 +753,29 @@ Fill §6.1 and §6.2 of `context/foundation/test-plan.md` with the patterns this
 
 #### Automated
 
-- [x] 1.1 `node --version` prints v24.x before any install
-- [x] 1.2 `npm ci` completes without ERESOLVE after the dependency changes
-- [x] 1.3 `npm test` passes and collects only `tests/unit/**` files
-- [x] 1.4 `npm run lint` passes
-- [x] 1.5 `npm run format:check` passes
-- [x] 1.6 `npm run build` passes, type-checking `tests/` and `vitest.config.mts`
+- [x] 1.1 `node --version` prints v24.x before any install — 61710d9
+- [x] 1.2 `npm ci` completes without ERESOLVE after the dependency changes — 61710d9
+- [x] 1.3 `npm test` passes and collects only `tests/unit/**` files — 61710d9
+- [x] 1.4 `npm run lint` passes — 61710d9
+- [x] 1.5 `npm run format:check` passes — 61710d9
+- [x] 1.6 `npm run build` passes, type-checking `tests/` and `vitest.config.mts` — 61710d9
 
 #### Manual
 
-- [ ] 1.7 Gate proof: a throwaway pull request carrying one deliberately failing unit test shows `verify` failing and `deploy` never starting; the pull request is then closed and its branch deleted
+- [x] 1.7 Gate proof: a throwaway pull request carrying one deliberately failing unit test shows `verify` failing and `deploy` never starting; the pull request is then closed and its branch deleted
 
 ### Phase 2: Disposable Postgres and matching.sql as a Test
 
 #### Automated
 
-- [ ] 2.1 `npm test` passes, with `tests/db/matching.test.ts` reporting matching.sql's "All checks passed."
-- [ ] 2.2 The harness self-tests pass: the owner is not a superuser, and the default privileges follow the migration date
-- [ ] 2.3 `npm run lint`, `npm run format:check` and `npm run build` pass
+- [x] 2.1 `npm test` passes, with `tests/db/matching.test.ts` reporting matching.sql's "All checks passed."
+- [x] 2.2 The harness self-tests pass: the owner is not a superuser, and the default privileges follow the migration date
+- [x] 2.3 `npm run lint`, `npm run format:check` and `npm run build` pass
 
 #### Manual
 
-- [ ] 2.4 Proof by breaking, locally and reverted: a migration edit that stops folding `ł` and a removed `authenticated` EXECUTE grant each make `npm test` fail with FAIL lines naming the affected checks
-- [ ] 2.5 Tomasz runs the read-only `pg_default_acl` query in the SQL editor, and the stub's default privileges match the hosted `postgres` rows, with any difference recorded in change.md
+- [x] 2.4 Proof by breaking, locally and reverted: a migration edit that stops folding `ł` and a removed `authenticated` EXECUTE grant each make `npm test` fail with FAIL lines naming the affected checks
+- [x] 2.5 Tomasz runs the read-only `pg_default_acl` query in the SQL editor, and the stub's default privileges match the hosted `postgres` rows, with any difference recorded in change.md
 
 ### Phase 3: View-Level Cases in matching.sql
 

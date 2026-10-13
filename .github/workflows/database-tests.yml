@@ -1,0 +1,46 @@
+name: Database tests
+
+# A push that touches `supabase/**` runs the test suite here, without a build
+# or a deploy. `ci.yml` ignores `supabase/**`, so that a migration does not
+# rebuild and redeploy code that did not change; without this workflow such a
+# push would run no check at all. The suite builds a disposable Postgres from
+# `supabase/migrations/` and runs `supabase/checks/matching.sql` in it.
+#
+# A backstop, not the gate: `npm run db:push` is a human action and can reach
+# production before this runs, so `npm test` in the local migration loop is the
+# gate (CLAUDE.md, Database migrations). A push that touches `supabase/**`
+# together with anything else runs the suite twice — here, and in `ci.yml`'s
+# `verify`, which is the run `deploy` waits for.
+#
+# Do not make this a required status check. A path-filtered workflow does not
+# run on a pull request outside its paths, and a required check it never
+# reports leaves that pull request "Pending" and unmergeable (see `ci.yml`).
+on:
+  push:
+    branches: [main]
+    paths: ["supabase/**"]
+  pull_request:
+    paths: ["supabase/**"]
+
+# A newer push to the same branch makes the running one pointless. The group
+# carries this workflow's name, so it never cancels a run of `ci.yml`.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npm test

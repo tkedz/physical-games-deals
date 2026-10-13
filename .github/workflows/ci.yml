@@ -6,6 +6,8 @@ name: CI
 #
 # `supabase/**` is inert only while nothing under it feeds the Next build: the
 # migrations are applied by hand and `config.toml` configures the local stack.
+# A push that touches it still runs the tests, in `database-tests.yml`, without
+# a build or a deploy.
 # If generated database types ever land there and `src/` imports them, a schema
 # change would skip the deploy that needs it — put generated types under `src/`.
 # Note this pattern is rooted at the repository, so `src/utils/supabase/` is not

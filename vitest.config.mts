@@ -22,6 +22,18 @@ export default defineConfig({
           environment: "node",
         },
       },
+      {
+        // PGlite built from supabase/migrations/ (tests/db/harness/). A file
+        // builds its database in beforeAll, in 1–2 s, and its checks then run
+        // in milliseconds.
+        test: {
+          name: "db",
+          include: ["tests/db/**/*.test.ts"],
+          environment: "node",
+          testTimeout: 30_000,
+          hookTimeout: 60_000,
+        },
+      },
     ],
   },
 });
