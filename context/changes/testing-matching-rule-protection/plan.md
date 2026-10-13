@@ -781,25 +781,25 @@ Fill §6.1 and §6.2 of `context/foundation/test-plan.md` with the patterns this
 
 #### Automated
 
-- [x] 3.1 `npm test` passes with every new case reported `ok`
+- [x] 3.1 `npm test` passes with every new case reported `ok` — adb9bb7
 
 #### Manual
 
-- [x] 3.2 Proof: with `20261012130317_bound_game_match_key.sql` moved out of `supabase/migrations/` locally, `npm test` names V3 and V4 as FAIL; the file is then restored
-- [x] 3.3 Tomasz runs the extended matching.sql in the hosted SQL editor and gets "All checks passed."
-- [ ] 3.4 The push of this phase (only `supabase/` and `context/` files) shows a "Database tests" run and no "CI" run in GitHub Actions
+- [x] 3.2 Proof: with `20261012130317_bound_game_match_key.sql` moved out of `supabase/migrations/` locally, `npm test` names V3 and V4 as FAIL; the file is then restored — adb9bb7
+- [x] 3.3 Tomasz runs the extended matching.sql in the hosted SQL editor and gets "All checks passed." — adb9bb7
+- [x] 3.4 The push of this phase (only `supabase/` and `context/` files) shows a "Database tests" run and no "CI" run in GitHub Actions
 
 ### Phase 4: Rule-Change Detectors
 
 #### Automated
 
-- [ ] 4.1 `npm test` passes D1–D3 on the real migration chain
-- [ ] 4.2 `npm test` passes D4: without recompute and reindex both detectors fire, with them both are clean
-- [ ] 4.3 `npm run lint`, `npm run format:check` and `npm run build` pass
+- [x] 4.1 `npm test` passes D1–D3 on the real migration chain
+- [x] 4.2 `npm test` passes D4: without recompute and reindex both detectors fire, with them both are clean
+- [x] 4.3 `npm run lint`, `npm run format:check` and `npm run build` pass
 
 #### Manual
 
-- [ ] 4.4 Proof: with `update public.deals set title = title;` removed from `20261012130317_bound_game_match_key.sql` locally, D1 lists the Just Dance 2025, Shadow of the Colossus HD and 1001-character seeded deals and not the control; the line is then restored
+- [x] 4.4 Proof: with `update public.deals set title = title;` removed from `20261012130317_bound_game_match_key.sql` locally, D1 lists the Just Dance 2025, Shadow of the Colossus HD and 1001-character seeded deals and not the control; the line is then restored
 
 ### Phase 5: TS/SQL Fold Parity
 
