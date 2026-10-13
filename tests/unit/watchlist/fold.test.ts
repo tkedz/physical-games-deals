@@ -62,6 +62,18 @@ const RULES: FoldRule[] = [
     apart: [["Pokémon", "Pokmon"]],
   },
   {
+    name: "review F5, roadmap S-04: „pokemon” finds „Pokémon” typed with a separate accent (NFD)",
+    // Escapes, so that no editor can compose the accent onto its letter.
+    alike: ["Poke\u0301mon", "Pokémon", "pokemon", "POKE\u0301MON"],
+    // The accent belongs to its letter, so it does not split the word.
+    apart: [["Poke\u0301mon", "Poke mon"]],
+  },
+  {
+    name: "review F5: „Wiedźmin” typed with a separate accent (NFD) folds as the precomposed one",
+    alike: ["Wiedz\u0301min", "Wiedźmin", "wiedzmin", "WIEDZ\u0301MIN"],
+    apart: [["Wiedz\u0301min", "Wiedz min"]],
+  },
+  {
     name: "roadmap S-04: Czech diacritics of the fixed table fold to their base letter",
     alike: [
       "Příliš žluťoučký kůň úpěl ďábelské ódy",

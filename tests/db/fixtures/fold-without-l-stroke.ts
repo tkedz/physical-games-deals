@@ -3,8 +3,8 @@
  * the detectors by breaking the rule on purpose.
  *
  * It is public.fold_for_matching as
- * supabase/migrations/20261012070050_match_deals_to_watchlist.sql defines it,
- * copied with Ł and ł taken out of the two upper- and lower-case Polish
+ * supabase/migrations/20261013115104_fold_nfc_first.sql defines it, copied
+ * with Ł and ł taken out of the two upper- and lower-case Polish
  * segments of the first translate string, and the l each mapped to taken out
  * of the matching "acelnoszz" segments of the second, so every other letter
  * keeps its position. ł then falls through to the step that turns every run
@@ -27,7 +27,7 @@ as $$
     pg_catalog.regexp_replace(
       pg_catalog.replace(
         pg_catalog.translate(
-          value,
+          pg_catalog.normalize(value, 'NFC'),
           'ABCDEFGHIJKLMNOPQRSTUVWXYZ' || 'ĄĆĘŃÓŚŹŻ' || 'ąćęńóśźż'
             || 'ÀÁÂÃÄÅàáâãäå' || 'ÇČçč' || 'ĎĐďđ' || 'ÈÉÊËĚèéêëě' || 'ÌÍÎÏìíîï'
             || 'ŇÑňñ' || 'ÒÔÕÖØŐòôõöøő' || 'Řř' || 'Šš' || 'Ťť' || 'ÙÚÛÜŮŰùúûüůű'

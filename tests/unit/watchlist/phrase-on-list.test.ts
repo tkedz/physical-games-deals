@@ -113,6 +113,13 @@ const ROWS: Row[] = [
     onList: true,
   },
   {
+    name: "review F5: „Pokémon” with a separate accent (NFD) is on a list holding the precomposed one",
+    list: [phraseEntry("Pokémon")],
+    phrase: "Poke\u0301mon",
+    platform: null,
+    onList: true,
+  },
+  {
     name: "roadmap S-04 F4: „lowcy gier” is on a list holding „ŁOWCY GIER”",
     list: [phraseEntry("ŁOWCY GIER")],
     phrase: "lowcy gier",

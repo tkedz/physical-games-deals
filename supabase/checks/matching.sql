@@ -1,6 +1,7 @@
 -- Truth table for the deal-matching rule of
 -- supabase/migrations/20261012070050_match_deals_to_watchlist.sql, with
--- game_match_key as 20261012130317_bound_game_match_key.sql replaced it: the
+-- game_match_key as 20261012130317_bound_game_match_key.sql replaced it and
+-- fold_for_matching as 20261013115104_fold_nfc_first.sql replaced it: the
 -- fold, the game key, the keys stored on deals, the matched_deals view and its
 -- grants, and the folded phrase index.
 --
@@ -31,6 +32,9 @@
 -- phrase and a title, a pinned phrase, sibling games kept apart, and
 -- catalogue names that a post spells otherwise. B holds entries of its own
 -- for them, so one deal can be shown to one user and hidden from the other.
+-- The rows named F5 come from that change's Phase 6: a title typed with its
+-- accent as a separate character (NFD) matches as the precomposed one. Their
+-- inputs are escapes in E'' strings, so that no editor can compose them.
 do $check$
 declare
   report text[] := array[]::text[];
@@ -141,7 +145,8 @@ begin
       (33, 'key', 'Shadow of the Colossus HD Edition', 'shadow of the colossus hd'),
       (34, 'key', 'Dark Souls Remastered Edition', 'dark souls remastered'),
       (35, 'key', 'Resident Evil 2 Remake Edition', 'resident evil 2 remake'),
-      (36, 'key', 'Shadow of the Colossus Edycja HD', 'shadow of the colossus hd')
+      (36, 'key', 'Shadow of the Colossus Edycja HD', 'shadow of the colossus hd'),
+      (37, 'fold', E'Poke\u0301mon', 'pokemon')
     ) as t(step, fn, input, expected)
     order by t.step
   loop
@@ -259,7 +264,9 @@ begin
         (46, 'ezio-straight-apostrophe', 'Assassin''s Creed: The Ezio Collection',
           'Assassin''s Creed: The Ezio Collection', '{}', 'ps4', 'physical', 79.00),
         (47, 'ritas-rewind-curly-apostrophe', 'Mighty Morphin Power Rangers: Rita’s Rewind',
-          'Mighty Morphin Power Rangers: Rita’s Rewind', '{}', 'ps5', 'physical', 119.00)
+          'Mighty Morphin Power Rangers: Rita’s Rewind', '{}', 'ps5', 'physical', 119.00),
+        (48, 'pokemon-nfd-title', E'Poke\u0301mon Legends: Z-A', E'Poke\u0301mon Legends: Z-A', '{}',
+          'switch', 'physical', 199.00)
       ) as t(item, label, title, english_title, alternative_titles, platform, edition, price)
       order by t.item
     loop
@@ -351,7 +358,8 @@ begin
       ('game', 990007, 'shadow-of-the-colossus', 'Shadow of the Colossus', null),
       ('game', 990008, 'pokken-tournament-dx', 'Pokkén Tournament DX', null),
       ('game', 990009, 'assassins-creed-the-ezio-collection', 'Assassin’s Creed The Ezio Collection', null),
-      ('game', 990010, 'mighty-morphin-power-rangers-ritas-rewind', 'Mighty Morphin Power Rangers: Rita''s Rewind', null);
+      ('game', 990010, 'mighty-morphin-power-rangers-ritas-rewind', 'Mighty Morphin Power Rangers: Rita''s Rewind', null),
+      ('game', 990018, 'pokemon-legends-z-a', 'Pokémon Legends: Z-A', null);
     insert into public.watchlist_entries (kind, phrase, platform) values
       ('phrase', 'wiedzmin', null),
       ('phrase', 'Dragon''s Dogma', null),
@@ -370,7 +378,7 @@ begin
     if counted <> 1 then
       raise exception 'removing the phrase "Pentiment" updated % rows', counted;
     end if;
-    report := array_append(report, 'ok   A adds 16 games and 8 phrases, and adds and removes the phrase "Pentiment"');
+    report := array_append(report, 'ok   A adds 17 games and 8 phrases, and adds and removes the phrase "Pentiment"');
   exception when others then
     failures := failures + 1;
     report := array_append(report, format('FAIL A adds its entries: %s %s', sqlstate, sqlerrm));
@@ -392,8 +400,9 @@ begin
       ('game', 990017, 'daemon-x-machina-titanic-scion', 'Daemon X Machina: Titanic Scion', null);
     insert into public.watchlist_entries (kind, phrase, platform) values
       ('phrase', 'żółwie ninja', null),
-      ('phrase', 'mario and luigi', null);
-    report := array_append(report, 'ok   B adds 9 games, "Silent Hill 2" among them on any platform, and 2 phrases');
+      ('phrase', 'mario and luigi', null),
+      ('phrase', 'pokemon', null);
+    report := array_append(report, 'ok   B adds 9 games, "Silent Hill 2" among them on any platform, and 3 phrases');
   exception when others then
     failures := failures + 1;
     report := array_append(report, format('FAIL B adds its entries: %s %s', sqlstate, sqlerrm));
@@ -410,11 +419,11 @@ begin
         'hollow-knight-no-platform', 'hollow-knight-other', 'witcher-game-and-phrase',
         'zelda-switch', 'just-dance-2025', 'lowcy-capital-l-stroke', 'mario-and-luigi', 'mario-ampersand-luigi',
         'silksong-switch', 'dogma-dark-arisen', 'pokken-without-accent', 'ezio-straight-apostrophe',
-        'ritas-rewind-curly-apostrophe']),
+        'ritas-rewind-curly-apostrophe', 'pokemon-nfd-title']),
       (2, 'B', user_b, array['sh2-ps5', 'sh2-xbox', 'dogma-curly-apostrophe', 'zelda-switch-2',
         'dark-souls-remastered', 'zolwie-in-ascii', 'mario-and-luigi', 'mario-ampersand-luigi',
         'little-nightmares', 'borderlands-legendary-collection', 'ff7-rebirth', 'atari-mania',
-        'daemon-x-machina-titanic-scion'])
+        'daemon-x-machina-titanic-scion', 'pokemon-nfd-title'])
     ) as t(step, who, uid, expected)
     order by t.step
   loop
@@ -517,7 +526,11 @@ begin
           (38, 'B', 'V8: "Dragon’s Dogma 2" matches its own deal, not "Dragon''s Dogma: Dark Arisen"',
             array['dogma-curly-apostrophe'], array['dogma-dark-arisen']),
           (39, 'B', 'V8: "Daemon X Machina: Titanic Scion" matches its own deal, not "Daemon X Machina"',
-            array['daemon-x-machina-titanic-scion'], array['daemon-x-machina'])
+            array['daemon-x-machina-titanic-scion'], array['daemon-x-machina']),
+          (40, 'A', 'F5: "Pokémon Legends: Z-A" matches the title typed with a separate accent (NFD)',
+            array['pokemon-nfd-title'], array[]::text[]),
+          (41, 'B', 'F5: the phrase "pokemon" matches the title typed with a separate accent (NFD)',
+            array['pokemon-nfd-title'], array[]::text[])
         ) as t(step, who, name, shown, hidden)
         where t.who = u.who
         order by t.step

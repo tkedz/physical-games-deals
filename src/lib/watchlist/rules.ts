@@ -142,23 +142,26 @@ function translateTable(from: string, to: string): ReadonlyMap<string, string> {
 const FOLD_TABLE = translateTable(FOLD_FROM, FOLD_TO);
 
 /**
- * Text as matching compares it. The twin of public.fold_for_matching in
- * supabase/migrations/20261012070050_match_deals_to_watchlist.sql, and the two
- * must stay identical (CLAUDE.md, Deal matching): the folded phrase index
- * refuses a phrase by the SQL fold, and the phrase pre-check below predicts
- * that refusal by this one. The same four steps, in the same order:
- * 1. every character through the table above, by code point;
- * 2. "&" read as " and ";
- * 3. every run of characters outside [a-z0-9] turned into one space, the
+ * Text as matching compares it. The twin of public.fold_for_matching, whose
+ * current body is in supabase/migrations/20261013115104_fold_nfc_first.sql,
+ * and the two must stay identical (CLAUDE.md, Deal matching): the folded
+ * phrase index refuses a phrase by the SQL fold, and the phrase pre-check
+ * below predicts that refusal by this one. The same five steps, in the same
+ * order:
+ * 1. the text normalised to NFC, so that an accent typed as a separate
+ *    character joins its letter, as pg_catalog.normalize(value, 'NFC') does;
+ * 2. every character through the table above, by code point;
+ * 3. "&" read as " and ";
+ * 4. every run of characters outside [a-z0-9] turned into one space, the
  *    pattern reading code points (the `u` flag), as Postgres does;
- * 4. the spaces at both ends trimmed.
+ * 5. the spaces at both ends trimmed.
  */
 export function foldForMatching(value: string): string {
   const translated = Array.from(
-    value,
+    value.normalize("NFC"),
     (character) => FOLD_TABLE.get(character) ?? character,
   ).join("");
-  // btrim() trims spaces only. After step 3 the text holds no character
+  // btrim() trims spaces only. After step 4 the text holds no character
   // outside [a-z0-9] but single spaces, so trim() removes exactly what it
   // does.
   return translated

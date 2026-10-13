@@ -805,25 +805,25 @@ Fill §6.1 and §6.2 of `context/foundation/test-plan.md` with the patterns this
 
 #### Automated
 
-- [x] 5.1 `npm test` passes with the parity test comparing a corpus above its floor
-- [x] 5.2 `npm run lint`, `npm run format:check` and `npm run build` pass
+- [x] 5.1 `npm test` passes with the parity test comparing a corpus above its floor — e84a076
+- [x] 5.2 `npm run lint`, `npm run format:check` and `npm run build` pass — e84a076
 
 #### Manual
 
-- [x] 5.3 Proof: with `ʼ` removed from `FOLD_FROM` in `rules.ts` locally, the parity test fails naming U+02BC; the change is then reverted
+- [x] 5.3 Proof: with `ʼ` removed from `FOLD_FROM` in `rules.ts` locally, the parity test fails naming U+02BC; the change is then reverted — e84a076
 
 ### Phase 6: Fix F5 — NFC First in Both Twins
 
 #### Automated
 
-- [ ] 6.1 Before the fix, the new NFD rows fail (unit, matching.sql and D3) while every other test passes
-- [ ] 6.2 After the fix, `npm test` passes, parity included
-- [ ] 6.3 `npm run lint`, `npm run format:check` and `npm run build` pass
+- [x] 6.1 Before the fix, the new NFD rows fail (unit, matching.sql and D3) while every other test passes
+- [x] 6.2 After the fix, `npm test` passes, parity included
+- [x] 6.3 `npm run lint`, `npm run format:check` and `npm run build` pass
 
 #### Manual
 
-- [ ] 6.4 Proof: the migration written first without the settle, reindex and recompute makes D1, D2 and D3 fail, and the completed migration makes them pass
-- [ ] 6.5 Before the push, Tomasz runs one read-only query in the SQL editor — the number of deals with a title, english_title or alternative title not in NFC, and the active phrase groups that would newly fold alike under NFC — and the counts are recorded in change.md
+- [x] 6.4 Proof: the migration written first without the settle, reindex and recompute makes D1, D2 and D3 fail, and the completed migration makes them pass
+- [x] 6.5 Before the push, Tomasz runs one read-only query in the SQL editor — the number of deals with a title, english_title or alternative title not in NFC, and the active phrase groups that would newly fold alike under NFC — and the counts are recorded in change.md
 - [ ] 6.6 Tomasz runs `npm run db:push -- --dry-run` (listing only the new migration), `npm run db:push`, `npm run db:check` and `npm run db:status`, all clean
 - [ ] 6.7 Tomasz runs matching.sql in the hosted SQL editor and gets "All checks passed."
 - [ ] 6.8 The code push follows the migration push, and both the "Database tests" and "CI" runs are green with the deploy done

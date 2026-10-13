@@ -15,7 +15,7 @@
  * - ł and Ł in a title, in an English title and in an alternative title, "&"
  *   and both apostrophes, which a change to the fold can touch;
  * - "Pokémon" in NFD and in NFC, as deals and as phrases, for review F5, which
- *   rollout Phase 6 fixes;
+ *   20261013115104_fold_nfc_first.sql fixes: its settle keeps the older;
  * - "Wiedźmin" and the newer "wiedzmin", which fold alike, so the settle of
  *   20261012070050 must leave only the older active;
  * - a control, "Silent Hill 2", that no change here touches.
@@ -48,8 +48,8 @@ const CONTROL_PHRASE = "Silent Hill";
  */
 const POKEMON_LEGENDS_NFC = "Pok\u00e9mon Legends: Z-A";
 const POKEMON_LEGENDS_NFD = "Poke\u0301mon Legends: Z-A";
-const POKEMON_NFC = "Pok\u00e9mon";
-const POKEMON_NFD = "Poke\u0301mon";
+export const POKEMON_NFC = "Pok\u00e9mon";
+export const POKEMON_NFD = "Poke\u0301mon";
 
 /** One character past the cap of 20261012130317, which keys it to ''. */
 const TITLE_PAST_THE_CAP = "Endless Saga".padEnd(1001, " Saga");

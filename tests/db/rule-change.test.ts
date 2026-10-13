@@ -32,6 +32,8 @@ import {
   FIXTURE_USER,
   NEWER_ALIKE,
   OLDER_ALIKE,
+  POKEMON_NFC,
+  POKEMON_NFD,
   RULE_CHANGE_SEED,
   SEED_DEALS,
   SEED_PHRASES,
@@ -138,6 +140,21 @@ async function unsettledPhrases(db: Database): Promise<UnsettledPhrases[]> {
      group by user_id, platform, public.fold_for_matching(phrase)
      having count(*) > 1
      order by 1, 2, 3`,
+  );
+  return rows;
+}
+
+/** The seeded fixture user's phrases with these spellings, oldest first. */
+async function activeAndRemoved(
+  db: Database,
+  phrases: string[],
+): Promise<{ phrase: string; removed: boolean }[]> {
+  const { rows } = await db.pg.query<{ phrase: string; removed: boolean }>(
+    `select phrase, removed_at is not null as removed
+     from public.watchlist_entries
+     where user_id = $1 and phrase = any ($2::text[])
+     order by created_at, id`,
+    [FIXTURE_USER, phrases],
   );
   return rows;
 }
@@ -263,18 +280,16 @@ describe("after the repository's migrations", () => {
   });
 
   it("D3: of two seeded phrases that fold alike, the settle kept the older", async () => {
-    // Rollout Phase 6 (review F5) adds the seeded Pokémon pair here. Today its
-    // NFC and NFD spellings fold apart, so both stay active.
-    const { rows } = await db.pg.query<{ phrase: string; removed: boolean }>(
-      `select phrase, removed_at is not null as removed
-       from public.watchlist_entries
-       where user_id = $1 and phrase = any ($2::text[])
-       order by created_at, id`,
-      [FIXTURE_USER, [OLDER_ALIKE, NEWER_ALIKE]],
-    );
-    expect(rows).toEqual([
+    expect(await activeAndRemoved(db, [OLDER_ALIKE, NEWER_ALIKE])).toEqual([
       { phrase: OLDER_ALIKE, removed: false },
       { phrase: NEWER_ALIKE, removed: true },
+    ]);
+  });
+
+  it("D3: of the seeded Pokémon in NFC and in NFD, the fold's settle kept the older, NFC one (review F5)", async () => {
+    expect(await activeAndRemoved(db, [POKEMON_NFC, POKEMON_NFD])).toEqual([
+      { phrase: POKEMON_NFC, removed: false },
+      { phrase: POKEMON_NFD, removed: true },
     ]);
   });
 });
