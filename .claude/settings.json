@@ -35,9 +35,24 @@
           {
             "type": "command",
             "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/lint-edited-file.mjs"],
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "node",
             "args": [
               "${CLAUDE_PROJECT_DIR}/.claude/hooks/post-edit-tests.mjs",
               "unit"
+            ],
+            "timeout": 120
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/post-edit-tests.mjs",
+              "hooks"
             ],
             "timeout": 120
           },
@@ -50,6 +65,18 @@
             ],
             "asyncRewake": true,
             "timeout": 300
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/end-of-turn.mjs"],
+            "timeout": 120
           }
         ]
       }

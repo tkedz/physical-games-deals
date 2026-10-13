@@ -34,6 +34,18 @@ export default defineConfig({
           hookTimeout: 60_000,
         },
       },
+      {
+        // The agent hooks in .claude/hooks/, piped hook input in throwaway git
+        // repositories with stubbed tools. Its own project, so the per-edit
+        // unit run does not pay for the git and process spawns.
+        test: {
+          name: "hooks",
+          include: ["tests/hooks/**/*.test.ts"],
+          environment: "node",
+          testTimeout: 30_000,
+          hookTimeout: 60_000,
+        },
+      },
     ],
   },
 });
