@@ -768,25 +768,25 @@ Fill §6.1 and §6.2 of `context/foundation/test-plan.md` with the patterns this
 
 #### Automated
 
-- [x] 2.1 `npm test` passes, with `tests/db/matching.test.ts` reporting matching.sql's "All checks passed."
-- [x] 2.2 The harness self-tests pass: the owner is not a superuser, and the default privileges follow the migration date
-- [x] 2.3 `npm run lint`, `npm run format:check` and `npm run build` pass
+- [x] 2.1 `npm test` passes, with `tests/db/matching.test.ts` reporting matching.sql's "All checks passed." — 2b4c55e
+- [x] 2.2 The harness self-tests pass: the owner is not a superuser, and the default privileges follow the migration date — 2b4c55e
+- [x] 2.3 `npm run lint`, `npm run format:check` and `npm run build` pass — 2b4c55e
 
 #### Manual
 
-- [x] 2.4 Proof by breaking, locally and reverted: a migration edit that stops folding `ł` and a removed `authenticated` EXECUTE grant each make `npm test` fail with FAIL lines naming the affected checks
-- [x] 2.5 Tomasz runs the read-only `pg_default_acl` query in the SQL editor, and the stub's default privileges match the hosted `postgres` rows, with any difference recorded in change.md
+- [x] 2.4 Proof by breaking, locally and reverted: a migration edit that stops folding `ł` and a removed `authenticated` EXECUTE grant each make `npm test` fail with FAIL lines naming the affected checks — 2b4c55e
+- [x] 2.5 Tomasz runs the read-only `pg_default_acl` query in the SQL editor, and the stub's default privileges match the hosted `postgres` rows, with any difference recorded in change.md — 2b4c55e
 
 ### Phase 3: View-Level Cases in matching.sql
 
 #### Automated
 
-- [ ] 3.1 `npm test` passes with every new case reported `ok`
+- [x] 3.1 `npm test` passes with every new case reported `ok`
 
 #### Manual
 
-- [ ] 3.2 Proof: with `20261012130317_bound_game_match_key.sql` moved out of `supabase/migrations/` locally, `npm test` names V3 and V4 as FAIL; the file is then restored
-- [ ] 3.3 Tomasz runs the extended matching.sql in the hosted SQL editor and gets "All checks passed."
+- [x] 3.2 Proof: with `20261012130317_bound_game_match_key.sql` moved out of `supabase/migrations/` locally, `npm test` names V3 and V4 as FAIL; the file is then restored
+- [x] 3.3 Tomasz runs the extended matching.sql in the hosted SQL editor and gets "All checks passed."
 - [ ] 3.4 The push of this phase (only `supabase/` and `context/` files) shows a "Database tests" run and no "CI" run in GitHub Actions
 
 ### Phase 4: Rule-Change Detectors

@@ -21,9 +21,16 @@
 -- stored on the deals service_role inserts; 3, user A's view; 4, user B's
 -- view; 5, anon and the grants; 6, phrase duplicates. The views are read over
 -- the fixture deals only, so real deals never change a result. Each fixture
--- deal can be matched by one entry of A's at most — the Witcher deal that a
--- game and a phrase both match is the one exception, on purpose — so a
--- broken case cannot hide behind another entry's match.
+-- deal can be matched by one entry of each user's at most — the Witcher deal
+-- that A's game and A's phrase both match is the one exception, on purpose —
+-- so a broken case cannot hide behind another entry's match.
+--
+-- The cases named V1 to V9 in sections 3 and 4 come from Phase 3 of the
+-- testing-matching-rule-protection change: a switch pin against a switch-2
+-- deal, a year or a kept word in front of "Edition", ł and "&" between a
+-- phrase and a title, a pinned phrase, sibling games kept apart, and
+-- catalogue names that a post spells otherwise. B holds entries of its own
+-- for them, so one deal can be shown to one user and hidden from the other.
 do $check$
 declare
   report text[] := array[]::text[];
@@ -179,8 +186,8 @@ begin
   end loop;
 
   -- 2. Keys stored on the deals service_role inserts -----------------------------
-  -- One deal per case of sections 3 and 4, labelled so that a failure names
-  -- the case. The generated columns call the matching functions as
+  -- The deals the cases of sections 3 and 4 name, each labelled so that a
+  -- failure names it. The generated columns call the matching functions as
   -- service_role, which therefore needs EXECUTE on all four.
   set local role service_role;
   perform set_config('request.jwt.claims', json_build_object('role', 'service_role')::text, true);
@@ -213,7 +220,46 @@ begin
           'The Witcher 3: Wild Hunt - Game of the Year Edition', '{"Wiedźmin 3: Dziki Gon - GOTY"}',
           'ps4', 'physical', 84.50),
         (19, 'pentiment', 'Pentiment', 'Pentiment', '{}', 'xbox-series', 'physical', 89.00),
-        (20, 'go-go-go', 'Go Go Go!!!', 'Go Go Go!!!', '{}', 'switch', 'physical', 39.00)
+        (20, 'go-go-go', 'Go Go Go!!!', 'Go Go Go!!!', '{}', 'switch', 'physical', 39.00),
+        (21, 'zelda-switch-2', 'The Legend of Zelda: Tears of the Kingdom – Nintendo Switch 2 Edition',
+          'The Legend of Zelda: Tears of the Kingdom – Nintendo Switch 2 Edition', '{}', 'switch-2', 'physical', 299.00),
+        (22, 'zelda-switch', 'The Legend of Zelda: Tears of the Kingdom',
+          'The Legend of Zelda: Tears of the Kingdom', '{}', 'switch', 'physical', 229.00),
+        (23, 'just-dance-2025', 'Just Dance 2025 Edition', 'Just Dance 2025 Edition', '{}', 'switch', 'physical', 149.00),
+        (24, 'just-dance-2024', 'Just Dance 2024 Edition', 'Just Dance 2024 Edition', '{}', 'switch', 'physical', 99.00),
+        (25, 'dark-souls-remastered', 'Dark Souls Remastered', 'Dark Souls Remastered', '{}', 'ps4', 'physical', 89.00),
+        (26, 'shadow-hd-edition', 'Shadow of the Colossus HD Edition', 'Shadow of the Colossus HD Edition', '{}',
+          'ps4', 'physical', 69.00),
+        (27, 'lowcy-capital-l-stroke', 'Łowcy Gier', 'Łowcy Gier', '{}', 'ps5', 'physical', 119.00),
+        (28, 'zolwie-in-ascii', 'Wojownicze Zolwie Ninja', 'Wojownicze Zolwie Ninja', '{}', 'switch', 'physical', 129.00),
+        (29, 'mario-and-luigi', 'Mario and Luigi: Brothership', 'Mario and Luigi: Brothership', '{}',
+          'switch', 'physical', 179.00),
+        (30, 'mario-ampersand-luigi', 'Mario & Luigi: Brothership', 'Mario & Luigi: Brothership', '{}',
+          'switch', 'physical', 169.00),
+        (31, 'silksong-switch', 'Hollow Knight: Silksong', 'Hollow Knight: Silksong', '{}', 'switch', 'physical', 129.00),
+        (32, 'silksong-ps5', 'Hollow Knight: Silksong', 'Hollow Knight: Silksong', '{}', 'ps5', 'physical', 129.00),
+        (33, 'little-nightmares', 'Little Nightmares', 'Little Nightmares', '{}', 'ps4', 'physical', 49.00),
+        (34, 'little-nightmares-ii', 'Little Nightmares II', 'Little Nightmares II', '{}', 'ps4', 'physical', 59.00),
+        (35, 'borderlands-legendary-collection', 'Borderlands Legendary Collection', 'Borderlands Legendary Collection',
+          '{}', 'switch', 'physical', 99.00),
+        (36, 'borderlands-3', 'Borderlands 3', 'Borderlands 3', '{}', 'ps4', 'physical', 59.00),
+        (37, 'ff7-rebirth', 'Final Fantasy VII Rebirth', 'Final Fantasy VII Rebirth', '{}', 'ps5', 'physical', 189.00),
+        (38, 'ff7-remake-intergrade', 'Final Fantasy VII Remake Intergrade', 'Final Fantasy VII Remake Intergrade', '{}',
+          'ps5', 'physical', 99.00),
+        (39, 'crisis-core-ff7-reunion', 'Crisis Core –Final Fantasy VII– Reunion',
+          'Crisis Core –Final Fantasy VII– Reunion', '{}', 'switch', 'physical', 119.00),
+        (40, 'atari-mania', 'Atari Mania', 'Atari Mania', '{}', 'switch', 'physical', 79.00),
+        (41, 'atari-50', 'Atari 50', 'Atari 50', '{}', 'switch', 'physical', 99.00),
+        (42, 'dogma-dark-arisen', 'Dragon''s Dogma: Dark Arisen', 'Dragon''s Dogma: Dark Arisen', '{}',
+          'switch', 'physical', 89.00),
+        (43, 'daemon-x-machina-titanic-scion', 'Daemon X Machina: Titanic Scion', 'Daemon X Machina: Titanic Scion',
+          '{}', 'switch-2', 'physical', 249.00),
+        (44, 'daemon-x-machina', 'Daemon X Machina', 'Daemon X Machina', '{}', 'switch', 'physical', 89.00),
+        (45, 'pokken-without-accent', 'Pokken Tournament DX', 'Pokken Tournament DX', '{}', 'switch', 'physical', 139.00),
+        (46, 'ezio-straight-apostrophe', 'Assassin''s Creed: The Ezio Collection',
+          'Assassin''s Creed: The Ezio Collection', '{}', 'ps4', 'physical', 79.00),
+        (47, 'ritas-rewind-curly-apostrophe', 'Mighty Morphin Power Rangers: Rita’s Rewind',
+          'Mighty Morphin Power Rangers: Rita’s Rewind', '{}', 'ps5', 'physical', 119.00)
       ) as t(item, label, title, english_title, alternative_titles, platform, edition, price)
       order by t.item
     loop
@@ -238,11 +284,12 @@ begin
   begin
     select count(*) into counted from public.deals
     where id = any (ids) and match_keys is not null and match_text is not null and match_text <> '';
-    if counted = 20 then
-      report := array_append(report, 'ok   all 20 fixture deals carry match_keys and a non-empty match_text');
+    if cardinality(ids) > 0 and counted = cardinality(ids) then
+      report := array_append(report, format('ok   all %s fixture deals carry match_keys and a non-empty match_text', counted));
     else
       failures := failures + 1;
-      report := array_append(report, format('FAIL %s of 20 fixture deals carry match_keys and a non-empty match_text', counted));
+      report := array_append(report, format('FAIL %s of %s fixture deals carry match_keys and a non-empty match_text',
+        counted, cardinality(ids)));
     end if;
   exception when others then
     failures := failures + 1;
@@ -297,13 +344,23 @@ begin
       ('game', 990001, 'battlefield-6', 'Battlefield 6', null),
       ('game', 990002, 'metroid-prime-4-beyond', 'Metroid Prime 4: Beyond', 'switch-2'),
       ('game', 9767, 'hollow-knight', 'Hollow Knight', null),
-      ('game', 990003, 'astro-bot', 'Astro Bot', 'ps5');
+      ('game', 990003, 'astro-bot', 'Astro Bot', 'ps5'),
+      ('game', 990004, 'the-legend-of-zelda-tears-of-the-kingdom', 'The Legend of Zelda: Tears of the Kingdom', 'switch'),
+      ('game', 990005, 'just-dance-2025-edition', 'Just Dance 2025 Edition', null),
+      ('game', 990006, 'dark-souls', 'Dark Souls', null),
+      ('game', 990007, 'shadow-of-the-colossus', 'Shadow of the Colossus', null),
+      ('game', 990008, 'pokken-tournament-dx', 'Pokkén Tournament DX', null),
+      ('game', 990009, 'assassins-creed-the-ezio-collection', 'Assassin’s Creed The Ezio Collection', null),
+      ('game', 990010, 'mighty-morphin-power-rangers-ritas-rewind', 'Mighty Morphin Power Rangers: Rita''s Rewind', null);
     insert into public.watchlist_entries (kind, phrase, platform) values
       ('phrase', 'wiedzmin', null),
       ('phrase', 'Dragon''s Dogma', null),
       ('phrase', 'dziedzictwo', null),
       ('phrase', 'c d', null),
-      ('phrase', '!!!', null);
+      ('phrase', '!!!', null),
+      ('phrase', 'lowcy', null),
+      ('phrase', 'Mario & Luigi', null),
+      ('phrase', 'silksong', 'switch');
     insert into public.watchlist_entries (kind, phrase, platform)
     values ('phrase', 'Pentiment', null)
     returning id into removed_entry;
@@ -313,7 +370,7 @@ begin
     if counted <> 1 then
       raise exception 'removing the phrase "Pentiment" updated % rows', counted;
     end if;
-    report := array_append(report, 'ok   A adds 9 games and 5 phrases, and adds and removes the phrase "Pentiment"');
+    report := array_append(report, 'ok   A adds 16 games and 8 phrases, and adds and removes the phrase "Pentiment"');
   exception when others then
     failures := failures + 1;
     report := array_append(report, format('FAIL A adds its entries: %s %s', sqlstate, sqlerrm));
@@ -323,12 +380,23 @@ begin
     json_build_object('sub', user_b, 'role', 'authenticated')::text, true);
 
   begin
-    insert into public.watchlist_entries (kind, game_id, game_slug, game_name, platform)
-    values ('game', 909, 'silent-hill-2', 'Silent Hill 2', null);
-    report := array_append(report, 'ok   B adds "Silent Hill 2" on any platform');
+    insert into public.watchlist_entries (kind, game_id, game_slug, game_name, platform) values
+      ('game', 909, 'silent-hill-2', 'Silent Hill 2', null),
+      ('game', 990004, 'the-legend-of-zelda-tears-of-the-kingdom', 'The Legend of Zelda: Tears of the Kingdom', 'switch-2'),
+      ('game', 990011, 'dark-souls-remastered', 'Dark Souls Remastered', null),
+      ('game', 990012, 'little-nightmares', 'Little Nightmares', null),
+      ('game', 990013, 'borderlands-legendary-collection', 'Borderlands Legendary Collection', null),
+      ('game', 990014, 'final-fantasy-vii-rebirth', 'Final Fantasy VII Rebirth', null),
+      ('game', 990015, 'atari-mania', 'Atari Mania', null),
+      ('game', 990016, 'dragons-dogma-2', 'Dragon’s Dogma 2', null),
+      ('game', 990017, 'daemon-x-machina-titanic-scion', 'Daemon X Machina: Titanic Scion', null);
+    insert into public.watchlist_entries (kind, phrase, platform) values
+      ('phrase', 'żółwie ninja', null),
+      ('phrase', 'mario and luigi', null);
+    report := array_append(report, 'ok   B adds 9 games, "Silent Hill 2" among them on any platform, and 2 phrases');
   exception when others then
     failures := failures + 1;
-    report := array_append(report, format('FAIL B adds "Silent Hill 2": %s %s', sqlstate, sqlerrm));
+    report := array_append(report, format('FAIL B adds its entries: %s %s', sqlstate, sqlerrm));
   end;
 
   -- 3 and 4. The view, as A and then as B ---------------------------------------
@@ -339,8 +407,14 @@ begin
     select * from (values
       (1, 'A', user_a, array['sh2-ps5', 'witcher-english-title', 'ff7-switch', 'bf6-alternative-title',
         'wiedzmin-polish-title', 'dogma-curly-apostrophe', 'hogwarts-alternative-title',
-        'hollow-knight-no-platform', 'hollow-knight-other', 'witcher-game-and-phrase']),
-      (2, 'B', user_b, array['sh2-ps5', 'sh2-xbox'])
+        'hollow-knight-no-platform', 'hollow-knight-other', 'witcher-game-and-phrase',
+        'zelda-switch', 'just-dance-2025', 'lowcy-capital-l-stroke', 'mario-and-luigi', 'mario-ampersand-luigi',
+        'silksong-switch', 'dogma-dark-arisen', 'pokken-without-accent', 'ezio-straight-apostrophe',
+        'ritas-rewind-curly-apostrophe']),
+      (2, 'B', user_b, array['sh2-ps5', 'sh2-xbox', 'dogma-curly-apostrophe', 'zelda-switch-2',
+        'dark-souls-remastered', 'zolwie-in-ascii', 'mario-and-luigi', 'mario-ampersand-luigi',
+        'little-nightmares', 'borderlands-legendary-collection', 'ff7-rebirth', 'atari-mania',
+        'daemon-x-machina-titanic-scion'])
     ) as t(step, who, uid, expected)
     order by t.step
   loop
@@ -396,12 +470,54 @@ begin
             array[]::text[], array['go-go-go']),
           (17, 'A', 'a digital deal and an unpriced one never show',
             array[]::text[], array['sh2-digital', 'sh2-unpriced']),
-          (18, 'B', '"Silent Hill 2" on any platform: both the ps5 and the xbox-series deal',
+          (18, 'A', 'V1: "The Legend of Zelda: Tears of the Kingdom" pinned to switch: the switch deal, not the switch-2 one',
+            array['zelda-switch'], array['zelda-switch-2']),
+          (19, 'A', 'V3: "Just Dance 2025 Edition" shows the 2025 deal, not the 2024 one',
+            array['just-dance-2025'], array['just-dance-2024']),
+          (20, 'A', 'V4: "Dark Souls" and "Shadow of the Colossus" match neither the Remastered deal nor the HD Edition one',
+            array[]::text[], array['dark-souls-remastered', 'shadow-hd-edition']),
+          (21, 'A', 'V5: the phrase "lowcy", typed in ASCII, matches "Łowcy Gier"',
+            array['lowcy-capital-l-stroke'], array['zolwie-in-ascii']),
+          (22, 'A', 'V6: the phrase "Mario & Luigi" matches the title spelled with "and" and the one spelled with "&"',
+            array['mario-and-luigi', 'mario-ampersand-luigi'], array[]::text[]),
+          (23, 'A', 'V7: the phrase "silksong" pinned to switch: the switch deal, not the ps5 one',
+            array['silksong-switch'], array['silksong-ps5']),
+          (24, 'A', 'V8: the phrase "Dragon''s Dogma" matches "Dragon''s Dogma: Dark Arisen", which B''s game does not',
+            array['dogma-dark-arisen'], array[]::text[]),
+          (25, 'A', 'V9: "Pokkén Tournament DX" matches "Pokken Tournament DX"',
+            array['pokken-without-accent'], array[]::text[]),
+          (26, 'A', 'V9: "Assassin’s Creed The Ezio Collection" matches "Assassin''s Creed: The Ezio Collection"',
+            array['ezio-straight-apostrophe'], array[]::text[]),
+          (27, 'A', 'V9: "Mighty Morphin Power Rangers: Rita''s Rewind" matches the title spelled "Rita’s Rewind"',
+            array['ritas-rewind-curly-apostrophe'], array[]::text[]),
+          (28, 'B', '"Silent Hill 2" on any platform: both the ps5 and the xbox-series deal',
             array['sh2-ps5', 'sh2-xbox'], array['sh2-digital', 'sh2-unpriced']),
-          (19, 'B', 'none of the deals only A''s entries match',
+          (29, 'B', 'none of the deals only A''s entries match',
             array[]::text[], array['witcher-english-title', 'ff7-switch', 'bf6-alternative-title',
-              'wiedzmin-polish-title', 'dogma-curly-apostrophe', 'hogwarts-alternative-title',
-              'hollow-knight-no-platform', 'hollow-knight-other', 'witcher-game-and-phrase'])
+              'wiedzmin-polish-title', 'hogwarts-alternative-title',
+              'hollow-knight-no-platform', 'hollow-knight-other', 'witcher-game-and-phrase',
+              'zelda-switch', 'just-dance-2025', 'lowcy-capital-l-stroke', 'silksong-switch', 'dogma-dark-arisen',
+              'pokken-without-accent', 'ezio-straight-apostrophe', 'ritas-rewind-curly-apostrophe']),
+          (30, 'B', 'V2: "The Legend of Zelda: Tears of the Kingdom" pinned to switch-2: the switch-2 deal, not the switch one',
+            array['zelda-switch-2'], array['zelda-switch']),
+          (31, 'B', 'V4: "Dark Souls Remastered" matches "Dark Souls Remastered"',
+            array['dark-souls-remastered'], array[]::text[]),
+          (32, 'B', 'V5: the phrase "żółwie ninja" matches "Wojownicze Zolwie Ninja", typed in ASCII',
+            array['zolwie-in-ascii'], array['lowcy-capital-l-stroke']),
+          (33, 'B', 'V6: the phrase "mario and luigi" matches the title spelled with "and" and the one spelled with "&"',
+            array['mario-and-luigi', 'mario-ampersand-luigi'], array[]::text[]),
+          (34, 'B', 'V8: "Little Nightmares" matches its own deal, not "Little Nightmares II"',
+            array['little-nightmares'], array['little-nightmares-ii']),
+          (35, 'B', 'V8: "Borderlands Legendary Collection" matches its own deal, not "Borderlands 3"',
+            array['borderlands-legendary-collection'], array['borderlands-3']),
+          (36, 'B', 'V8: "Final Fantasy VII Rebirth" matches its own deal, not Remake Intergrade, Crisis Core or FINAL FANTASY VII',
+            array['ff7-rebirth'], array['ff7-remake-intergrade', 'crisis-core-ff7-reunion', 'ff7-switch']),
+          (37, 'B', 'V8: "Atari Mania" matches its own deal, not "Atari 50"',
+            array['atari-mania'], array['atari-50']),
+          (38, 'B', 'V8: "Dragon’s Dogma 2" matches its own deal, not "Dragon''s Dogma: Dark Arisen"',
+            array['dogma-curly-apostrophe'], array['dogma-dark-arisen']),
+          (39, 'B', 'V8: "Daemon X Machina: Titanic Scion" matches its own deal, not "Daemon X Machina"',
+            array['daemon-x-machina-titanic-scion'], array['daemon-x-machina'])
         ) as t(step, who, name, shown, hidden)
         where t.who = u.who
         order by t.step

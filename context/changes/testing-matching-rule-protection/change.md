@@ -46,3 +46,19 @@ After creating the folder, follow the downstream continuation rule.
 - **2026-10-13 — Phase 2 verified locally (2.4).** The agent broke `20261012070050_match_deals_to_watchlist.sql` twice in the working tree and restored it each time, and Tomasz accepted the reports.
   - With `Ł` and `ł` dropped from the fold's table, `npm test` failed with "5 check(s) failed.": the folds of „ŁOWCY GIER” and of the Polish letter set, and the keys of the three titles holding `ł` (Okładka, Płyta, Pudełkowa). No view case failed, because no fixture deal or entry holds `ł`; V5 in Phase 3 adds one.
   - With the `authenticated` EXECUTE grant removed, it failed with "12 check(s) failed.": 42501 on fold_for_matching or game_match_key when A and B add entries and read `matched_deals`, and in the EXECUTE matrix.
+- **2026-10-13 — Phase 3 departures from the plan.**
+  - V8 reads the table's pairs as acceptance.md does. The watched catalogue names are entries on B: Little Nightmares, Borderlands Legendary Collection, Final Fantasy VII Rebirth, Atari Mania, Dragon’s Dogma 2 and Daemon X Machina: Titanic Scion. The siblings kept apart are deals: Little Nightmares II, Borderlands 3, Remake Intergrade, Crisis Core, Atari 50, Dark Arisen and Daemon X Machina.
+  - Each V8 case also has a shown side, the watched game's own deal, so a sibling case cannot pass by an entry that matches nothing. The oracle is acceptance.md's "On /my-deals" column.
+  - "Dragon’s Dogma 2" reuses the existing `dogma-curly-apostrophe` deal. The Final Fantasy VII Rebirth case also hides the existing `ff7-switch` deal ("FINAL FANTASY VII", acceptance.md:66).
+  - V8 has an A-side case as well: A's phrase "Dragon's Dogma" shows the Dark Arisen deal that B's game does not.
+  - V5 uses A's phrase "lowcy" against the deal "Łowcy Gier", and B's phrase "żółwie ninja" against "Wojownicze Zolwie Ninja". Each case hides the other user's deal.
+  - V9 is three cases, one per catalogue name, so a FAIL line names the spelling that broke.
+  - Case 19 ("none of the deals only A's entries match", now step 29) drops `dogma-curly-apostrophe`, which B's "Dragon’s Dogma 2" now matches, and adds the new deals only A matches.
+  - The header states the invariant per user ("one entry of each user's at most"), because B holds entries of its own now.
+  - The fixture-count check uses `cardinality(ids)` and fails on 0.
+  - The fixture extraction's `item_count` stays 20. Nothing reads it.
+  - The file now has 100 checks: 47 fixture deals; A holds 16 games and 8 phrases, B 9 games and 2 phrases.
+  - V4's deal is "Dark Souls Remastered" without "Edition", as the table gives it. Without `20261012130317`, it still keys apart, so V4 fails there through the "Shadow of the Colossus HD Edition" deal alone.
+- **2026-10-13 — Phase 3 verified.**
+  - 3.2: with `20261012130317_bound_game_match_key.sql` moved out, `npm test` failed with "10 check(s) failed.": the seven key rows that migration settled, V3 (the 2024 deal shown), V4 (the HD Edition deal shown) and A's whole view. The file was moved back, and Tomasz accepted the report. A second break, the view ignoring the pin, failed V1, V2 and V7 with the older pinned cases.
+  - 3.3: Tomasz ran the extended `supabase/checks/matching.sql` in the hosted SQL editor: "Rolled back on purpose. All checks passed.", on PostgreSQL 17.6 with collation `en_US.UTF-8`, the two fixture users inserted into `auth.users`.
