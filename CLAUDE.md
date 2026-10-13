@@ -65,8 +65,8 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 
 ## Verification
 
-- `npm run lint` runs `eslint --max-warnings 0` (flat config) — the flag is deliberate, do not drop it. `npm run format:check` runs Prettier. Both make up the `verify` gate in `.github/workflows/ci.yml`; `deploy` does not start until they pass.
-- There is no test runner and no tests. Do not claim tests passed — verify with `npm run build`, `npm run lint` or `npm run format:check`.
+- `npm run lint` runs `eslint --max-warnings 0` (flat config) — the flag is deliberate, do not drop it. `npm run format:check` runs Prettier. With `npm test` they make up the `verify` gate in `.github/workflows/ci.yml`; `deploy` does not start until all three pass.
+- `npm test` runs Vitest (`vitest.config.mts`). Its one project, `unit`, collects `tests/unit/**/*.test.ts` and runs them in the `node` environment; a test file outside that pattern is never run.
 
 ## Commits
 
