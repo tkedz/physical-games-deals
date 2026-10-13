@@ -945,28 +945,28 @@ Fill §6.1, §6.3 and §6.6 of the test plan with the patterns shipped, and stat
 
 #### Automated
 
-- [x] 1.1 `npm run lint` passes with the hook script
-- [x] 1.2 A payload for `tests/unit/watchlist/fold.test.ts` piped into the unit handler runs the unit project and exits 0; the same payload with a lowercase drive letter routes the same way
-- [x] 1.3 A payload for `src/app/page.tsx` exits 0 from both handlers without starting Vitest
-- [x] 1.4 A payload for `supabase/checks/matching.sql` piped into the db handler runs the db project and exits 0
-- [x] 1.5 A deliberately failing assertion in a unit test makes the unit handler exit 2 with the failure on stderr; the assertion is reverted
-- [x] 1.6 Two db handler invocations started together run the db project twice in sequence, never in parallel
-- [x] 1.7 A payload for `scripts/extract/prompt.mts` prints the eval reminder as `additionalContext`
+- [x] 1.1 `npm run lint` passes with the hook script — d62260e
+- [x] 1.2 A payload for `tests/unit/watchlist/fold.test.ts` piped into the unit handler runs the unit project and exits 0; the same payload with a lowercase drive letter routes the same way — d62260e
+- [x] 1.3 A payload for `src/app/page.tsx` exits 0 from both handlers without starting Vitest — d62260e
+- [x] 1.4 A payload for `supabase/checks/matching.sql` piped into the db handler runs the db project and exits 0 — d62260e
+- [x] 1.5 A deliberately failing assertion in a unit test makes the unit handler exit 2 with the failure on stderr; the assertion is reverted — d62260e
+- [x] 1.6 Two db handler invocations started together run the db project twice in sequence, never in parallel — d62260e
+- [x] 1.7 A payload for `scripts/extract/prompt.mts` prints the eval reminder as `additionalContext` — d62260e
 
 #### Manual
 
-- [x] 1.8 In a live Claude Code session in VS Code, an agent edit to a unit-path file shows the hook's result in the transcript, and a deliberately failing db test wakes the agent through `asyncRewake`; both are reverted
+- [x] 1.8 In a live Claude Code session in VS Code, an agent edit to a unit-path file shows the hook's result in the transcript, and a deliberately failing db test wakes the agent through `asyncRewake`; both are reverted — d62260e
 
 ### Phase 2: Write-Side Listing Rules
 
 #### Automated
 
-- [ ] 2.1 The `7:00` rows fail before the `TIME` change and pass after it
-- [ ] 2.2 `npm test -- --project unit` passes with the three new files
-- [ ] 2.3 `npm test` passes
-- [ ] 2.4 `npm run lint` passes
-- [ ] 2.5 `npm run format:check` passes
-- [ ] 2.6 `npm run build` passes, type-checking the tests that import `.mts` files
+- [x] 2.1 The `7:00` rows fail before the `TIME` change and pass after it
+- [x] 2.2 `npm test -- --project unit` passes with the three new files
+- [x] 2.3 `npm test` passes
+- [x] 2.4 `npm run lint` passes
+- [x] 2.5 `npm run format:check` passes
+- [x] 2.6 `npm run build` passes, type-checking the tests that import `.mts` files
 
 ### Phase 3: The Link Rule at Write and Render Time
 

@@ -196,14 +196,14 @@ function warsawToUtc(
 }
 
 const DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
-const TIME = /^(\d{2}):(\d{2})$/;
+const TIME = /^(\d{1,2}):(\d{2})$/;
 
 /**
  * The exclusive end of a stated expiry, in Europe/Warsaw, as an ISO instant.
  * Without an hour, the day ends at the next local midnight: "do 30.09" ends at
- * 2026-09-30T22:00:00Z, "do 25.10" at 2026-10-25T23:00:00Z. A stated hour is
- * honoured; 24:00, or an hour that is not one, ends the day at midnight too.
- * Null when there is no date, or it is not a calendar date.
+ * 2026-09-30T22:00:00Z, "do 25.10" at 2026-10-25T23:00:00Z. A stated hour,
+ * H:MM or HH:MM, is honoured; 24:00, or an hour that is not one, ends the day
+ * at midnight too. Null when there is no date, or it is not a calendar date.
  */
 export function expiryInstant(
   expiresOn: string | null,
