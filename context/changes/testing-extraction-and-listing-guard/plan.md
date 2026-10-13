@@ -961,23 +961,23 @@ Fill §6.1, §6.3 and §6.6 of the test plan with the patterns shipped, and stat
 
 #### Automated
 
-- [x] 2.1 The `7:00` rows fail before the `TIME` change and pass after it
-- [x] 2.2 `npm test -- --project unit` passes with the three new files
-- [x] 2.3 `npm test` passes
-- [x] 2.4 `npm run lint` passes
-- [x] 2.5 `npm run format:check` passes
-- [x] 2.6 `npm run build` passes, type-checking the tests that import `.mts` files
+- [x] 2.1 The `7:00` rows fail before the `TIME` change and pass after it — 6559fb6
+- [x] 2.2 `npm test -- --project unit` passes with the three new files — 6559fb6
+- [x] 2.3 `npm test` passes — 6559fb6
+- [x] 2.4 `npm run lint` passes — 6559fb6
+- [x] 2.5 `npm run format:check` passes — 6559fb6
+- [x] 2.6 `npm run build` passes, type-checking the tests that import `.mts` files — 6559fb6
 
 ### Phase 3: The Link Rule at Write and Render Time
 
 #### Automated
 
-- [ ] 3.1 The aggregator and userinfo rows fail before the `verifyShopUrl` change and pass after it
-- [ ] 3.2 Removing `lowcygier.pl` from `AGGREGATOR_SITES` makes the feed drift test fail; the entry is restored
-- [ ] 3.3 `npm test` passes
-- [ ] 3.4 `npm run lint` passes
-- [ ] 3.5 `npm run format:check` passes
-- [ ] 3.6 `npm run build` passes
+- [x] 3.1 The aggregator and userinfo rows fail before the `verifyShopUrl` change and pass after it
+- [x] 3.2 Removing `lowcygier.pl` from `AGGREGATOR_SITES` makes the feed drift test fail; the entry is restored
+- [x] 3.3 `npm test` passes
+- [x] 3.4 `npm run lint` passes
+- [x] 3.5 `npm run format:check` passes
+- [x] 3.6 `npm run build` passes
 
 ### Phase 4: Expired Deals Hidden by the Database
 

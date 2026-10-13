@@ -123,11 +123,20 @@ function isSameSite(host: string, siteHost: string): boolean {
 }
 
 /**
- * Keeps a shop URL only when all three hold: it is one of the post's own link
- * targets, character for character; it uses http: or https:; and it is not on
- * the aggregator's own site. Otherwise null, and the deal links to the post.
+ * The sites of the aggregators whose feeds scripts/collector/feeds.json
+ * collects. A link to any of them leads to another post, never to a shop,
+ * whichever aggregator the post itself comes from.
+ */
+export const AGGREGATOR_SITES = ["pepper.pl", "lowcygier.pl", "cenograj.pl"];
+
+/**
+ * Keeps a shop URL only when all four hold: it is one of the post's own link
+ * targets, character for character; it uses http: or https:; it carries no
+ * username or password, which can dress one host up as another; and it is on
+ * neither the post's own site nor any site in AGGREGATOR_SITES. Otherwise
+ * null, and the deal links to the post.
  *
- * `postHost` is the host of the post's link. When it is unknown the third
+ * `postHost` is the host of the post's link. When it is unknown the fourth
  * condition cannot be checked, so nothing is kept.
  */
 export function verifyShopUrl(
@@ -145,7 +154,10 @@ export function verifyShopUrl(
     return null;
   }
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
-  if (isSameSite(parsed.hostname.toLowerCase(), postHost)) return null;
+  if (parsed.username !== "" || parsed.password !== "") return null;
+  const host = parsed.hostname.toLowerCase();
+  if (isSameSite(host, postHost)) return null;
+  if (AGGREGATOR_SITES.some((site) => isSameSite(host, site))) return null;
   return url;
 }
 
