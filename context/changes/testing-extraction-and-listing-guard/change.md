@@ -1,0 +1,25 @@
+---
+change_id: testing-extraction-and-listing-guard
+title: Guard extraction quality, listing rules and deal links with tests and an eval gate
+status: implementing
+created: 2026-10-13
+updated: 2026-10-13
+archived_at: null
+---
+
+## Notes
+
+Open a change folder for rollout Phase 2 of context/foundation/test-plan.md: "Extraction and listing guard".
+Risks covered: #2 (a prompt or model change quietly makes extraction worse — digital or key offers, non-deals or wrong prices get listed, real physical deals get dropped — or a deal stays listed past its stated expiry), #5 (a deal's link leads somewhere other than the deal's origin — a URL the post never contained, a different offer, or a non-web scheme planted in a stranger's post; abuse: untrusted input). Test types planned: unit + AI-native eval gate + post-edit hook.
+Risk response intent:
+- #2: prove that on the labelled set a prompt or model change keeps digital or key offers among listed deals at zero and wrong entries at or below 5%, without newly dropping physical deals; and that the deterministic listing rules hide a deal after its stated expiry in Warsaw time — across the 2026-10-25 DST change too — keep undated deals, and never list a set's price as one game's. Expected values come from the labels, the PRD and the slice plans, never from the model's current replies.
+- #5: prove that for posts with and without a shop link, and for adversarial ones carrying javascript: or data: links, aggregator self-links or URLs absent from the post, the stored link is one of the post's own http(s) shop links or the aggregator post itself, and nothing else. The existing scratch cases are inputs only.
+Gate scope: this phase makes the extraction eval a required gate before any prompt or model change (test-plan section 5) and adds a recommended local post-edit hook that runs the fast suites for the matching rule and the listing rules — never a CI substitute, never the paid eval (section 4). Reuse the runner and patterns Phase 1 shipped (sections 6.1 and 6.2); this phase fills sections 6.3 and 6.6.
+After creating the folder, follow the downstream continuation rule.
+
+- **2026-10-13 — Phase 1 departures from the plan.** The decisions live in the comments of `.claude/hooks/post-edit-tests.mjs`.
+  - Exit codes: the plan names 0 and 2. A misconfigured hook (an argument other than `unit` or `db`, or no root from either `CLAUDE_PROJECT_DIR` or the input's `cwd`) exits 1, which Claude Code shows the user as a hook error. A suite that cannot start exits 2 with the reason. Input that is not JSON exits 0, as nothing to check, per `.claude/skills/10x-configure-hook/` (step 6 and `references/anthropic.md`).
+  - Vitest is spawned with `NO_COLOR=1` and `FORCE_COLOR=0`, so the stderr tail is plain text (same reference).
+  - db single-flight: the lock holder reruns for as long as a new marker landed during its last run, not exactly once. A lock with no pid file yet counts as held for 10 s, so two invocations started together cannot both run. The hooks reference (fetched 2026-10-13) says `timeout` is not enforced on async hooks, so a dead owner's pid, not the timeout, frees a stale lock.
+  - The CLAUDE.md bullet also names `.claude/settings.json` and the map constant `SUITE_PATHS` instead of listing the paths.
+  - `/10x-configure-hook` (lesson 3, downloaded in e22c138) runs before Phase 2 as a separate step outside this change (Tomasz's decision, 2026-10-13). Phase 1 keeps the plan's path-routed design: `vitest related` finds no test for a migration or a check file, because the db project reads them from disk rather than importing them.

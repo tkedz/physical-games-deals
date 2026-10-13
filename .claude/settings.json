@@ -26,5 +26,33 @@
       "Bash(rm -rf *)",
       "Read(.env.local)"
     ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/post-edit-tests.mjs",
+              "unit"
+            ],
+            "timeout": 120
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/post-edit-tests.mjs",
+              "db"
+            ],
+            "asyncRewake": true,
+            "timeout": 300
+          }
+        ]
+      }
+    ]
   }
 }

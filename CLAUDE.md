@@ -68,6 +68,7 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 - `npm run lint` runs `eslint --max-warnings 0` (flat config) — the flag is deliberate, do not drop it. `npm run format:check` runs Prettier. With `npm test` they make up the `verify` gate in `.github/workflows/ci.yml`; `deploy` does not start until all three pass.
 - `npm test` runs Vitest (`vitest.config.mts`) in two projects, both in the `node` environment: `unit` collects `tests/unit/**/*.test.ts`, and `db` collects `tests/db/**/*.test.ts`, which run against PGlite built from `supabase/migrations/` behind the Supabase stub in `tests/db/stub/`. A test file outside those patterns is never run.
 - Run Vitest through `npm test`, passing options after `--` (`npm test -- --project unit`), not through `npx vitest`. `scripts/test.mts` starts it from the canonical path of the working directory; started from `c:\…` with a lowercase drive letter, Vitest 5.0.4 fails every test file.
+- After an agent's Edit or Write, `.claude/hooks/post-edit-tests.mjs` (registered in `.claude/settings.json`) runs the unit project (synchronously) or the db project (in the background) for the paths it maps in `SUITE_PATHS`. It is local only and is not a gate.
 
 ## Commits
 
