@@ -762,7 +762,7 @@ Fill §6.1 and §6.2 of `context/foundation/test-plan.md` with the patterns this
 
 #### Manual
 
-- [x] 1.7 Gate proof: a throwaway pull request carrying one deliberately failing unit test shows `verify` failing and `deploy` never starting; the pull request is then closed and its branch deleted
+- [x] 1.7 Gate proof: a throwaway pull request carrying one deliberately failing unit test shows `verify` failing and `deploy` never starting; the pull request is then closed and its branch deleted — 61710d9
 
 ### Phase 2: Disposable Postgres and matching.sql as a Test
 
@@ -787,30 +787,30 @@ Fill §6.1 and §6.2 of `context/foundation/test-plan.md` with the patterns this
 
 - [x] 3.2 Proof: with `20261012130317_bound_game_match_key.sql` moved out of `supabase/migrations/` locally, `npm test` names V3 and V4 as FAIL; the file is then restored — adb9bb7
 - [x] 3.3 Tomasz runs the extended matching.sql in the hosted SQL editor and gets "All checks passed." — adb9bb7
-- [x] 3.4 The push of this phase (only `supabase/` and `context/` files) shows a "Database tests" run and no "CI" run in GitHub Actions
+- [x] 3.4 The push of this phase (only `supabase/` and `context/` files) shows a "Database tests" run and no "CI" run in GitHub Actions — adb9bb7
 
 ### Phase 4: Rule-Change Detectors
 
 #### Automated
 
-- [x] 4.1 `npm test` passes D1–D3 on the real migration chain
-- [x] 4.2 `npm test` passes D4: without recompute and reindex both detectors fire, with them both are clean
-- [x] 4.3 `npm run lint`, `npm run format:check` and `npm run build` pass
+- [x] 4.1 `npm test` passes D1–D3 on the real migration chain — 620568f
+- [x] 4.2 `npm test` passes D4: without recompute and reindex both detectors fire, with them both are clean — 620568f
+- [x] 4.3 `npm run lint`, `npm run format:check` and `npm run build` pass — 620568f
 
 #### Manual
 
-- [x] 4.4 Proof: with `update public.deals set title = title;` removed from `20261012130317_bound_game_match_key.sql` locally, D1 lists the Just Dance 2025, Shadow of the Colossus HD and 1001-character seeded deals and not the control; the line is then restored
+- [x] 4.4 Proof: with `update public.deals set title = title;` removed from `20261012130317_bound_game_match_key.sql` locally, D1 lists the Just Dance 2025, Shadow of the Colossus HD and 1001-character seeded deals and not the control; the line is then restored — 620568f
 
 ### Phase 5: TS/SQL Fold Parity
 
 #### Automated
 
-- [ ] 5.1 `npm test` passes with the parity test comparing a corpus above its floor
-- [ ] 5.2 `npm run lint`, `npm run format:check` and `npm run build` pass
+- [x] 5.1 `npm test` passes with the parity test comparing a corpus above its floor
+- [x] 5.2 `npm run lint`, `npm run format:check` and `npm run build` pass
 
 #### Manual
 
-- [ ] 5.3 Proof: with `ʼ` removed from `FOLD_FROM` in `rules.ts` locally, the parity test fails naming U+02BC; the change is then reverted
+- [x] 5.3 Proof: with `ʼ` removed from `FOLD_FROM` in `rules.ts` locally, the parity test fails naming U+02BC; the change is then reverted
 
 ### Phase 6: Fix F5 — NFC First in Both Twins
 

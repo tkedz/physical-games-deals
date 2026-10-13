@@ -43,7 +43,7 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 
 - `/my-deals` reads `public.matched_deals`, a `security_invoker` view: the listed deals that match the caller's active watchlist entries.
 - The rule is `public.fold_for_matching` and `public.game_match_key`, in `supabase/migrations/20261012070050_match_deals_to_watchlist.sql`; `game_match_key`'s current body is in `20261012130317_bound_game_match_key.sql`. `deals.match_keys` and `deals.match_text` are generated columns computed from them.
-- `foldForMatching` in `src/lib/watchlist/rules.ts` mirrors `public.fold_for_matching` for the phrase pre-check, and must stay identical to it.
+- `foldForMatching` in `src/lib/watchlist/rules.ts` mirrors `public.fold_for_matching` for the phrase pre-check, and must stay identical to it. `tests/db/fold-parity.test.ts` compares the two over the corpus in `tests/db/fixtures/fold-corpus.ts`.
 - `create or replace function` neither recomputes the stored keys nor rebuilds an index. A migration that changes a matching function also runs `update public.deals set title = title`, and, for the fold, settles the phrases that newly fold alike and runs `reindex index public.watchlist_entries_active_phrase_folded`.
 - `supabase/checks/matching.sql` is the rule's truth table. `npm test` runs it unchanged in PGlite against `supabase/migrations/` (`tests/db/matching.test.ts`). Rerun it in the SQL editor after every change to the rule; it ends in an error on purpose and rolls itself back.
 

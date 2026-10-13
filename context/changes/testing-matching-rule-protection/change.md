@@ -75,3 +75,8 @@ After creating the folder, follow the downstream continuation rule.
   - Two more breaks, both restored, were caught:
     - a settle ordered by `id` alone failed D3's named assertion;
     - with no settle at all, the build failed at `20261012070050` with 23505 on `watchlist_entries_active_phrase_folded`.
+- **2026-10-13 — Phase 5 departures from the plan.**
+  - `tests/db/fixtures/fold-corpus.ts` holds 8,713 inputs: 45 curated and 8,668 generated. The curated ones are matching.sql's 15 fold inputs, 8 PRD and roadmap examples, the 20 catalogue names without RAWG's year, and the pangram in both cases. The parity test's floor is 8,000.
+  - The test folds the whole corpus in one `unnest($1::text[]) with ordinality` query as `migrator`. A failure lists up to 20 inputs as code points, with both outputs.
+  - The CLAUDE.md bullet also names the corpus file.
+- **2026-10-13 — Phase 5 verified locally (5.3).** With `ʼ` removed from `FOLD_FROM` in `rules.ts`, the parity test failed on 2 of 8,713 inputs, both holding U+02BC (`a ʼ b`: TS "a b", SQL "ab"), as the earlier change measured. With `ő`/`Ő` removed from the SQL table instead, it failed on 41. Both files were restored, and Tomasz accepted the report.
