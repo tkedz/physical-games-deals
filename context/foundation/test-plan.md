@@ -163,13 +163,85 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.1 Adding a unit test for a pure rule
 
-- TBD — see §3 Phase 1 (fold and match-key pattern); extended by Phase 2
-  (listing and link rules) and Phase 4 (access decision table).
+- **Where:** `tests/unit/<area>/<rule>.test.ts`, collected by the `unit`
+  project of `vitest.config.mts`. Reference: `tests/unit/watchlist/fold.test.ts`
+  (table-driven classes and near misses); `tests/unit/watchlist/phrase-on-list.test.ts`
+  (one row per input → boolean).
+- **Run:** `npm test`, or `npm test -- --project unit`. Always through
+  `npm test`, never `npx vitest`: `scripts/test.mts` starts Vitest from the
+  canonical path, and Vitest 5.0.4 fails every file when started from a
+  lowercase `c:\…` on Windows.
+- **Rules:**
+  - Expected values come from the PRD, the roadmap or a review finding, and
+    each row's name cites its source. Never from running the code under test.
+  - An equivalence class ("these spellings fold alike") needs a near miss
+    that must stay apart, so a constant or over-eager function cannot pass.
+  - Fixtures carry the non-ASCII input real posts carry: Polish letters, `ł`,
+    curly apostrophes, "&". Spell an NFD or combining character as a `\u`
+    escape, and check that the file holds no raw combining mark afterwards:
+    an editing tool can compose it silently.
+  - Import the code from `@/…` and `describe`/`expect`/`it` from `vitest`
+    explicitly.
+  - Test files are type-checked by `next build` and linted with
+    `eslint --max-warnings 0`, as all other code is.
+- Rollout Phase 2 (listing and link rules) and Phase 4 (access decision
+  table) extend this section.
 
 ### 6.2 Adding a database test against the migrations
 
-- TBD — see §3 Phase 1 (matching truth-table pattern) and Phase 4
-  (cross-user and guest isolation pattern).
+Two patterns. Both run in PGlite, built fresh from `supabase/migrations/` by
+`tests/db/harness/database.ts`, and are collected by the `db` project
+(`tests/db/**/*.test.ts`). Run with `npm test` or `npm test -- --project db`.
+
+- **(a) A matching case** (an entry and a deal → shown or hidden) is a row
+  in `supabase/checks/matching.sql`, not a new test file.
+  `tests/db/matching.test.ts` runs the file unchanged and reads its report.
+  - Add the fixture deal to section 2's VALUES, with a label.
+  - Add the entry to A's or B's inserts, and update the "A adds N games…"
+    report line.
+  - Add the case to the sections 3/4 VALUES, with its `shown` and `hidden`
+    arrays, and its oracle in the name (e.g. `V3:`, `F5:`).
+  - Update that user's whole-view expected array, and case 29 when B must
+    not see a deal of A's.
+  - Keep one entry of each user's per deal: a broken case must not hide
+    behind another entry's match.
+  - Spell NFD input as a `\u` escape inside an `E''` string.
+  - Run `npm test`, then run the file in the hosted SQL editor after the
+    `db:push`. The hosted run, on PostgreSQL 17.6, is the authority.
+- **(b) A property of the migration chain** is a Vitest test in `tests/db/`
+  that calls `buildDatabase`. Reference: `tests/db/rule-change.test.ts`
+  (seed, detectors, synthetic proof) and `tests/db/fold-parity.test.ts`
+  (one query over a corpus).
+  - A seed runs as the owner immediately before a named migration
+    (`seed: { beforeVersion, run }`), and the build throws if that version
+    does not exist. The stale-key detector sees only rows seeded before the
+    first matching migration (`tests/db/fixtures/rule-change-seed.ts`).
+  - Synthetic migrations (`extraMigrations`, dated after the real chain)
+    prove a detector by breaking it. A change to `fold_for_matching` must
+    refresh its copy in `tests/db/fixtures/fold-without-l-stroke.ts`.
+  - `amcheck` belongs to the superuser: call it through `asSuperuser`, one
+    statement per call, outside a transaction.
+  - A check file following the report convention of
+    `supabase/checks/matching.sql` runs through
+    `runCheckFile` in `tests/db/harness/check-file.ts`. Rollout Phase 4 runs
+    the isolation and grants checks this way.
+- **Stub rules** (`tests/db/stub/`, self-tested by `tests/db/harness.test.ts`):
+  - the migrations run as `migrator`, an owner that is not a superuser, so
+    a missing grant fails here as it does hosted;
+  - each migration runs under Supabase's default privileges of its own
+    date, granted before `20261030000000` and revoked from it. The grants
+    match the hosted `pg_default_acl`, checked 2026-10-13;
+  - `@electric-sql/pglite` is pinned at exactly `0.5.9`.
+- **Known gaps:**
+  - PGlite runs PostgreSQL 18.6, the hosted project 17.6, including their
+    Unicode tables. Syntax new in 18 passes here and fails at `db:push`.
+  - The collation is C, under which `lower()` lowers ASCII only.
+  - There is no PostgREST: a role switch is `set local role` with
+    `request.jwt.claims`, as the SQL editor does it.
+- **The local loop:** `npm test` runs before `npm run db:push`
+  (CLAUDE.md, Database migrations). CI cannot gate a hand-applied
+  migration; `.github/workflows/database-tests.yml` only runs the suite
+  after the fact, for a push that touches `supabase/**` alone.
 
 ### 6.3 Changing the extraction prompt or model
 
@@ -190,6 +262,13 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 (Optional. After each phase lands, `/10x-implement` appends a 2–3 line note
 here capturing anything surprising the rollout phase taught.)
+
+- **2026-10-13, Phase 1 (matching rule protection):** The stale-key detector
+  sees only rows seeded before the first matching migration. The F5 fix was
+  the first real rule change it checked, and it flagged the deliberately
+  incomplete draft. Two Windows traps surfaced: Vitest 5.0.4 started from a
+  lowercase `c:` (hence `scripts/test.mts`), and NFD test input composed by
+  an editing tool (hence the `\u` escapes).
 
 ## 7. What We Deliberately Don't Test
 

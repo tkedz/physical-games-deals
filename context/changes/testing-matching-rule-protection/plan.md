@@ -816,24 +816,24 @@ Fill §6.1 and §6.2 of `context/foundation/test-plan.md` with the patterns this
 
 #### Automated
 
-- [x] 6.1 Before the fix, the new NFD rows fail (unit, matching.sql and D3) while every other test passes
-- [x] 6.2 After the fix, `npm test` passes, parity included
-- [x] 6.3 `npm run lint`, `npm run format:check` and `npm run build` pass
+- [x] 6.1 Before the fix, the new NFD rows fail (unit, matching.sql and D3) while every other test passes — 63a7a8e
+- [x] 6.2 After the fix, `npm test` passes, parity included — 63a7a8e
+- [x] 6.3 `npm run lint`, `npm run format:check` and `npm run build` pass — 63a7a8e
 
 #### Manual
 
-- [x] 6.4 Proof: the migration written first without the settle, reindex and recompute makes D1, D2 and D3 fail, and the completed migration makes them pass
-- [x] 6.5 Before the push, Tomasz runs one read-only query in the SQL editor — the number of deals with a title, english_title or alternative title not in NFC, and the active phrase groups that would newly fold alike under NFC — and the counts are recorded in change.md
-- [ ] 6.6 Tomasz runs `npm run db:push -- --dry-run` (listing only the new migration), `npm run db:push`, `npm run db:check` and `npm run db:status`, all clean
-- [ ] 6.7 Tomasz runs matching.sql in the hosted SQL editor and gets "All checks passed."
-- [ ] 6.8 The code push follows the migration push, and both the "Database tests" and "CI" runs are green with the deploy done
+- [x] 6.4 Proof: the migration written first without the settle, reindex and recompute makes D1, D2 and D3 fail, and the completed migration makes them pass — 63a7a8e
+- [x] 6.5 Before the push, Tomasz runs one read-only query in the SQL editor — the number of deals with a title, english_title or alternative title not in NFC, and the active phrase groups that would newly fold alike under NFC — and the counts are recorded in change.md — 63a7a8e
+- [x] 6.6 Tomasz runs `npm run db:push -- --dry-run` (listing only the new migration), `npm run db:push`, `npm run db:check` and `npm run db:status`, all clean — 63a7a8e
+- [x] 6.7 Tomasz runs matching.sql in the hosted SQL editor and gets "All checks passed." — 63a7a8e
+- [x] 6.8 The code push follows the migration push, and both the "Database tests" and "CI" runs are green with the deploy done — 63a7a8e
 
 ### Phase 7: Cookbook
 
 #### Automated
 
-- [ ] 7.1 Every path cited in §6.1 and §6.2 exists in the repository
+- [x] 7.1 Every path cited in §6.1 and §6.2 exists in the repository
 
 #### Manual
 
-- [ ] 7.2 Tomasz reads §6.1 and §6.2 and confirms that a new matching case and a new rule unit test could be added from them alone
+- [x] 7.2 Tomasz reads §6.1 and §6.2 and confirms that a new matching case and a new rule unit test could be added from them alone

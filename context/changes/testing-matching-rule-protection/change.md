@@ -95,3 +95,16 @@ After creating the folder, follow the downstream continuation rule.
   - 6.4: with `20261013115104_fold_nfc_first.sql` holding only the new function, D1 listed the seeded NFD deal (stored "poke mon legends z a", fresh "pokemon legends z a"). D2 failed on `watchlist_entries_active_phrase_folded` (XX001), D3 found the Pokémon pair active and folding alike to "pokemon", and the named D3 test failed. With the settle, the reindex and the recompute, all passed. Tomasz accepted the report.
   - Break checks, both restored: NFC taken out of the TS twin alone failed the NFD unit rows and parity (337 of 8,713 inputs). Taken out of the SQL twin alone, it failed `matching.sql`, parity, D3 and D4.
   - 6.5: Tomasz ran the read-only pre-push query in the SQL editor and got `deals_not_nfc` 0 and `phrase_groups_to_settle` 0. No production deal holds a title outside NFC, and no phrase is settled. The migration rewrites every deal row through `update public.deals set title = title` but changes no key, and it marks no phrase removed. This also answers F5's open question: none of the sources has sent NFD so far.
+  - 6.6: Tomasz ran `npm run db:push -- --dry-run`, `npm run db:push`, `npm run db:check` and `npm run db:status`, and reported all four clean. `npm test` passed locally before them, 71 of 71.
+  - 6.7: Tomasz ran `supabase/checks/matching.sql`, with its F5 rows, in the hosted SQL editor after the push: "Rolled back on purpose. All checks passed.", on PostgreSQL 17.6 with collation `en_US.UTF-8`.
+  - 6.8: the code went to `main` after the migration (`adb9bb7..63a7a8e`). "Database tests" and "CI" both ran green, the production deploy included, and Tomasz confirmed it. Both run the same `npm test`, so `verify` runs the database tests too, and `deploy` waits on them; `database-tests.yml` adds a run only for pushes `ci.yml` ignores.
+- **2026-10-13 — Phase 7 departures from the plan.**
+  - §6.1 gives the run command as `npm test -- --project unit`, not the plan's `npx vitest run --project unit`, and warns against `npx vitest`: CLAUDE.md, *Verification*, routes Vitest through `scripts/test.mts` since Phase 2.
+  - §6.1 and §6.2 also name what the phases taught:
+    - NFD input spelled as `\u` escapes, and a check for raw combining marks;
+    - the refresh of `tests/db/fixtures/fold-without-l-stroke.ts` on a fold change;
+    - `asSuperuser` as one statement per call, outside a transaction;
+    - the hosted `pg_default_acl` check of 2026-10-13;
+    - `database-tests.yml` as an after-the-fact run, never the migration gate.
+  - 7.1: a script listed every path in backticks in §6.1–§6.2. All 19 files and directories exist, and `@electric-sql/pglite` resolves in `node_modules/`. `test-plan.md` holds no raw combining mark. One bare `matching.sql` became `supabase/checks/matching.sql`. §1–§5 are untouched.
+  - 7.2: Tomasz read §6.1 and §6.2 and confirmed that a new matching case and a new rule unit test could be added from them alone.
