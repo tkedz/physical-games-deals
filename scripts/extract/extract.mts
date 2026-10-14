@@ -34,6 +34,7 @@
  * carries a key or a request: the OpenRouter client reports a failure as a
  * reason, a status and OpenRouter's own message.
  */
+import { readFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 // The .mts extensions are written out because Node strips the types without
 // rewriting the specifier, so these have to be the real file names.
@@ -49,6 +50,7 @@ import {
   TEMPERATURE,
 } from "./config.mts";
 import { isListable } from "./deals.mts";
+import { checkRecord, promptFingerprint } from "./fingerprint.mts";
 import {
   createOpenRouterClient,
   readOpenRouterApiKey,
@@ -194,11 +196,30 @@ async function extractQueue(
   return outcomes;
 }
 
+/** The committed eval record next to the eval, or null when there is none. */
+function readEvalRecord(): string | null {
+  try {
+    return readFileSync(new URL("./eval/result.json", import.meta.url), "utf8");
+  } catch {
+    return null;
+  }
+}
+
 async function main(): Promise<void> {
+  // Before everything else, because it reads only a local file and sends
+  // nothing: a prompt or model without a passing eval record never reaches a
+  // credential, the database or the model. The prompt fingerprint covers
+  // what is sent; the labels are the eval's business, so they are not checked
+  // here (fingerprint.mts).
+  const recordCheck = checkRecord(readEvalRecord(), {
+    prompt: promptFingerprint(),
+  });
+  if (!recordCheck.ok) throw new Error(recordCheck.reason);
+
   const startedMs = performance.now();
   const startedAt = new Date().toISOString();
 
-  // First, so that a missing credential aborts before anything is read or
+  // Second, so that a missing credential aborts before anything is read or
   // sent, naming the first one missing: NEXT_PUBLIC_SUPABASE_URL, then
   // SUPABASE_SECRET_KEY, then OPENROUTER_API_KEY. The last is picked out
   // because ProcessEnv declares no OPENROUTER_API_KEY, and TypeScript rejects

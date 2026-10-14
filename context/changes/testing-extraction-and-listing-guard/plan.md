@@ -1000,33 +1000,33 @@ Fill §6.1, §6.3 and §6.6 of the test plan with the patterns shipped, and stat
 
 #### Automated
 
-- [x] 5.1 The new unit tests pass, and `judgeRuns` turns a leak in run 2 into a fail with a reason naming the model and the run
-- [x] 5.2 `node scripts/extract/eval.mts` without credentials still aborts with exit 1 before any request
-- [x] 5.3 `git check-ignore -v` reports `result.json`, `synthetic-posts.json` and `export-posts.sql` as not ignored, and `posts.json` and `report-v3.md` as ignored
-- [x] 5.4 `npm test` passes
-- [x] 5.5 `npm run lint` passes
-- [x] 5.6 `npm run format:check` passes
-- [x] 5.7 `npm run build` passes
+- [x] 5.1 The new unit tests pass, and `judgeRuns` turns a leak in run 2 into a fail with a reason naming the model and the run — 4108896
+- [x] 5.2 `node scripts/extract/eval.mts` without credentials still aborts with exit 1 before any request — 4108896
+- [x] 5.3 `git check-ignore -v` reports `result.json`, `synthetic-posts.json` and `export-posts.sql` as not ignored, and `posts.json` and `report-v3.md` as ignored — 4108896
+- [x] 5.4 `npm test` passes — 4108896
+- [x] 5.5 `npm run lint` passes — 4108896
+- [x] 5.6 `npm run format:check` passes — 4108896
+- [x] 5.7 `npm run build` passes — 4108896
 
 #### Manual
 
-- [x] 5.8 Tomasz reads each synthetic post with its label (set, expiry instant, expected link) and confirms or corrects it
-- [x] 5.9 Tomasz runs `export-posts.sql` in the SQL editor and it returns 55 rows; `posts.json` is not overwritten
+- [x] 5.8 Tomasz reads each synthetic post with its label (set, expiry instant, expected link) and confirms or corrects it — 4108896
+- [x] 5.9 Tomasz runs `export-posts.sql` in the SQL editor and it returns 55 rows; `posts.json` is not overwritten — 4108896
 
 ### Phase 6: First Passing Record and the Extractor Refusal
 
 #### Automated
 
-- [ ] 6.1 `npm test` passes with `result.json` committed
-- [ ] 6.2 After one word of `INSTRUCTIONS` changes, `npm test -- --project unit` fails naming the prompt fingerprint mismatch, and `node scripts/extract/extract.mts` (no env file) aborts with that reason before the credential check; after the revert, `npm test` passes and the extractor proceeds to the missing-credential abort
-- [ ] 6.3 `npm run lint` passes
-- [ ] 6.4 `npm run format:check` passes
-- [ ] 6.5 `npm run build` passes
+- [x] 6.1 `npm test` passes with `result.json` committed
+- [x] 6.2 After one word of `INSTRUCTIONS` changes, `npm test -- --project unit` fails naming the prompt fingerprint mismatch, and `node scripts/extract/extract.mts` (no env file) aborts with that reason before the credential check; after the revert, `npm test` passes and the extractor proceeds to the missing-credential abort
+- [x] 6.3 `npm run lint` passes
+- [x] 6.4 `npm run format:check` passes
+- [x] 6.5 `npm run build` passes
 
 #### Manual
 
-- [ ] 6.6 Gate proof: Tomasz runs `npm run extract:eval` with the edition rule in `INSTRUCTIONS` temporarily inverted; it exits 1, reports leaks, writes no `result.json`, and the prompt is reverted
-- [ ] 6.7 Tomasz runs `npm run extract:eval` on the clean tree; it exits 0 and writes `result.json`, and its diff carries no post text
+- [x] 6.6 Gate proof: Tomasz runs `npm run extract:eval` with the edition rule in `INSTRUCTIONS` temporarily inverted; it exits 1, reports leaks, writes no `result.json`, and the prompt is reverted
+- [x] 6.7 Tomasz runs `npm run extract:eval` on the clean tree; it exits 0 and writes `result.json`, and its diff carries no post text
 - [ ] 6.8 CI `verify` passes on the push, so Linux computes the same fingerprints as Windows
 - [ ] 6.9 The next scheduled collect run's "Extract deals" step is green, and the deals page's freshness line advances
 
