@@ -51,6 +51,7 @@ const SUITE_PATHS = {
     "scripts/extract/",
     "scripts/local/",
     "src/lib/deals/",
+    "src/lib/env/",
     "src/lib/watchlist/",
     "tests/unit/",
   ],

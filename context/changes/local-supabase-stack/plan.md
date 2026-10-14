@@ -505,39 +505,39 @@ Make the rules file, the env example and the foundation docs state the local set
 
 #### Automated
 
-- [x] 2.1 `npm test`, `npm run lint`, `npm run format:check` and `npx tsc --noEmit` pass
-- [x] 2.2 `npm run local:start` exits 0. Its output contains no `sb_secret_`, `sb_publishable_` or `eyJ` substring and no `postgresql://` URL (checked by count, never printed)
-- [x] 2.3 A second `npm run local:start` while running exits 0
-- [x] 2.4 `npm run local:up` reports the local database up to date
-- [x] 2.5 After asking Tomasz: `npm run local:reset` without a snapshot exits 0, and an anon `GET /rest/v1/deals` returns exactly D1 and D2 (counted in a Node one-liner that reads the key from `supabase status -o json` without printing it)
-- [x] 2.6 `git check-ignore supabase/snapshot.sql` succeeds
-- [x] 2.7 With the stack stopped (`npm run local:stop`), starting `npm run dev` brings the stack back up through `predev`
+- [x] 2.1 `npm test`, `npm run lint`, `npm run format:check` and `npx tsc --noEmit` pass — 3c654c3
+- [x] 2.2 `npm run local:start` exits 0. Its output contains no `sb_secret_`, `sb_publishable_` or `eyJ` substring and no `postgresql://` URL (checked by count, never printed) — 3c654c3
+- [x] 2.3 A second `npm run local:start` while running exits 0 — 3c654c3
+- [x] 2.4 `npm run local:up` reports the local database up to date — 3c654c3
+- [x] 2.5 After asking Tomasz: `npm run local:reset` without a snapshot exits 0, and an anon `GET /rest/v1/deals` returns exactly D1 and D2 (counted in a Node one-liner that reads the key from `supabase status -o json` without printing it) — 3c654c3
+- [x] 2.6 `git check-ignore supabase/snapshot.sql` succeeds — 3c654c3
+- [x] 2.7 With the stack stopped (`npm run local:stop`), starting `npm run dev` brings the stack back up through `predev` — 3c654c3
 
 #### Manual
 
-- [x] 2.8 Tomasz, in the VS Code terminal, enters the database password when asked: `npx supabase db dump --linked --data-only -s public -x public.watchlist_entries --use-copy -f supabase/snapshot.sql`
-- [x] 2.9 `supabase/snapshot.sql` holds data for `collected_posts`, `post_extractions`, `deals` and `pipeline_runs`, and nothing from `auth` or `watchlist_entries`, checked by grep counts
-- [x] 2.10 After asking Tomasz: `npm run local:reset` with the snapshot exits 0, and anon's count of listed deals equals the snapshot's listed deals plus 2
+- [x] 2.8 Tomasz, in the VS Code terminal, enters the database password when asked: `npx supabase db dump --linked --data-only -s public -x public.watchlist_entries --use-copy -f supabase/snapshot.sql` — 3c654c3
+- [x] 2.9 `supabase/snapshot.sql` holds data for `collected_posts`, `post_extractions`, `deals` and `pipeline_runs`, and nothing from `auth` or `watchlist_entries`, checked by grep counts — 3c654c3
+- [x] 2.10 After asking Tomasz: `npm run local:reset` with the snapshot exits 0, and anon's count of listed deals equals the snapshot's listed deals plus 2 — 3c654c3
 
 ### Phase 3: Target guard and env split
 
 #### Automated
 
-- [ ] 3.1 `npm test`, `npm run lint`, `npm run format:check` and `npx tsc --noEmit` pass
-- [ ] 3.2 Refused before any request: `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co SUPABASE_SECRET_KEY=x npm run collect` exits non-zero with the guard's message
-- [ ] 3.3 Refused before any request: `SUPABASE_TARGET=hosted NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 SUPABASE_SECRET_KEY=x npm run extract:report` exits non-zero with the guard's message
-- [ ] 3.4 `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co npx next dev -p 3100` exits with the guard's message
-- [ ] 3.5 `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co npm run build` passes the guard
-- [ ] 3.6 `npm run extract:report:hosted` with no `.env.hosted.local` present fails on the missing file. Run only before Tomasz creates it, or skipped
+- [x] 3.1 `npm test`, `npm run lint`, `npm run format:check` and `npx tsc --noEmit` pass
+- [x] 3.2 Refused before any request: `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co SUPABASE_SECRET_KEY=x npm run collect` exits non-zero with the guard's message
+- [x] 3.3 Refused before any request: `SUPABASE_TARGET=hosted NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 SUPABASE_SECRET_KEY=x npm run extract:report` exits non-zero with the guard's message
+- [x] 3.4 `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co npx next dev -p 3100` exits with the guard's message
+- [x] 3.5 `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co npm run build` passes the guard
+- [x] 3.6 `npm run extract:report:hosted` with no `.env.hosted.local` present fails on the missing file. Run only before Tomasz creates it, or skipped
 
 #### Manual
 
-- [ ] 3.7 Tomasz swaps the env files in VS Code, following the steps in `.env.example`
-- [ ] 3.8 Tomasz adds `Read(.env.hosted.local)` to the `deny` list in `.claude/settings.json`
-- [ ] 3.9 `npm run dev` → `/` shows the seed's Elden Ring deal with "Przejdź do sklepu" to `sklep.example`, alongside the snapshot's deals
-- [ ] 3.10 A sign-up on the local app works without email confirmation, and the account appears in the local Studio, not in the production dashboard
-- [ ] 3.11 `npm run dev:hosted` → `/` shows production deals without the seed deal. After stopping it, `npm run dev` shows the seed deal again
-- [ ] 3.12 `npm run extract:report:hosted` writes a sample from production posts, and `npm run db:status` still lists the hosted migrations
+- [x] 3.7 Tomasz swaps the env files in VS Code, following the steps in `.env.example`
+- [x] 3.8 Tomasz adds `Read(.env.hosted.local)` to the `deny` list in `.claude/settings.json`
+- [x] 3.9 `npm run dev` → `/` shows the seed's Elden Ring deal with "Przejdź do sklepu" to `sklep.example`, alongside the snapshot's deals
+- [x] 3.10 A sign-up on the local app works without email confirmation, and the account appears in the local Studio, not in the production dashboard
+- [x] 3.11 `npm run dev:hosted` → `/` shows production deals without the seed deal. After stopping it, `npm run dev` shows the seed deal again
+- [x] 3.12 `npm run extract:report:hosted` writes a sample from production posts, and `npm run db:status` still lists the hosted migrations
 - [ ] 3.13 After the merge, the next collect workflow run (scheduled, or "Run workflow") is green in both steps
 
 ### Phase 4: Documentation

@@ -69,6 +69,10 @@ jobs:
           # A repository variable rather than a secret: the URL is public and is
           # already inlined into the browser bundle by the Next build.
           NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          # States that this step targets the hosted project. Without it the
+          # guard in createCollectorClient() (src/lib/env/supabase-target.ts)
+          # refuses the hosted URL above, as it does for any local run.
+          SUPABASE_TARGET: hosted
         run: npm run collect
 
       - name: Extract deals
@@ -84,6 +88,9 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          # The hosted target, for the guard in createCollectorClient()
+          # (src/lib/env/supabase-target.ts), as on the Collect step.
+          SUPABASE_TARGET: hosted
           # How the Collect step ended. Its presence is also what makes the
           # extractor write a public.pipeline_runs row, which a local run never
           # does.

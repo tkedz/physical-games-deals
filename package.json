@@ -8,6 +8,7 @@
   "scripts": {
     "predev": "npm run local:start",
     "dev": "next dev",
+    "dev:hosted": "node --env-file=.env.hosted.local scripts/dev-hosted.mts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint --max-warnings 0",
@@ -22,12 +23,13 @@
     "local:stop": "supabase stop",
     "local:up": "supabase migration up --local",
     "local:reset": "node scripts/local/reset.mts",
-    "collect": "node --env-file-if-exists=.env.local scripts/collector/collect.mts",
-    "collect:import": "node --env-file-if-exists=.env.local scripts/collector/import-jsonl.mts",
+    "collect": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/collector/collect.mts",
+    "collect:import": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/collector/import-jsonl.mts",
     "catalog:probe": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/catalog/probe.mts",
-    "extract": "node --env-file-if-exists=.env.local scripts/extract/extract.mts",
+    "extract": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/extract/extract.mts",
     "extract:eval": "node --env-file-if-exists=.env.local scripts/extract/eval.mts",
-    "extract:report": "node --env-file-if-exists=.env.local scripts/extract/report.mts"
+    "extract:report": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/extract/report.mts",
+    "extract:report:hosted": "node --env-file=.env.hosted.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/extract/report.mts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

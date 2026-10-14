@@ -30,3 +30,21 @@ archived_at: null
 - **`db reset` runs with stdin closed and without `--yes`.** In the CLI 2.117.0 binary, the local reset path does not prompt.
 - **The snapshot dump asked for no database password.** Criterion 2.8 expected a prompt. When a `--linked` command has neither `--password` nor `SUPABASE_DB_PASSWORD`, the CLI mints a temporary login role through the Management API (`POST /v1/projects/{ref}/cli/login-role`), using the access token from `supabase login` (Context7 `/supabase/cli`, `db-config.layer.ts`). `db:push`, `db:status` and `db:check` connect the same way. No code or workflow uses the database password. The snapshot of 2026-10-14 holds 3975 `collected_posts`, 2694 `post_extractions`, 3116 `deals` and 32 `pipeline_runs` rows, plus two `setval` lines, and nothing from `auth` or `watchlist_entries`.
 - **The snapshot is dumped without `--use-copy`.** The plan's command (criterion 2.8) passed `--use-copy`. `local:reset` then failed loading that file with `COPY from stdin failed: No source stream defined (SQLSTATE 57014)`. The CLI's seed loader sends each file as SQL batches, with no data stream for `COPY … FROM stdin`. The command is therefore `npx supabase db dump --linked --data-only -s public -x public.watchlist_entries -f supabase/snapshot.sql`, which writes `INSERT` statements. That is the shape `tests/db/seed.test.ts` covers. Phase 4's docs name this command. The redone dump loaded in a 32 s `local:reset`. Anon then counted 1680 listed deals: the snapshot's 1678 plus D1 and D2. The seed's deals start at id 3308, past the snapshot's `setval` of 3307.
+
+### 2026-10-14 — Phase 3
+
+- **`--disable-warning=MODULE_TYPELESS_PACKAGE_JSON` on more scripts.** It now also sits on `collect`, `collect:import`, `extract`, `extract:report` and `extract:report:hosted`, so `extract:report:hosted` differs from the plan's literal string. Their client now imports `src/lib/env/supabase-target.ts`, and CLAUDE.md's rule gives scripts that import `src/` this flag. `dev:hosted` needs no flag, because Next loads the config itself.
+- **Check order in `createCollectorClient()`.** It checks for a missing URL, then the target guard, then a missing key, and only then builds the client. A mismatch is reported even when the key is missing too.
+- **What the guard reads, beyond the contract:**
+  - a URL whose scheme is neither http nor https is refused, like an unparsable one;
+  - `SUPABASE_TARGET` is matched case-sensitively, and an empty value counts as unset;
+  - only the three loopback hosts the contract lists pass, so `0.0.0.0` and `127.0.0.2` are refused under `local`;
+  - a refusal names the URL's host only, never the raw URL or target value, since either may hold a key pasted into the wrong line.
+- **`dev:hosted` runs `scripts/dev-hosted.mts`.** The plan's command, `node --env-file=.env.hosted.local node_modules/next/dist/bin/next dev`, failed check 3.11 with `--env-file= is not allowed in NODE_OPTIONS`. `next dev` forks its server and hands the parent's node flags to the fork through `NODE_OPTIONS` (`getParsedNodeOptions` in `node_modules/next/dist/server/lib/utils.js`). The script is now `node --env-file=.env.hosted.local scripts/dev-hosted.mts`. The wrapper starts `next dev` as a fresh node process with no flags, and that process inherits the hosted environment. The file still loads through `--env-file`, and a missing file still fails closed.
+- **Checks 3.9–3.12, run by the agent after the owner's swap.**
+  - `npm run dev` showed the seed's Elden Ring card with "Przejdź do sklepu" to `sklep.example`, followed by snapshot deals.
+  - A sign-up on it went through without email confirmation, and the account is the one row in the local `auth.users`.
+  - `dev:hosted` showed production's first deals and freshness time, and no seed row; after it, `npm run dev` showed the seed again.
+  - `extract:report:hosted --sample 5` drew from production's 2694 links.
+  - `db:status` listed all 15 migrations on both sides.
+- **Observation, outside this change.** Twice after `npm run dev` sessions, Next's generated `.next/dev/types/validator.ts` held a stray tail, which fails `tsc --noEmit`. A single `next dev` session with a page load and a kill left it intact, so the cause is not pinned down. Deleting the file fixes it, because `next dev` writes it again.

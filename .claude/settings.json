@@ -24,7 +24,8 @@
     ],
     "deny": [
       "Bash(rm -rf *)",
-      "Read(.env.local)"
+      "Read(.env.local)",
+      "Read(.env.hosted.local)"
     ]
   },
   "hooks": {
