@@ -972,29 +972,29 @@ Fill §6.1, §6.3 and §6.6 of the test plan with the patterns shipped, and stat
 
 #### Automated
 
-- [x] 3.1 The aggregator and userinfo rows fail before the `verifyShopUrl` change and pass after it
-- [x] 3.2 Removing `lowcygier.pl` from `AGGREGATOR_SITES` makes the feed drift test fail; the entry is restored
-- [x] 3.3 `npm test` passes
-- [x] 3.4 `npm run lint` passes
-- [x] 3.5 `npm run format:check` passes
-- [x] 3.6 `npm run build` passes
+- [x] 3.1 The aggregator and userinfo rows fail before the `verifyShopUrl` change and pass after it — 88d721c
+- [x] 3.2 Removing `lowcygier.pl` from `AGGREGATOR_SITES` makes the feed drift test fail; the entry is restored — 88d721c
+- [x] 3.3 `npm test` passes — 88d721c
+- [x] 3.4 `npm run lint` passes — 88d721c
+- [x] 3.5 `npm run format:check` passes — 88d721c
+- [x] 3.6 `npm run build` passes — 88d721c
 
 ### Phase 4: Expired Deals Hidden by the Database
 
 #### Automated
 
-- [ ] 4.1 `tests/db/listed-expiry.test.ts` fails before the migration file exists and passes after it
-- [ ] 4.2 `npm test` passes, `supabase/checks/matching.sql` included, unchanged
-- [ ] 4.3 `npm run lint` passes
-- [ ] 4.4 `npm run format:check` passes
+- [x] 4.1 `tests/db/listed-expiry.test.ts` fails before the migration file exists and passes after it
+- [x] 4.2 `npm test` passes, `supabase/checks/matching.sql` included, unchanged
+- [x] 4.3 `npm run lint` passes
+- [x] 4.4 `npm run format:check` passes
 
 #### Manual
 
-- [ ] 4.5 Tomasz: `npm run db:push -- --dry-run` lists only the new migration, then `npm run db:push`
-- [ ] 4.6 Tomasz: `npm run db:check` exits 0 and `npm run db:status` shows no drift
-- [ ] 4.7 Tomasz: `supabase/checks/listed-expiry.sql` in the hosted SQL editor ends with "All checks passed."
-- [ ] 4.8 Tomasz: `supabase/checks/matching.sql` in the hosted SQL editor ends with "All checks passed."
-- [ ] 4.9 `/` and `/my-deals` on production still list deals after the push
+- [x] 4.5 Tomasz: `npm run db:push -- --dry-run` lists only the new migration, then `npm run db:push`
+- [x] 4.6 Tomasz: `npm run db:check` exits 0 and `npm run db:status` shows no drift
+- [x] 4.7 Tomasz: `supabase/checks/listed-expiry.sql` in the hosted SQL editor ends with "All checks passed."
+- [x] 4.8 Tomasz: `supabase/checks/matching.sql` in the hosted SQL editor ends with "All checks passed."
+- [x] 4.9 `/` and `/my-deals` on production still list deals after the push
 
 ### Phase 5: The Eval Gate's Logic
 

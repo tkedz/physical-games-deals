@@ -3,7 +3,7 @@ change_id: testing-extraction-and-listing-guard
 title: Guard extraction quality, listing rules and deal links with tests and an eval gate
 status: implementing
 created: 2026-10-13
-updated: 2026-10-13
+updated: 2026-10-14
 archived_at: null
 ---
 
@@ -27,3 +27,6 @@ After creating the folder, follow the downstream continuation rule.
   - Phase 1's contract said the project root is `CLAUDE_PROJECT_DIR`, falling back to the input's `cwd`. `post-edit-tests.mjs` now takes the checkout from the edited file (`git rev-parse` in its directory, same repository as the session), so an edit in a worktree under `.claude/worktrees/` is tested there instead of passing silently. A checkout without `node_modules` is not tested, and Claude is told so (`additionalContext`). The exit 1 for a missing root is gone with it.
   - A third project, `hooks` (`tests/hooks/**`), runs on edits to `.claude/hooks/**` and `tests/hooks/**`.
   - New beside it: `lint-edited-file.mjs` (per edit, ESLint and Prettier on the edited file) and `end-of-turn.mjs` (Stop: lint and format of the changed files, all of `npm test`, `tsc --noEmit`, one retry), proven by `tests/hooks/agent-hooks.test.ts`.
+- **2026-10-14 — Phase 4 departures from the plan.** The decisions live in the header and section comments of `supabase/checks/listed-expiry.sql`.
+  - A fourth reader: the table owner (the SQL editor's role, the harness owner), which RLS does not bind, reads `public.matched_deals` with the user's claims after `reset role`. The view runs as its caller, so for `authenticated` the policy alone already hides an expired deal there; without this read, a later migration dropping the term from the view only stayed green (the deliberate break proved it).
+  - Fixtures follow `matching.sql` rather than "as the owner" throughout: one fixture post for all five deals (distinct `item_index`), the deals inserted by `service_role` as the extractor does, and the user's phrase entry inserted as `authenticated`, so `user_id` comes from `auth.uid()`.
