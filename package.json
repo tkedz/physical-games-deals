@@ -6,6 +6,7 @@
     "node": "24.x"
   },
   "scripts": {
+    "predev": "npm run local:start",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -17,6 +18,10 @@
     "db:push": "supabase db push --linked",
     "db:status": "supabase migration list --linked",
     "db:check": "supabase db advisors --linked --type security --fail-on error",
+    "local:start": "node scripts/local/start.mts",
+    "local:stop": "supabase stop",
+    "local:up": "supabase migration up --local",
+    "local:reset": "node scripts/local/reset.mts",
     "collect": "node --env-file-if-exists=.env.local scripts/collector/collect.mts",
     "collect:import": "node --env-file-if-exists=.env.local scripts/collector/import-jsonl.mts",
     "catalog:probe": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/catalog/probe.mts",

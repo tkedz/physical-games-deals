@@ -363,6 +363,7 @@ describe("post-edit-tests.mjs (PostToolUse, per edit, by path)", () => {
 
   it.each([
     ["db", "supabase/migrations/20260101000000_x.sql"],
+    ["db", "supabase/seed.sql"],
     ["hooks", ".claude/hooks/x.mjs"],
   ])("runs the %s project for %s", (suite, path) => {
     write(work, path, "-- any\n");

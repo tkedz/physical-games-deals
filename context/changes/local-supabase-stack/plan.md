@@ -490,34 +490,34 @@ Make the rules file, the env example and the foundation docs state the local set
 
 #### Automated
 
-- [x] 1.1 `npm test` passes, including `tests/db/collected-posts-grants.test.ts` and the harness self-test
-- [x] 1.2 Deliberate break: with the migration's `grant` line removed, the revoke-by-default case fails with `42501`; restored, it passes (recorded in `change.md`)
-- [x] 1.3 `npm run lint`, `npm run format:check` and `npx tsc --noEmit` pass
-- [x] 1.4 `npx supabase migration up --local` applies the migration to the local stack. `has_table_privilege` read through `npx supabase db query --local` shows `select, insert, update` for `service_role`, and not `delete`
+- [x] 1.1 `npm test` passes, including `tests/db/collected-posts-grants.test.ts` and the harness self-test — 7e5a5ce
+- [x] 1.2 Deliberate break: with the migration's `grant` line removed, the revoke-by-default case fails with `42501`; restored, it passes (recorded in `change.md`) — 7e5a5ce
+- [x] 1.3 `npm run lint`, `npm run format:check` and `npx tsc --noEmit` pass — 7e5a5ce
+- [x] 1.4 `npx supabase migration up --local` applies the migration to the local stack. `has_table_privilege` read through `npx supabase db query --local` shows `select, insert, update` for `service_role`, and not `delete` — 7e5a5ce
 
 #### Manual
 
-- [x] 1.5 Tomasz: `npm run db:push -- --dry-run` lists only the new migration, then `npm run db:push` applies it
-- [x] 1.6 Tomasz: `npm run db:check` exits 0 and `npm run db:status` shows the migration on both sides
-- [x] 1.7 The next collect workflow run after the push (scheduled, or "Run workflow") is green in both steps, and production's freshness line shows that run
+- [x] 1.5 Tomasz: `npm run db:push -- --dry-run` lists only the new migration, then `npm run db:push` applies it — 7e5a5ce
+- [x] 1.6 Tomasz: `npm run db:check` exits 0 and `npm run db:status` shows the migration on both sides — 7e5a5ce
+- [x] 1.7 The next collect workflow run after the push (scheduled, or "Run workflow") is green in both steps, and production's freshness line shows that run — 7e5a5ce
 
 ### Phase 2: Local stack scripts, seed and snapshot
 
 #### Automated
 
-- [ ] 2.1 `npm test`, `npm run lint`, `npm run format:check` and `npx tsc --noEmit` pass
-- [ ] 2.2 `npm run local:start` exits 0. Its output contains no `sb_secret_`, `sb_publishable_` or `eyJ` substring and no `postgresql://` URL (checked by count, never printed)
-- [ ] 2.3 A second `npm run local:start` while running exits 0
-- [ ] 2.4 `npm run local:up` reports the local database up to date
-- [ ] 2.5 After asking Tomasz: `npm run local:reset` without a snapshot exits 0, and an anon `GET /rest/v1/deals` returns exactly D1 and D2 (counted in a Node one-liner that reads the key from `supabase status -o json` without printing it)
-- [ ] 2.6 `git check-ignore supabase/snapshot.sql` succeeds
-- [ ] 2.7 With the stack stopped (`npm run local:stop`), starting `npm run dev` brings the stack back up through `predev`
+- [x] 2.1 `npm test`, `npm run lint`, `npm run format:check` and `npx tsc --noEmit` pass
+- [x] 2.2 `npm run local:start` exits 0. Its output contains no `sb_secret_`, `sb_publishable_` or `eyJ` substring and no `postgresql://` URL (checked by count, never printed)
+- [x] 2.3 A second `npm run local:start` while running exits 0
+- [x] 2.4 `npm run local:up` reports the local database up to date
+- [x] 2.5 After asking Tomasz: `npm run local:reset` without a snapshot exits 0, and an anon `GET /rest/v1/deals` returns exactly D1 and D2 (counted in a Node one-liner that reads the key from `supabase status -o json` without printing it)
+- [x] 2.6 `git check-ignore supabase/snapshot.sql` succeeds
+- [x] 2.7 With the stack stopped (`npm run local:stop`), starting `npm run dev` brings the stack back up through `predev`
 
 #### Manual
 
-- [ ] 2.8 Tomasz, in the VS Code terminal, enters the database password when asked: `npx supabase db dump --linked --data-only -s public -x public.watchlist_entries --use-copy -f supabase/snapshot.sql`
-- [ ] 2.9 `supabase/snapshot.sql` holds data for `collected_posts`, `post_extractions`, `deals` and `pipeline_runs`, and nothing from `auth` or `watchlist_entries`, checked by grep counts
-- [ ] 2.10 After asking Tomasz: `npm run local:reset` with the snapshot exits 0, and anon's count of listed deals equals the snapshot's listed deals plus 2
+- [x] 2.8 Tomasz, in the VS Code terminal, enters the database password when asked: `npx supabase db dump --linked --data-only -s public -x public.watchlist_entries --use-copy -f supabase/snapshot.sql`
+- [x] 2.9 `supabase/snapshot.sql` holds data for `collected_posts`, `post_extractions`, `deals` and `pipeline_runs`, and nothing from `auth` or `watchlist_entries`, checked by grep counts
+- [x] 2.10 After asking Tomasz: `npm run local:reset` with the snapshot exits 0, and anon's count of listed deals equals the snapshot's listed deals plus 2
 
 ### Phase 3: Target guard and env split
 

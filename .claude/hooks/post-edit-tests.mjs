@@ -49,6 +49,7 @@ import {
 const SUITE_PATHS = {
   unit: [
     "scripts/extract/",
+    "scripts/local/",
     "src/lib/deals/",
     "src/lib/watchlist/",
     "tests/unit/",
@@ -57,6 +58,7 @@ const SUITE_PATHS = {
   db: [
     "supabase/migrations/",
     "supabase/checks/",
+    "supabase/seed.sql",
     "src/lib/watchlist/",
     "tests/db/",
   ],

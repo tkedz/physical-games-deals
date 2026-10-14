@@ -63,11 +63,13 @@ enabled = true
 schema_paths = []
 
 [db.seed]
-# Disabled: this project has no seed data. `sql_paths` below points at a
-# ./seed.sql that does not exist, so leaving seeding on makes the first
-# `supabase db reset` fail on a file nobody decided to omit. If seed data is
-# ever added, create the file and turn this back on deliberately;
-# `supabase db push --include-seed` is the per-command opt-in for pushing it.
+# Disabled on purpose, although ./seed.sql exists: it is fixture data for the
+# local stack only. With seeding off, `supabase start` never applies it to a
+# fresh volume, and `supabase db push --include-seed` skips it rather than
+# pushing fixture deals and a fake ok run to the hosted project.
+# `npm run local:reset` passes the files itself (`--sql-paths ./snapshot.sql`
+# when that file exists, then `--sql-paths ./seed.sql`), which enables seeding
+# for that one reset.
 enabled = false
 # Specifies an ordered list of seed files to load during db reset.
 # Supports glob patterns relative to supabase directory: "./seeds/*.sql"
