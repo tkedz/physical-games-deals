@@ -1034,10 +1034,10 @@ Fill §6.1, §6.3 and §6.6 of the test plan with the patterns shipped, and stat
 
 #### Automated
 
-- [x] 7.1 `npm run lint` passes
-- [x] 7.2 `npm run format:check` passes
-- [x] 7.3 Every path cited in §6.1, §6.3 and §6.6 exists in the repository
+- [x] 7.1 `npm run lint` passes — 72b3e00
+- [x] 7.2 `npm run format:check` passes — 72b3e00
+- [x] 7.3 Every path cited in §6.1, §6.3 and §6.6 exists in the repository — 72b3e00
 
 #### Manual
 
-- [x] 7.4 Tomasz reads §6.3 and can follow it, without other context, to change the prompt: which command, what blocks, what to commit, what to do when the extractor refuses
+- [x] 7.4 Tomasz reads §6.3 and can follow it, without other context, to change the prompt: which command, what blocks, what to commit, what to do when the extractor refuses — 72b3e00
