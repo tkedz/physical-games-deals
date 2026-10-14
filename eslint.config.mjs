@@ -16,6 +16,12 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Playwright's output: a report with traces bundles the trace viewer's
+    // JavaScript. Gitignored, but ESLint does not read .gitignore.
+    "playwright-report/**",
+    "test-results/**",
+    "blob-report/**",
+    "playwright/.cache/**",
   ]),
 ]);
 

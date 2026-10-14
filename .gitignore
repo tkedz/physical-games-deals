@@ -58,3 +58,12 @@ _incoming/
 # the review samples npm run extract:report writes quote the posts too, and are
 # never committed
 /scripts/extract/review/
+
+# Playwright. The saved session in playwright/.auth/ and the playwright-cli
+# snapshots and console logs in .playwright-cli/ can hold credentials.
+playwright/.auth/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+.playwright-cli/
