@@ -136,9 +136,10 @@ type ListedDealsRelation = "deals" | "matched_deals";
  * nor skip a row. Both relations are read the same way.
  *
  * - The select policy on public.deals admits only listed rows: a game, a
- *   physical copy, a price. The view runs as the caller, so the policy holds
- *   under it too, and the view states the same predicate. The query states it
- *   anyway, so a policy widened for some other reader cannot widen this page.
+ *   physical copy, a price, not expired. The view runs as the caller, so the
+ *   policy holds under it too, and the view states the same predicate. The
+ *   query states it anyway, so a policy widened for some other reader cannot
+ *   widen this page.
  * - A deal is hidden from its `expires_at` on: the column holds the
  *   exclusive end of the offer, so `expires_at > now` keeps exactly the
  *   offers still running. One without a date stays.

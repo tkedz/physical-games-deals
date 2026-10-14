@@ -1017,27 +1017,27 @@ Fill §6.1, §6.3 and §6.6 of the test plan with the patterns shipped, and stat
 
 #### Automated
 
-- [x] 6.1 `npm test` passes with `result.json` committed
-- [x] 6.2 After one word of `INSTRUCTIONS` changes, `npm test -- --project unit` fails naming the prompt fingerprint mismatch, and `node scripts/extract/extract.mts` (no env file) aborts with that reason before the credential check; after the revert, `npm test` passes and the extractor proceeds to the missing-credential abort
-- [x] 6.3 `npm run lint` passes
-- [x] 6.4 `npm run format:check` passes
-- [x] 6.5 `npm run build` passes
+- [x] 6.1 `npm test` passes with `result.json` committed — b244c5c
+- [x] 6.2 After one word of `INSTRUCTIONS` changes, `npm test -- --project unit` fails naming the prompt fingerprint mismatch, and `node scripts/extract/extract.mts` (no env file) aborts with that reason before the credential check; after the revert, `npm test` passes and the extractor proceeds to the missing-credential abort — b244c5c
+- [x] 6.3 `npm run lint` passes — b244c5c
+- [x] 6.4 `npm run format:check` passes — b244c5c
+- [x] 6.5 `npm run build` passes — b244c5c
 
 #### Manual
 
-- [x] 6.6 Gate proof: Tomasz runs `npm run extract:eval` with the edition rule in `INSTRUCTIONS` temporarily inverted; it exits 1, reports leaks, writes no `result.json`, and the prompt is reverted
-- [x] 6.7 Tomasz runs `npm run extract:eval` on the clean tree; it exits 0 and writes `result.json`, and its diff carries no post text
-- [ ] 6.8 CI `verify` passes on the push, so Linux computes the same fingerprints as Windows
-- [ ] 6.9 The next scheduled collect run's "Extract deals" step is green, and the deals page's freshness line advances
+- [x] 6.6 Gate proof: Tomasz runs `npm run extract:eval` with the edition rule in `INSTRUCTIONS` temporarily inverted; it exits 1, reports leaks, writes no `result.json`, and the prompt is reverted — b244c5c
+- [x] 6.7 Tomasz runs `npm run extract:eval` on the clean tree; it exits 0 and writes `result.json`, and its diff carries no post text — b244c5c
+- [x] 6.8 CI `verify` passes on the push, so Linux computes the same fingerprints as Windows — b244c5c
+- [x] 6.9 The next scheduled collect run's "Extract deals" step is green, and the deals page's freshness line advances — b244c5c
 
 ### Phase 7: Cookbook and Rules-File Facts
 
 #### Automated
 
-- [ ] 7.1 `npm run lint` passes
-- [ ] 7.2 `npm run format:check` passes
-- [ ] 7.3 Every path cited in §6.1, §6.3 and §6.6 exists in the repository
+- [x] 7.1 `npm run lint` passes
+- [x] 7.2 `npm run format:check` passes
+- [x] 7.3 Every path cited in §6.1, §6.3 and §6.6 exists in the repository
 
 #### Manual
 
-- [ ] 7.4 Tomasz reads §6.3 and can follow it, without other context, to change the prompt: which command, what blocks, what to commit, what to do when the extractor refuses
+- [x] 7.4 Tomasz reads §6.3 and can follow it, without other context, to change the prompt: which command, what blocks, what to commit, what to do when the extractor refuses

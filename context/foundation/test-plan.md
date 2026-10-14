@@ -184,8 +184,33 @@ the relevant rollout phase ships; before that, the sub-section reads
     explicitly.
   - Test files are type-checked by `next build` and linted with
     `eslint --max-warnings 0`, as all other code is.
-- Rollout Phase 2 (listing and link rules) and Phase 4 (access decision
-  table) extend this section.
+- **Rules under `scripts/extract/`** (rollout Phase 2):
+  - The tests live in `tests/unit/extract/` and import through a relative
+    path with the real `.mts` name (`../../../scripts/extract/deals.mts`),
+    types through a whole-statement `import type`.
+  - Never import `extract.mts` or `eval.mts`: importing them runs their
+    `main()`. Anything worth testing belongs in a module without one
+    (`deals.mts`, `evaluation.mts`, `fingerprint.mts`).
+  - A test from a hand-written `ExtractionOutput` is row mapping, not
+    extraction: its suite says "row mapping (fixed model output)". Whether a
+    model reads a post well is the eval's job (§6.3).
+  - Expiry rows are literal UTC instants worked out from the EU summer-time
+    rule (clocks change at 01:00 UTC on the last Sundays of March and
+    October), on both sides of both changes, never computed by
+    `expiryInstant` or a second implementation.
+  - A table over untrusted input names its threat in each row (`XSS: a data:
+    URL, which React does not block`), and covers encoded, padded and
+    quoted variants, not only well-formed links.
+  - When two conditions of a rule overlap, add a row only one of them
+    catches: every own-site row of `verifyShopUrl` was also on
+    `AGGREGATOR_SITES`, so dropping the own-site check stayed green until a
+    row with an unlisted aggregator was added.
+  - A list that must cover a configuration file gets a drift test reading
+    that file (`scripts/collector/feeds.json` in `shop-url.test.ts`).
+  - References: `tests/unit/extract/expiry.test.ts`,
+    `tests/unit/extract/deal-rows.test.ts`,
+    `tests/unit/extract/shop-url.test.ts`, `tests/unit/deals/links.test.ts`.
+- Rollout Phase 4 (access decision table) extends this section.
 
 ### 6.2 Adding a database test against the migrations
 
@@ -245,8 +270,76 @@ Two patterns. Both run in PGlite, built fresh from `supabase/migrations/` by
 
 ### 6.3 Changing the extraction prompt or model
 
-- TBD — see §3 Phase 2 (prompt and model regression gate: when to run the
-  eval, which thresholds block).
+- **When the eval is required:** for any change the fingerprints in
+  `scripts/extract/fingerprint.mts` see, and you do not have to work out
+  which: `npm test` fails (`tests/unit/extract/eval-record.test.ts`) and
+  names `npm run extract:eval`.
+  - The prompt fingerprint covers what is sent to the model: the
+    instructions, the aggregator descriptions and the post formatting
+    (`prompt.mts`), the reply schema (`schema.mts`), `MODELS` with its order,
+    `TEMPERATURE` and `MAX_TOKENS` (`config.mts`), the request body
+    (`openrouter.mts`) and `PROMPT_VERSION`. A comment edit does not move it.
+  - The labels fingerprint covers `scripts/extract/eval/labels.json` and
+    `synthetic-posts.json`, as parsed JSON, so line endings do not matter.
+  - The post-edit hook also reminds you after an edit to `prompt.mts`,
+    `schema.mts`, `config.mts` or `openrouter.mts`.
+  - Bump `PROMPT_VERSION` with any change to the instructions or the schema.
+    The report is named `report-v<PROMPT_VERSION>.md`, so a run without the
+    bump overwrites the last report.
+- **Who can run it:** whoever has `OPENROUTER_API_KEY` in `.env.local` and
+  the uncommitted `scripts/extract/eval/posts.json`. CI has neither. To
+  rebuild `posts.json`, run `scripts/extract/eval/export-posts.sql` in the
+  Supabase SQL editor and save its one cell as that file, following the
+  file's header.
+- **The run:** `npm run extract:eval` runs every model in `CANDIDATES` twice
+  over the labelled posts (55 real, 8 synthetic): about $0.06 and 15–20
+  minutes. The report's "Gate" section gives the verdict and every reason.
+- **What blocks (exit 1),** judged for each model in `MODELS` and for each
+  run on its own:
+  - a leak: a listed item the label says is not a physical game;
+  - a post left unmeasured, or a reply from a model other than the one
+    asked;
+  - a production model that was not evaluated;
+  - an item, keyed `<postId>#<item index>`, with a gated failure its
+    baseline entry lacks. The gated failures are `missed`, `wrongGame`,
+    `price`, `expiry`, `set` and `link`. Currency, platform and discount are
+    reported only.
+- **The baseline** is the `record` of the committed
+  `scripts/extract/eval/result.json`: per model and item, the failures the
+  last passing run saw. Failures can only shrink. An item new to the record
+  is accepted on first sight, with whatever it fails, and recorded. A model
+  new to `MODELS` is held to the first model of the record. A model in
+  `CANDIDATES` but not in `MODELS` may leak without blocking.
+- **What to commit:** on a pass the eval writes `result.json`. Commit it in
+  the same commit as the change. It is Prettier-ignored; do not reformat or
+  edit it by hand.
+- **A flaky fail:** rerun once and read the reasons. A reason that repeats
+  is real. Do not relax the labels to get past it: a label states what the
+  post says, not what the model replied.
+- **When the extractor refuses:** `npm run extract`, and with it the
+  "Extract deals" step of `.github/workflows/collect.yml`, aborts with
+  "Extraction aborted: The prompt fingerprint differs from
+  scripts/extract/eval/result.json…" before it reads a credential or sends
+  anything. It also aborts when `result.json` is missing or records no pass.
+  Collection keeps running and posts wait. The way out is a passing eval
+  with its `result.json` committed, or reverting the change.
+  `EXTRACT_PAUSED` only skips the step.
+- **Adding a labelled post:**
+  - A real one: add its label to `labels.json`, under the id of the post's
+    representative row (its earliest sighting); add the id to
+    `export-posts.sql`; re-export `posts.json`.
+  - A synthetic one: add the post to `synthetic-posts.json` as
+    `synthetic-NN`, invented and never copied from a real post, with shop
+    links on `.example` hosts, and its label to `labels.json`.
+  - Either way the labels fingerprint moves: run the eval and commit the
+    new record.
+- **What the eval does not measure:** the ≤5% share of wrong entries. That
+  is measured after a change runs, by the sample review of production posts
+  (`npm run extract:report`).
+- **What the record is:** a speed bump, not proof. A hand edit of
+  `result.json` defeats both checks.
+- Proven 2026-10-14: with the edition rule inverted, the eval exited 1 on
+  14 and 12 leaks and wrote no record.
 
 ### 6.4 Adding a test at an external boundary (feeds, OpenRouter, RAWG)
 
@@ -269,6 +362,16 @@ here capturing anything surprising the rollout phase taught.)
   incomplete draft. Two Windows traps surfaced: Vitest 5.0.4 started from a
   lowercase `c:` (hence `scripts/test.mts`), and NFD test input composed by
   an editing tool (hence the `\u` escapes).
+- **2026-10-14, Phase 2 (extraction and listing guard):**
+  - `create or replace view` silently drops `security_invoker` unless the
+    statement restates it. A term in a `security_invoker` view is visible
+    only to a reader RLS does not bind, so `listed-expiry.sql` also reads the
+    view as the table owner.
+  - The eval had exited 0 on leaks. The fingerprint hashes the whole request
+    body, because the instructions are not exported.
+  - Hooks on Windows use exec form (`"command": "node"` with `args`). The
+    lint hook starts ESLint and Prettier at once, so a test asserting their
+    order passed on Windows and failed on Linux CI.
 
 ## 7. What We Deliberately Don't Test
 

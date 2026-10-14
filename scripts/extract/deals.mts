@@ -4,8 +4,9 @@
  *
  * Pure — data in, data out, no clock and no I/O — so that the evaluation, the
  * pipeline and a future test runner all call the same code, as
- * context/foundation/lessons.md asks. isListable states the same rule as the
- * select policy on the deals table.
+ * context/foundation/lessons.md asks. isListable states the select policy on
+ * the deals table but for its expiry term: that one needs a clock, so it is
+ * judged when a deal is read, against the expires_at decided here.
  */
 // Whole-statement type imports: Node erases them entirely.
 import type { DealKind, Edition, Platform } from "../../src/lib/deals/types.ts";

@@ -24,6 +24,7 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 - Every path is public except `/watchlist` and `/my-deals`: `src/proxy.ts` sends signed-in users from `/login` and `/signup` to `/`, and signed-out users from both to `/login` (@src/lib/auth/access.ts). Nothing enforces privacy by default — a private view needs its own rule there, and its data stays behind RLS either way. Server Action calls pass the proxy, so every action checks the user itself.
 - The public key is `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (not `..._ANON_KEY`). `SUPABASE_SECRET_KEY` bypasses RLS and **never** takes the `NEXT_PUBLIC_` prefix. Full list: @.env.example
 - Per-user data isolation rests on Postgres RLS, not on filtering in application code.
+- A deal is listed when it is a game, a physical copy, priced and not expired (`expires_at` null or still ahead). The predicate is stated in the select policy on `public.deals`, in the view `public.matched_deals` and in the page query (`src/lib/deals/queries.ts`); a change to it changes all three. `supabase/checks/listed-expiry.sql` checks the first two.
 
 ## Game catalogue
 
@@ -36,7 +37,8 @@ The exception is `context/`: the product-thinking documents there (`prd.md`, `sh
 
 - The provider is OpenRouter. `scripts/extract/openrouter.mts` is the only file that knows it.
 - `OPENROUTER_API_KEY` is server-only and **never** takes the `NEXT_PUBLIC_` prefix. It lives in the GitHub Actions secrets, scoped to the extract step, and in `.env.local` for the extract scripts.
-- The model list is `MODELS` in `scripts/extract/config.mts`. A model enters it only after passing `npm run extract:eval`.
+- The model list is `MODELS` in `scripts/extract/config.mts`, and every model in it is also in `CANDIDATES`.
+- `npm run extract:eval` is a gate: it exits 1 on a breach, and on a pass writes `scripts/extract/eval/result.json`, which records the prompt and labels fingerprints (`scripts/extract/fingerprint.mts`). A change to what is sent to the model, or to the labelled set, is committed together with a new `result.json`. Until then `npm test` fails, and `npm run extract` aborts before it reads a credential. How to run it and what blocks: `context/foundation/test-plan.md` §6.3.
 - Two repository variables steer the extract step without a deploy. `EXTRACT_PAUSED=true` skips it while collection keeps running. `EXTRACT_SINCE` — a date (`YYYY-MM-DD`, from the start of that day in Warsaw) or an instant with its offset — limits extraction to posts first seen since then; unset, every pending post is extracted. Locally, `npm run extract -- --since <value>` sets the cut-off for one run.
 
 ## Deal matching
