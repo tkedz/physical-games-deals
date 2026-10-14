@@ -1,0 +1,126 @@
+[
+  {
+    "post": {
+      "id": "synthetic-01",
+      "source": "pepper-ps5",
+      "platform_hint": "ps5",
+      "title": "It Takes Two + Split Fiction (PS5, pudełka) za 229 zł w Media Expert",
+      "link": "https://www.pepper.pl/promocje/it-takes-two-split-fiction-ps5-zestaw-900001",
+      "published_at": "2026-10-19T09:00:00+00:00",
+      "categories": ["Gry", "PlayStation 5"],
+      "content": "<p>229 zł w Media Expert. Zestaw dwóch gier w wersjach pudełkowych na PS5: <strong>It Takes Two</strong> oraz <strong>Split Fiction</strong>, razem za 229 zł.</p><p>Odbiór w sklepie za darmo, dostawa kurierem od 9,99 zł.</p><p><a href='https://www.mediaexpert.example/gry/ps5/zestaw-it-takes-two-split-fiction'>Zestaw w Media Expert</a></p>",
+      "first_seen_at": "2026-10-19T09:04:00+00:00"
+    },
+    "feeds": [{ "source": "pepper-ps5", "platform_hint": "ps5" }]
+  },
+  {
+    "post": {
+      "id": "synthetic-02",
+      "source": "cenograj-pudelkowe-najlepsze",
+      "platform_hint": "boxed",
+      "title": "Super Mario Bros. Wonder + Luigi's Mansion 3 (Nintendo Switch) – 289 zł [-15%]",
+      "link": "https://cenograj.pl/okazja/super-mario-bros-wonder-luigis-mansion-3-switch-900002",
+      "published_at": "2026-10-19T14:30:00+00:00",
+      "categories": [],
+      "content": "<p>Zestaw dwóch gier: Super Mario Bros. Wonder + Luigi's Mansion 3</p><ul><li>Platforma: Nintendo Switch</li><li>Typ: Pudełko</li><li>Cena: 289,00 zł</li><li>Rabat: -15%</li><li>Sklep: Neonet</li></ul><p><a href='https://cenograj.pl/gra/super-mario-bros-wonder-luigis-mansion-3'>Historia cen na Cenograj</a></p>",
+      "first_seen_at": "2026-10-19T14:35:00+00:00"
+    },
+    "feeds": [
+      { "source": "cenograj-pudelkowe-najlepsze", "platform_hint": "boxed" }
+    ]
+  },
+  {
+    "post": {
+      "id": "synthetic-03",
+      "source": "lowcygier-promocje-pudelkowe",
+      "platform_hint": "boxed",
+      "title": "Astro Bot w wersji pudełkowej za 169 zł w Empiku",
+      "link": "https://lowcygier.pl/promocje-pudelkowe/astro-bot-pudelko-169-zl-empik-900003/",
+      "published_at": "2026-10-20T07:30:00+00:00",
+      "categories": ["Promocje pudełkowe"],
+      "content": "<p>Empik obniżył cenę pudełkowego wydania Astro Bot na PS5 do 169 zł (wcześniej 279 zł). Promocja trwa do 31.10, a przy odbiorze w salonie nie zapłacicie za dostawę.</p><p><a href='https://www.empik.example/gry/astro-bot-ps5'>Astro Bot w Empiku</a></p>",
+      "first_seen_at": "2026-10-20T07:41:00+00:00"
+    },
+    "feeds": [
+      { "source": "lowcygier-promocje-pudelkowe", "platform_hint": "boxed" }
+    ]
+  },
+  {
+    "post": {
+      "id": "synthetic-04",
+      "source": "pepper-nintendo-switch-2",
+      "platform_hint": "switch-2",
+      "title": "Mario Kart World (Switch 2, pudełko) za 249 zł w x-kom",
+      "link": "https://www.pepper.pl/promocje/mario-kart-world-switch-2-pudelko-x-kom-900004",
+      "published_at": "2026-10-22T16:00:00+00:00",
+      "categories": ["Gry", "Nintendo Switch 2"],
+      "content": "<p>249 zł w x-kom, wersja pudełkowa na Nintendo Switch 2.</p><p>Promocja trwa do 25.10, 7:00 albo do wyczerpania zapasów. Wysyłka gratis.</p><p><a href='https://www.x-kom.example/p/mario-kart-world-nintendo-switch-2'>Mario Kart World w x-kom</a></p>",
+      "first_seen_at": "2026-10-22T16:02:00+00:00"
+    },
+    "feeds": [
+      { "source": "pepper-nintendo-switch-2", "platform_hint": "switch-2" }
+    ]
+  },
+  {
+    "post": {
+      "id": "synthetic-05",
+      "source": "pepper-xbox-series-x",
+      "platform_hint": "xbox-series-x",
+      "title": "Forza Horizon 5 (Xbox Series X, pudełko) za 99 zł w RTV Euro AGD",
+      "link": "https://www.pepper.pl/promocje/forza-horizon-5-xbox-series-x-pudelko-900005",
+      "published_at": "2026-10-21T10:00:00+00:00",
+      "categories": ["Gry", "Xbox Series X"],
+      "content": "<p>99 zł w RTV Euro AGD. Pudełkowa wersja na Xbox Series X, oferta ważna do niedzieli.</p><p>Dostawa do paczkomatu 9,99 zł.</p><p><a href='https://www.euro.example/gry-xbox-series-x/forza-horizon-5'>Forza Horizon 5 w RTV Euro AGD</a></p>",
+      "first_seen_at": "2026-10-21T10:06:00+00:00"
+    },
+    "feeds": [
+      { "source": "pepper-xbox-series-x", "platform_hint": "xbox-series-x" }
+    ]
+  },
+  {
+    "post": {
+      "id": "synthetic-06",
+      "source": "pepper-gry-playstation",
+      "platform_hint": "playstation",
+      "title": "Pudełkowe gry na PS5: Stellar Blade za 159 zł i Gran Turismo 7 za 129 zł",
+      "link": "https://www.pepper.pl/promocje/pudelkowe-gry-ps5-stellar-blade-gran-turismo-7-900006",
+      "published_at": "2026-10-23T08:15:00+00:00",
+      "categories": ["Gry", "PlayStation 5"],
+      "content": "<p>Dwie pudełkowe promocje na PS5:</p><ul><li>Stellar Blade – 159 zł w <a href='https://www.mediamarkt.example/pl/product/stellar-blade-ps5'>MediaMarkt</a></li><li>Gran Turismo 7 – 129 zł w <a href='https://www.morele.example/gra-ps5-gran-turismo-7'>Morele</a></li></ul><p>Obie gry w wersjach na płycie, wysyłka od 0 zł.</p>",
+      "first_seen_at": "2026-10-23T08:20:00+00:00"
+    },
+    "feeds": [
+      { "source": "pepper-gry-playstation", "platform_hint": "playstation" }
+    ]
+  },
+  {
+    "post": {
+      "id": "synthetic-07",
+      "source": "pepper-gry-nintendo-switch",
+      "platform_hint": "switch",
+      "title": "The Legend of Zelda: Echoes of Wisdom (Switch, pudełko) za 179 zł w Neonet",
+      "link": "https://www.pepper.pl/promocje/zelda-echoes-of-wisdom-switch-pudelko-neonet-900007",
+      "published_at": "2026-10-23T18:40:00+00:00",
+      "categories": ["Gry", "Nintendo Switch"],
+      "content": "<p>179 zł w Neonet, wersja pudełkowa na Nintendo Switch. Dostawa od 9,99 zł.</p><p>Namiar znalazłem na <a href='https://lowcygier.pl/promocje-pudelkowe/zelda-echoes-of-wisdom-neonet/'>Łowcach Gier</a>.</p><p><a href='https://www.neonet.example/gry/zelda-echoes-of-wisdom-switch'>Oferta w Neonet</a></p>",
+      "first_seen_at": "2026-10-23T18:44:00+00:00"
+    },
+    "feeds": [
+      { "source": "pepper-gry-nintendo-switch", "platform_hint": "switch" }
+    ]
+  },
+  {
+    "post": {
+      "id": "synthetic-08",
+      "source": "pepper-ps5",
+      "platform_hint": "ps5",
+      "title": "Horizon Forbidden West (PS5, płyta) za 89 zł w Auchan",
+      "link": "https://www.pepper.pl/promocje/horizon-forbidden-west-ps5-plyta-auchan-900008",
+      "published_at": "2026-10-24T11:20:00+00:00",
+      "categories": ["Gry", "PlayStation 5"],
+      "content": "<p>Horizon Forbidden West na płycie (PS5) za 89 zł, stacjonarnie w hipermarketach Auchan. Oferty online nie ma, widziałem na półce w kilku sklepach.</p>",
+      "first_seen_at": "2026-10-24T11:23:00+00:00"
+    },
+    "feeds": [{ "source": "pepper-ps5", "platform_hint": "ps5" }]
+  }
+]

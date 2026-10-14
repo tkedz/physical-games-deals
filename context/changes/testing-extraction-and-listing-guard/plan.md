@@ -983,35 +983,35 @@ Fill §6.1, §6.3 and §6.6 of the test plan with the patterns shipped, and stat
 
 #### Automated
 
-- [x] 4.1 `tests/db/listed-expiry.test.ts` fails before the migration file exists and passes after it
-- [x] 4.2 `npm test` passes, `supabase/checks/matching.sql` included, unchanged
-- [x] 4.3 `npm run lint` passes
-- [x] 4.4 `npm run format:check` passes
+- [x] 4.1 `tests/db/listed-expiry.test.ts` fails before the migration file exists and passes after it — 717f816
+- [x] 4.2 `npm test` passes, `supabase/checks/matching.sql` included, unchanged — 717f816
+- [x] 4.3 `npm run lint` passes — 717f816
+- [x] 4.4 `npm run format:check` passes — 717f816
 
 #### Manual
 
-- [x] 4.5 Tomasz: `npm run db:push -- --dry-run` lists only the new migration, then `npm run db:push`
-- [x] 4.6 Tomasz: `npm run db:check` exits 0 and `npm run db:status` shows no drift
-- [x] 4.7 Tomasz: `supabase/checks/listed-expiry.sql` in the hosted SQL editor ends with "All checks passed."
-- [x] 4.8 Tomasz: `supabase/checks/matching.sql` in the hosted SQL editor ends with "All checks passed."
-- [x] 4.9 `/` and `/my-deals` on production still list deals after the push
+- [x] 4.5 Tomasz: `npm run db:push -- --dry-run` lists only the new migration, then `npm run db:push` — 717f816
+- [x] 4.6 Tomasz: `npm run db:check` exits 0 and `npm run db:status` shows no drift — 717f816
+- [x] 4.7 Tomasz: `supabase/checks/listed-expiry.sql` in the hosted SQL editor ends with "All checks passed." — 717f816
+- [x] 4.8 Tomasz: `supabase/checks/matching.sql` in the hosted SQL editor ends with "All checks passed." — 717f816
+- [x] 4.9 `/` and `/my-deals` on production still list deals after the push — 717f816
 
 ### Phase 5: The Eval Gate's Logic
 
 #### Automated
 
-- [ ] 5.1 The new unit tests pass, and `judgeRuns` turns a leak in run 2 into a fail with a reason naming the model and the run
-- [ ] 5.2 `node scripts/extract/eval.mts` without credentials still aborts with exit 1 before any request
-- [ ] 5.3 `git check-ignore -v` reports `result.json`, `synthetic-posts.json` and `export-posts.sql` as not ignored, and `posts.json` and `report-v3.md` as ignored
-- [ ] 5.4 `npm test` passes
-- [ ] 5.5 `npm run lint` passes
-- [ ] 5.6 `npm run format:check` passes
-- [ ] 5.7 `npm run build` passes
+- [x] 5.1 The new unit tests pass, and `judgeRuns` turns a leak in run 2 into a fail with a reason naming the model and the run
+- [x] 5.2 `node scripts/extract/eval.mts` without credentials still aborts with exit 1 before any request
+- [x] 5.3 `git check-ignore -v` reports `result.json`, `synthetic-posts.json` and `export-posts.sql` as not ignored, and `posts.json` and `report-v3.md` as ignored
+- [x] 5.4 `npm test` passes
+- [x] 5.5 `npm run lint` passes
+- [x] 5.6 `npm run format:check` passes
+- [x] 5.7 `npm run build` passes
 
 #### Manual
 
-- [ ] 5.8 Tomasz reads each synthetic post with its label (set, expiry instant, expected link) and confirms or corrects it
-- [ ] 5.9 Tomasz runs `export-posts.sql` in the SQL editor and it returns 55 rows; `posts.json` is not overwritten
+- [x] 5.8 Tomasz reads each synthetic post with its label (set, expiry instant, expected link) and confirms or corrects it
+- [x] 5.9 Tomasz runs `export-posts.sql` in the SQL editor and it returns 55 rows; `posts.json` is not overwritten
 
 ### Phase 6: First Passing Record and the Extractor Refusal
 

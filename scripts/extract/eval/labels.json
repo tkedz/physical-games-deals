@@ -10,7 +10,7 @@
         "platform": "switch",
         "price": { "amount": 109, "currency": "PLN" },
         "discountPercent": 9,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -25,7 +25,7 @@
         "platform": "switch",
         "price": { "amount": 22, "currency": "PLN" },
         "discountPercent": 41,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -40,7 +40,7 @@
         "platform": "switch",
         "price": { "amount": 79.99, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -55,7 +55,7 @@
         "platform": "switch",
         "price": { "amount": 105.43, "currency": "PLN" },
         "discountPercent": 4,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -70,7 +70,7 @@
         "platform": "switch",
         "price": { "amount": 232, "currency": "PLN" },
         "discountPercent": 10,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -85,7 +85,7 @@
         "platform": "switch-2",
         "price": { "amount": 249.89, "currency": "PLN" },
         "discountPercent": 8,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -100,7 +100,7 @@
         "platform": "switch",
         "price": { "amount": 49.99, "currency": "PLN" },
         "discountPercent": 69,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -115,7 +115,7 @@
         "platform": "switch",
         "price": { "amount": 79, "currency": "PLN" },
         "discountPercent": 1,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -130,7 +130,7 @@
         "platform": "switch",
         "price": { "amount": 129, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -145,7 +145,7 @@
         "platform": "switch",
         "price": { "amount": 205, "currency": "PLN" },
         "discountPercent": 2,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -160,7 +160,7 @@
         "platform": "switch",
         "price": { "amount": 155.94, "currency": "PLN" },
         "discountPercent": 33,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -175,7 +175,7 @@
         "platform": "switch",
         "price": { "amount": 119.99, "currency": "PLN" },
         "discountPercent": 5,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -190,7 +190,7 @@
         "platform": "switch",
         "price": { "amount": 137.99, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -205,7 +205,7 @@
         "platform": "switch",
         "price": { "amount": 4.32, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -220,7 +220,7 @@
         "platform": null,
         "price": { "amount": 109.9, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       },
       {
         "kind": "not_game",
@@ -229,7 +229,7 @@
         "platform": null,
         "price": { "amount": 189.9, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -249,7 +249,7 @@
         "platform": "pc",
         "price": { "amount": 29.51, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -264,7 +264,7 @@
         "platform": null,
         "price": { "amount": 5099, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -279,7 +279,7 @@
         "platform": null,
         "price": { "amount": 1242.99, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -294,7 +294,7 @@
         "platform": "ps5",
         "price": { "amount": 273, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -309,7 +309,7 @@
         "platform": "ps4",
         "price": { "amount": 407.71, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -324,7 +324,7 @@
         "platform": "ps5",
         "price": { "amount": 144.99, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -339,7 +339,7 @@
         "platform": "switch-2",
         "price": { "amount": 254.8, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -359,7 +359,7 @@
         "platform": null,
         "price": { "amount": 879.99, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -374,7 +374,7 @@
         "platform": "switch",
         "price": { "amount": 194, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -399,7 +399,7 @@
         "platform": "pc",
         "price": { "amount": 1.82, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -414,7 +414,7 @@
         "platform": "xbox-series",
         "price": { "amount": 104, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -429,7 +429,7 @@
         "platform": "switch",
         "price": { "amount": 79.99, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -449,7 +449,7 @@
         "platform": "switch-2",
         "price": { "amount": 2318.41, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -464,7 +464,7 @@
         "platform": "switch-2",
         "price": { "amount": 199, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -479,7 +479,7 @@
         "platform": "xbox-series",
         "price": { "amount": 15.79, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -494,7 +494,7 @@
         "platform": "pc",
         "price": { "amount": 5.99, "currency": "PLN" },
         "discountPercent": 90,
-        "expiresOn": null
+        "expiresAt": null
       },
       {
         "kind": "game",
@@ -503,7 +503,7 @@
         "platform": "pc",
         "price": { "amount": 15.99, "currency": "PLN" },
         "discountPercent": 85,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -518,7 +518,7 @@
         "platform": "ps5",
         "price": { "amount": 159, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -533,7 +533,7 @@
         "platform": "pc",
         "price": { "amount": 74.99, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -548,7 +548,7 @@
         "platform": "switch",
         "price": { "amount": 130.47, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -568,7 +568,7 @@
         "platform": "switch",
         "price": { "amount": 20.39, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -583,7 +583,7 @@
         "platform": "pc",
         "price": { "amount": 45.15, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -598,7 +598,7 @@
         "platform": "ps4",
         "price": { "amount": 52.65, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -613,7 +613,7 @@
         "platform": "pc",
         "price": { "amount": 7.89, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -628,7 +628,7 @@
         "platform": "switch-2",
         "price": { "amount": 129.5, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -643,7 +643,7 @@
         "platform": "xbox-series",
         "price": { "amount": 1043.72, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -658,7 +658,7 @@
         "platform": "ps5",
         "price": { "amount": 259.9, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -673,7 +673,7 @@
         "platform": "pc",
         "price": { "amount": 9.99, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -688,7 +688,7 @@
         "platform": "switch",
         "price": { "amount": 85.59, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -703,7 +703,7 @@
         "platform": "pc",
         "price": { "amount": 5.17, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -718,7 +718,7 @@
         "platform": "ps5",
         "price": { "amount": 4999, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -733,7 +733,7 @@
         "platform": "xbox-series",
         "price": { "amount": 53.57, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       },
       {
         "kind": "game",
@@ -742,7 +742,7 @@
         "platform": "xbox-series",
         "price": { "amount": 61.35, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -757,7 +757,7 @@
         "platform": "switch-2",
         "price": { "amount": 182.23, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       },
       {
         "kind": "game",
@@ -766,7 +766,7 @@
         "platform": "switch-2",
         "price": null,
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -781,7 +781,7 @@
         "platform": "pc",
         "price": { "amount": 12.49, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       },
       {
         "kind": "game",
@@ -790,7 +790,7 @@
         "platform": "pc",
         "price": { "amount": 14.49, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       },
       {
         "kind": "game",
@@ -799,7 +799,7 @@
         "platform": "pc",
         "price": { "amount": 15.99, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
       }
     ]
   },
@@ -814,7 +814,176 @@
         "platform": "switch-2",
         "price": { "amount": 89, "currency": "PLN" },
         "discountPercent": null,
-        "expiresOn": null
+        "expiresAt": null
+      }
+    ]
+  },
+  {
+    "postId": "synthetic-01",
+    "note": "Synthetic. A physical two-game set for one price (pepper): one item per game, each with the set's price and the other game in setWith.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "It Takes Two",
+        "platform": "ps5",
+        "price": { "amount": 229, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresAt": null,
+        "setWith": ["Split Fiction"],
+        "shopUrl": "https://www.mediaexpert.example/gry/ps5/zestaw-it-takes-two-split-fiction"
+      },
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Split Fiction",
+        "platform": "ps5",
+        "price": { "amount": 229, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresAt": null,
+        "setWith": ["It Takes Two"],
+        "shopUrl": "https://www.mediaexpert.example/gry/ps5/zestaw-it-takes-two-split-fiction"
+      }
+    ]
+  },
+  {
+    "postId": "synthetic-02",
+    "note": "Synthetic. A physical two-game set in cenograj's template ('Typ: Pudełko', 'Rabat: -15%'); its only link is cenograj's own, so both deals link to the post.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Super Mario Bros. Wonder",
+        "platform": "switch",
+        "price": { "amount": 289, "currency": "PLN" },
+        "discountPercent": 15,
+        "expiresAt": null,
+        "setWith": ["Luigi's Mansion 3"],
+        "shopUrl": null
+      },
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Luigi's Mansion 3",
+        "platform": "switch",
+        "price": { "amount": 289, "currency": "PLN" },
+        "discountPercent": 15,
+        "expiresAt": null,
+        "setWith": ["Super Mario Bros. Wonder"],
+        "shopUrl": null
+      }
+    ]
+  },
+  {
+    "postId": "synthetic-03",
+    "note": "Synthetic. A lowcygier article stating 'do 31.10' (published Tuesday 2026-10-20): the deal ends at the end of 31 October in Warsaw, after the clock change. '279 zł' is the earlier price, so no discount.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Astro Bot",
+        "platform": "ps5",
+        "price": { "amount": 169, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresAt": "2026-10-31T23:00:00Z",
+        "setWith": [],
+        "shopUrl": "https://www.empik.example/gry/astro-bot-ps5"
+      }
+    ]
+  },
+  {
+    "postId": "synthetic-04",
+    "note": "Synthetic. A pepper post stating 'do 25.10, 7:00': a one-digit hour on the day summer time ends, 07:00 CET.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Mario Kart World",
+        "platform": "switch-2",
+        "price": { "amount": 249, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresAt": "2026-10-25T06:00:00Z",
+        "setWith": [],
+        "shopUrl": "https://www.x-kom.example/p/mario-kart-world-nintendo-switch-2"
+      }
+    ]
+  },
+  {
+    "postId": "synthetic-05",
+    "note": "Synthetic. A relative end, 'do niedzieli', in a post published on Wednesday 2026-10-21: Sunday 2026-10-25, ending at its midnight in Warsaw (CET).",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Forza Horizon 5",
+        "platform": "xbox-series",
+        "price": { "amount": 99, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresAt": "2026-10-25T23:00:00Z",
+        "setWith": [],
+        "shopUrl": "https://www.euro.example/gry-xbox-series-x/forza-horizon-5"
+      }
+    ]
+  },
+  {
+    "postId": "synthetic-06",
+    "note": "Synthetic. A two-shop pepper digest: each item takes its own shop's link, not the other's.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Stellar Blade",
+        "platform": "ps5",
+        "price": { "amount": 159, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresAt": null,
+        "setWith": [],
+        "shopUrl": "https://www.mediamarkt.example/pl/product/stellar-blade-ps5"
+      },
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Gran Turismo 7",
+        "platform": "ps5",
+        "price": { "amount": 129, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresAt": null,
+        "setWith": [],
+        "shopUrl": "https://www.morele.example/gra-ps5-gran-turismo-7"
+      }
+    ]
+  },
+  {
+    "postId": "synthetic-07",
+    "note": "Synthetic. A pepper post linking lowcygier before the shop: the shop's link is expected, never the other aggregator's.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "The Legend of Zelda: Echoes of Wisdom",
+        "platform": "switch",
+        "price": { "amount": 179, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresAt": null,
+        "setWith": [],
+        "shopUrl": "https://www.neonet.example/gry/zelda-echoes-of-wisdom-switch"
+      }
+    ]
+  },
+  {
+    "postId": "synthetic-08",
+    "note": "Synthetic. An in-store offer with no link at all: the deal links to the post.",
+    "items": [
+      {
+        "kind": "game",
+        "edition": "physical",
+        "englishTitle": "Horizon Forbidden West",
+        "platform": "ps5",
+        "price": { "amount": 89, "currency": "PLN" },
+        "discountPercent": null,
+        "expiresAt": null,
+        "setWith": [],
+        "shopUrl": null
       }
     ]
   }

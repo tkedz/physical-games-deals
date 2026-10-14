@@ -1,19 +1,28 @@
 /**
- * Measures the extraction candidates on the labelled set.
+ * Measures the extraction candidates on the labelled set, and gates the
+ * production models on it.
  *
  *   npm run extract:eval
  *   npm run extract:eval -- --model openai/gpt-4.1-nano
  *
- * Every candidate in config.mts is called on every labelled post on its own —
- * `models: [id]`, no fallback, so that every answer is attributable — the
- * candidates side by side, each one's calls one at a time.
+ * The labelled posts are the exported real ones in posts.json and the
+ * invented ones in synthetic-posts.json. Every candidate in config.mts is
+ * called on every labelled post on its own — `models: [id]`, no fallback, so
+ * that every answer is attributable — the candidates side by side, each one's
+ * calls one at a time. The whole eval runs RUNS times, because one run varies.
+ *
+ * The gate (judgeRuns in evaluation.mts) judges the MODELS against the last
+ * passing record, scripts/extract/eval/result.json, or BOOTSTRAP_BASELINE
+ * while none exists. On a pass the script writes a new result.json — the
+ * fingerprints, the models and the per-item outcomes, no post text — and
+ * exits 0; on a fail it writes none and exits 1.
  *
  * The script writes the report itself, as UTF-8 Markdown that evaluation.md
  * can quote as written: per post the expected items against the returned
- * ones, then the per-model totals and the ranking. It goes to
+ * ones, then the per-model totals, the ranking and the gate. It goes to
  * scripts/extract/eval/report-v<prompt version>.md, next to posts.json and
  * gitignored like it, because it quotes the posts. The terminal gets the
- * progress, the totals, the ranking and the report's path.
+ * progress, the totals, the ranking, the gate and the report's path.
  *
  * Nothing written or printed carries the key or a request: the client reports
  * a failure as a reason, a status and OpenRouter's own message.
@@ -29,9 +38,11 @@ import { errorMessage } from "../collector/posts.mts";
 import {
   CANDIDATES,
   MAX_TOKENS,
+  MODELS,
   REQUEST_TIMEOUT_MS,
   TEMPERATURE,
 } from "./config.mts";
+import { labelsFingerprint, promptFingerprint } from "./fingerprint.mts";
 import {
   createOpenRouterClient,
   readOpenRouterApiKey,
@@ -55,9 +66,13 @@ import {
 // The decisions live next door, in a module with no top-level side effects —
 // this file cannot host them, because it calls main() at the bottom.
 import {
+  BOOTSTRAP_BASELINE,
   FIELD_NAMES,
   isListableLabel,
+  judgeRuns,
   measureCall,
+  modelRun,
+  parseBaseline,
   parseLabels,
   parsePosts,
   percentile,
@@ -66,6 +81,9 @@ import {
   totalFieldErrors,
   type CallRecord,
   type Comparison,
+  type EvalRun,
+  type GateRecord,
+  type Judgement,
   type Label,
   type LabelItem,
   type MarkedItem,
@@ -74,7 +92,16 @@ import {
 
 const EVAL_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "eval");
 const POSTS_PATH = resolve(EVAL_DIR, "posts.json");
+const SYNTHETIC_PATH = resolve(EVAL_DIR, "synthetic-posts.json");
 const LABELS_PATH = resolve(EVAL_DIR, "labels.json");
+const RESULT_PATH = resolve(EVAL_DIR, "result.json");
+
+/**
+ * Every candidate is run this many times, and each run must pass the gate on
+ * its own: at temperature 0 one run still varies (research.md, "Cost and
+ * nondeterminism").
+ */
+const RUNS = 2;
 
 /**
  * A candidate stops after this many systemic failures in a row: its provider
@@ -91,18 +118,48 @@ type Run = Case & {
   comparison: Comparison | null;
 };
 
-function readJson(path: string, name: string, hint: string): unknown {
-  let text: string;
+function readText(path: string, name: string, hint: string): string {
   try {
-    text = readFileSync(path, "utf8");
+    return readFileSync(path, "utf8");
   } catch (err) {
     throw new Error(`${name} is unreadable — ${hint} (${errorMessage(err)})`);
   }
+}
+
+function parseJson(text: string, name: string): unknown {
   try {
     return JSON.parse(text);
   } catch (err) {
     throw new Error(`${name} is not valid JSON: ${errorMessage(err)}`);
   }
+}
+
+function readJson(path: string, name: string, hint: string): unknown {
+  return parseJson(readText(path, name, hint), name);
+}
+
+/**
+ * The baseline the gate judges against: the record of the last passing eval,
+ * or BOOTSTRAP_BASELINE while none exists. Read before any call, so a broken
+ * record aborts the eval before it costs anything.
+ */
+function loadBaseline(): { baseline: GateRecord; source: string } {
+  const name = "scripts/extract/eval/result.json";
+  let text: string;
+  try {
+    text = readFileSync(RESULT_PATH, "utf8");
+  } catch (err) {
+    if ((err as { code?: unknown }).code === "ENOENT") {
+      return {
+        baseline: BOOTSTRAP_BASELINE,
+        source: `BOOTSTRAP_BASELINE (evaluation.mts), because ${name} does not exist yet`,
+      };
+    }
+    throw new Error(`${name} is unreadable (${errorMessage(err)})`);
+  }
+  const parsed = parseBaseline(parseJson(text, name));
+  if (!parsed.ok) throw new Error(`${name}: ${parsed.reason}`);
+  return { baseline: parsed.value, source: name };
 }
 
 /**
@@ -116,45 +173,78 @@ function reportPath(model: string | undefined): string {
   return resolve(EVAL_DIR, `report-v${PROMPT_VERSION}${suffix}.md`);
 }
 
-/** The labelled posts, in label order. Fails on a label whose post is not in posts.json. */
-function loadCases(): { cases: Case[]; unlabelled: number } {
+/**
+ * The labelled posts, in label order, and the labels fingerprint of the files
+ * they come from. Fails on a label whose post is in neither posts file, and
+ * on a post id the two files share.
+ */
+function loadCases(): {
+  cases: Case[];
+  unlabelled: number;
+  labelsFingerprint: string;
+} {
   const posts = parsePosts(
     readJson(
       POSTS_PATH,
       "scripts/extract/eval/posts.json",
-      "save the sample query's result cell there",
+      "save the result cell of scripts/extract/eval/export-posts.sql there",
     ),
   );
   if (!posts.ok) throw new Error(posts.reason);
+  const syntheticText = readText(
+    SYNTHETIC_PATH,
+    "scripts/extract/eval/synthetic-posts.json",
+    "it is committed next to labels.json",
+  );
+  const synthetic = parsePosts(
+    parseJson(syntheticText, "scripts/extract/eval/synthetic-posts.json"),
+    "synthetic-posts.json",
+  );
+  if (!synthetic.ok) throw new Error(synthetic.reason);
+  const labelsText = readText(
+    LABELS_PATH,
+    "scripts/extract/eval/labels.json",
+    "it is committed next to posts.json",
+  );
   const labels = parseLabels(
-    readJson(
-      LABELS_PATH,
-      "scripts/extract/eval/labels.json",
-      "it is committed next to posts.json",
-    ),
+    parseJson(labelsText, "scripts/extract/eval/labels.json"),
   );
   if (!labels.ok) throw new Error(labels.reason);
 
-  const byId = new Map(posts.value.map((group) => [group.post.id, group]));
+  const groups = [...posts.value, ...synthetic.value];
+  const byId = new Map<string, PostGroup>();
+  for (const group of groups) {
+    if (byId.has(group.post.id)) {
+      throw new Error(
+        `post ${group.post.id} is in both posts.json and synthetic-posts.json`,
+      );
+    }
+    byId.set(group.post.id, group);
+  }
   const cases = labels.value.map((label): Case => {
     const group = byId.get(label.postId);
     if (group === undefined) {
       throw new Error(
-        `labels.json has a label for post ${label.postId}, which posts.json does not hold`,
+        `labels.json has a label for post ${label.postId}, which neither posts.json nor synthetic-posts.json holds`,
       );
     }
     return { label, group };
   });
 
   const labelled = new Set(labels.value.map((label) => label.postId));
-  const unlabelled = posts.value.filter(
+  const unlabelled = groups.filter(
     (group) => !labelled.has(group.post.id),
   ).length;
-  return { cases, unlabelled };
+  return {
+    cases,
+    unlabelled,
+    labelsFingerprint: labelsFingerprint(labelsText, syntheticText),
+  };
 }
 
 async function runCandidate(
   model: string,
+  runName: string,
   cases: Case[],
   client: OpenRouterClient,
   responseFormat: ResponseFormat,
@@ -212,7 +302,7 @@ async function runCandidate(
     runs.push({ label, group, result, record, comparison });
 
     if ((index + 1) % 10 === 0 || index + 1 === cases.length) {
-      console.error(`${model}: ${index + 1}/${cases.length}`);
+      console.error(`${model}, ${runName}: ${index + 1}/${cases.length}`);
     }
   }
   return runs;
@@ -245,8 +335,16 @@ function describeExpected(item: LabelItem): string {
     item.platform ?? "no platform",
     formatPrice(item.price),
   ];
+  if (item.setWith !== undefined && item.setWith.length > 0) {
+    parts.push(
+      `set with ${item.setWith.map((name) => `"${name}"`).join(", ")}`,
+    );
+  }
   if (item.discountPercent !== null) parts.push(`-${item.discountPercent}%`);
-  if (item.expiresOn !== null) parts.push(`until ${item.expiresOn}`);
+  if (item.expiresAt !== null) parts.push(`until ${item.expiresAt}`);
+  if (item.shopUrl !== undefined) {
+    parts.push(item.shopUrl === null ? "links to the post" : "shop link");
+  }
   return parts.join(" · ");
 }
 
@@ -295,11 +393,10 @@ function describeMarked(marked: MarkedItem): string {
   );
 }
 
-function caseLines(
-  position: number,
-  run: Case,
-  byModel: Map<string, Run>,
-): string[] {
+/** One model's call on one post in one run, as the report shows it. */
+type Attempt = { name: string; model: string; run: Run };
+
+function caseLines(position: number, run: Case, attempts: Attempt[]): string[] {
   const { label, group } = run;
   const lines = [
     `### ${position}. ${aggregatorOf(group.post.source)} · ${label.postId}`,
@@ -314,12 +411,12 @@ function caseLines(
     );
   }
 
-  for (const [model, modelRun] of byModel) {
-    const { result, comparison, record } = modelRun;
+  for (const { name, model, run: attempt } of attempts) {
+    const { result, comparison, record } = attempt;
     if (result === null || !result.ok || comparison === null) {
       const failure =
         record.outcome === "reply" ? null : describeFailure(record.failure);
-      lines.push(`- ${model}: FAILED — ${failure ?? "no result"}`);
+      lines.push(`- ${name}: FAILED — ${failure ?? "no result"}`);
       continue;
     }
 
@@ -329,7 +426,7 @@ function caseLines(
         : `$${result.usage.costUsd.toFixed(5)}`;
     const answered =
       result.model === model ? "" : `, answered by ${result.model}`;
-    lines.push(`- ${model} (${record.latencyMs} ms, ${cost}${answered}):`);
+    lines.push(`- ${name} (${record.latencyMs} ms, ${cost}${answered}):`);
     if (comparison.items.length === 0 && comparison.unpaired.length === 0) {
       lines.push("  - nothing returned");
     }
@@ -434,6 +531,25 @@ function rankingLines(tallies: { model: string; tally: Tally }[]): string[] {
   return lines;
 }
 
+function gateLines(judgement: Judgement, baselineSource: string): string[] {
+  const lines = [
+    `Verdict: ${judgement.verdict === "pass" ? "PASS" : "FAIL"}`,
+    "",
+    `- Production models (MODELS): ${MODELS.join(", ")}`,
+    `- Runs: ${RUNS}, each judged on its own`,
+    `- Baseline: ${baselineSource}`,
+    "- Blocks on: a leak, an unmeasured post or a reply from another model " +
+      "in any run; a production model not evaluated; a missed item, wrong " +
+      "game, price, expiry, set or link its baseline entry lacks.",
+  ];
+  if (judgement.reasons.length > 0) {
+    lines.push("", "Reasons:", "");
+    for (const reason of judgement.reasons) lines.push(`- ${cell(reason)}`);
+  }
+  lines.push("");
+  return lines;
+}
+
 async function main(): Promise<void> {
   // First, so a missing key aborts before a single file is read or request
   // sent. The one variable is picked out because ProcessEnv declares no
@@ -454,16 +570,27 @@ async function main(): Promise<void> {
     );
   }
 
-  const { cases, unlabelled } = loadCases();
+  const { cases, unlabelled, labelsFingerprint } = loadCases();
+  const { baseline, source: baselineSource } = loadBaseline();
   const client = createOpenRouterClient({ apiKey, fetch });
   const responseFormat = toResponseFormat();
 
-  console.error(
-    `Running ${models.length} model(s) on ${cases.length} labelled post(s)…`,
-  );
-  const runsByModel = await Promise.all(
-    models.map((model) => runCandidate(model, cases, client, responseFormat)),
-  );
+  // runs[r][m][c]: run r, model m, case c. The runs follow one another; the
+  // models run side by side within each.
+  const runs: Run[][][] = [];
+  for (let r = 0; r < RUNS; r += 1) {
+    const runName = `run ${r + 1}`;
+    console.error(
+      `Run ${r + 1} of ${RUNS}: ${models.length} model(s) on ${cases.length} labelled post(s)…`,
+    );
+    runs.push(
+      await Promise.all(
+        models.map((model) =>
+          runCandidate(model, runName, cases, client, responseFormat),
+        ),
+      ),
+    );
+  }
 
   const perAggregator = new Map<string, number>();
   for (const { group } of cases) {
@@ -471,13 +598,23 @@ async function main(): Promise<void> {
     perAggregator.set(aggregator, (perAggregator.get(aggregator) ?? 0) + 1);
   }
 
-  const tallies = models.map((model, m) => ({
-    model,
-    tally: tallyCalls(
-      model,
-      runsByModel[m].map((run) => run.record),
+  const attemptName = (model: string, r: number) => `${model} · run ${r + 1}`;
+  const tallies = runs.flatMap((byModel, r) =>
+    models.map((model, m) => ({
+      model: attemptName(model, r),
+      tally: tallyCalls(
+        model,
+        byModel[m].map((run) => run.record),
+      ),
+    })),
+  );
+
+  const evalRuns = runs.map((byModel): EvalRun =>
+    Object.fromEntries(
+      models.map((model, m) => [model, modelRun(model, byModel[m])]),
     ),
-  }));
+  );
+  const judgement = judgeRuns({ baseline, runs: evalRuns, models: MODELS });
 
   const summary = [
     "## Per model",
@@ -486,6 +623,10 @@ async function main(): Promise<void> {
     "## Ranking",
     "",
     ...rankingLines(tallies),
+    "",
+    "## Gate",
+    "",
+    ...gateLines(judgement, baselineSource),
   ];
   const report = [
     "# Extraction evaluation",
@@ -494,7 +635,7 @@ async function main(): Promise<void> {
       [...perAggregator].map(([name, count]) => `${name} ${count}`).join(", ") +
       `)` +
       (unlabelled > 0 ? ` · ${unlabelled} unlabelled post(s) not run` : "") +
-      ` · each model called on its own, one request at a time · ${new Date().toISOString()}`,
+      ` · ${RUNS} runs · each model called on its own, one request at a time · ${new Date().toISOString()}`,
     "",
     "## Per post",
     "",
@@ -502,11 +643,36 @@ async function main(): Promise<void> {
       caseLines(
         index + 1,
         run,
-        new Map(models.map((model, m) => [model, runsByModel[m][index]])),
+        runs.flatMap((byModel, r) =>
+          models.map((model, m) => ({
+            name: attemptName(model, r),
+            model,
+            run: byModel[m][index],
+          })),
+        ),
       ),
     ),
     ...summary,
   ].join("\n");
+
+  // The record first: on a pass it is what the paid runs were for.
+  const resultName = relative(process.cwd(), RESULT_PATH);
+  if (judgement.verdict === "pass") {
+    // No post text, timings, costs, build ids or dates: the file is committed,
+    // and it changes only when the outcome does.
+    const result = {
+      promptFingerprint: promptFingerprint(),
+      labelsFingerprint,
+      promptVersion: PROMPT_VERSION,
+      models: [...MODELS],
+      runs: RUNS,
+      verdict: "pass",
+      record: judgement.record,
+    };
+    writeFileSync(RESULT_PATH, `${JSON.stringify(result, null, 2)}\n`, "utf8");
+  } else {
+    process.exitCode = 1;
+  }
 
   const path = reportPath(values.model);
   const shownPath = relative(process.cwd(), path);
@@ -522,13 +688,18 @@ async function main(): Promise<void> {
   }
 
   console.log(summary.join("\n"));
-  console.log("");
   console.log(`Full report, post by post: ${shownPath}`);
+  console.log(
+    judgement.verdict === "pass"
+      ? `Gate passed: ${resultName} written — commit it with the change.`
+      : `Gate failed: ${resultName} not written.`,
+  );
 }
 
-// A failed call is reported in the report; here we only catch failures of the
-// evaluation itself — a missing key, an unreadable or malformed file, a
-// rejected key or exhausted credits, a report that could not be written.
+// A failed call is reported in the report, and a failed gate sets exit code 1
+// above; here we only catch failures of the evaluation itself — a missing key,
+// an unreadable or malformed file, a rejected key or exhausted credits, a
+// report or record that could not be written.
 main().catch((err: unknown) => {
   console.error(`Evaluation aborted: ${errorMessage(err)}`);
   process.exitCode = 1;

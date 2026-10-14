@@ -325,7 +325,12 @@ function badReply<T>(
   );
 }
 
-function requestBody<T>(request: CompletionRequest<T>) {
+/**
+ * The JSON body sent for one request. Exported so that the prompt
+ * fingerprint (fingerprint.mts) hashes exactly what goes out, with no second
+ * copy of its shape.
+ */
+export function requestBody<T>(request: CompletionRequest<T>) {
   return {
     models: request.models,
     messages: request.messages,

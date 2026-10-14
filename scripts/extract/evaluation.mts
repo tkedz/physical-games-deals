@@ -1,8 +1,8 @@
 /**
  * The evaluation's decisions: validating the labelled set and the exported
  * posts, pairing the items a model returned with the labelled ones, counting
- * what went wrong, and ranking the candidates by the rule evaluation.md
- * applies.
+ * what went wrong, ranking the candidates by the rule evaluation.md applies,
+ * and judging the runs against the last passing record (judgeRuns).
  *
  * A module of its own rather than code in eval.mts, because that file calls
  * main() at the top level — the split scripts/catalog/coverage.mts makes for
@@ -34,7 +34,22 @@ export type LabelItem = {
   platform: Platform | null;
   price: { amount: number; currency: string } | null;
   discountPercent: number | null;
-  expiresOn: string | null;
+  /**
+   * The expected `expires_at`: the exclusive end instant, ISO in UTC, as
+   * expiryInstant in deals.mts states it from the post's own words. Null for
+   * a post that states no end.
+   */
+  expiresAt: string | null;
+  /**
+   * The other games of a set, non-empty for a game sold in one; `[]` for an
+   * item sold on its own. Absent: the set is not scored for this item.
+   */
+  setWith?: string[];
+  /**
+   * The expected stored `shop_url`; null when the deal should link to the
+   * post. Absent: the link is not scored for this item.
+   */
+  shopUrl?: string | null;
 };
 
 /** What one post should yield, keyed by the id of its representative row. */
@@ -60,10 +75,9 @@ const labelItemSchema = z.strictObject({
     })
     .nullable(),
   discountPercent: z.int().min(1).max(99).nullable(),
-  expiresOn: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/)
-    .nullable(),
+  expiresAt: z.iso.datetime().nullable(),
+  setWith: z.array(z.string().min(1)).optional(),
+  shopUrl: z.string().min(1).nullable().optional(),
 });
 
 const labelSchema = z.strictObject({
@@ -148,14 +162,18 @@ function unwrapResultRow(data: unknown): unknown {
 
 /**
  * Validates the parsed posts.json — the query's `posts` cell, or the result
- * row holding it. A failure names the first bad post.
+ * row holding it — or synthetic-posts.json, which has the cell's shape. A
+ * failure names the file and its first bad post.
  */
-export function parsePosts(data: unknown): Parsed<PostGroup[]> {
+export function parsePosts(
+  data: unknown,
+  name = "posts.json",
+): Parsed<PostGroup[]> {
   const cell = unwrapResultRow(data);
   if (!Array.isArray(cell)) {
     return {
       ok: false,
-      reason: "posts.json must be the JSON array the sample query returns",
+      reason: `${name} must be the JSON array the sample query returns`,
     };
   }
 
@@ -166,13 +184,13 @@ export function parsePosts(data: unknown): Parsed<PostGroup[]> {
     if (!parsed.success) {
       return {
         ok: false,
-        reason: `post ${index + 1} is malformed — ${firstIssue(parsed.error)}`,
+        reason: `${name}: post ${index + 1} is malformed — ${firstIssue(parsed.error)}`,
       };
     }
     if (seen.has(parsed.data.post.id)) {
       return {
         ok: false,
-        reason: `post ${index + 1} repeats id ${parsed.data.post.id}`,
+        reason: `${name}: post ${index + 1} repeats id ${parsed.data.post.id}`,
       };
     }
     seen.add(parsed.data.post.id);
@@ -284,8 +302,14 @@ export type ReturnedItem = { item: ExtractedItem; row: DealRow };
 export type Mark =
   "listed" | "leak" | "extra offer" | "wrong game" | "missed" | "rejected";
 
+/**
+ * A field of a listed item that disagrees with its label. `expiry`, `set` and
+ * `link` are judged on the stored row: the instant in `expires_at`, whether
+ * `set_with` names other games, and the `shop_url` that survived
+ * verifyShopUrl.
+ */
 export type FieldName =
-  "price" | "currency" | "platform" | "discount" | "expiry";
+  "price" | "currency" | "platform" | "discount" | "expiry" | "set" | "link";
 
 export const FIELD_NAMES: readonly FieldName[] = [
   "price",
@@ -293,11 +317,15 @@ export const FIELD_NAMES: readonly FieldName[] = [
   "platform",
   "discount",
   "expiry",
+  "set",
+  "link",
 ];
 
 export type MarkedItem = ReturnedItem & {
   mark: Mark;
   expected: LabelItem | null;
+  /** The paired label item's index in `label.items`; null when unpaired. */
+  expectedIndex: number | null;
   /** On a listed item, the fields that disagree with the label. */
   fields: FieldName[];
   /** Paired by a close title rather than the same one. */
@@ -312,7 +340,18 @@ export type Comparison = {
   unpaired: LabelItem[];
 };
 
-function fieldErrors(expected: LabelItem, { item, row }: ReturnedItem) {
+/**
+ * Whether two ISO instants, or two nulls, name the same moment: written
+ * differently, "…T23:00:00Z" and "…T23:00:00.000Z" are one instant.
+ */
+function sameInstant(expected: string | null, stored: string | null): boolean {
+  if (expected === null || stored === null) return expected === stored;
+  const a = Date.parse(expected);
+  const b = Date.parse(stored);
+  return Number.isFinite(a) && a === b;
+}
+
+function fieldErrors(expected: LabelItem, { row }: ReturnedItem) {
   const fields: FieldName[] = [];
   const price = expected.price;
   const priceDiffers =
@@ -331,8 +370,17 @@ function fieldErrors(expected: LabelItem, { item, row }: ReturnedItem) {
   if (expected.platform !== row.platform) fields.push("platform");
   if (expected.discountPercent !== row.discount_percent)
     fields.push("discount");
-  if (expected.expiresOn !== (item.expiresOn?.trim() || null)) {
-    fields.push("expiry");
+  if (!sameInstant(expected.expiresAt, row.expires_at)) fields.push("expiry");
+  // A set is judged by whether the row names other games at all: the card's
+  // set note shows when set_with is non-empty.
+  if (
+    expected.setWith !== undefined &&
+    expected.setWith.length > 0 !== row.set_with.length > 0
+  ) {
+    fields.push("set");
+  }
+  if (expected.shopUrl !== undefined && expected.shopUrl !== row.shop_url) {
+    fields.push("link");
   }
   return fields;
 }
@@ -404,6 +452,7 @@ export function compareReply(
     const base = {
       ...entry,
       expected: paired,
+      expectedIndex: e ?? null,
       fields: [] as FieldName[],
       titleDiffers: false,
       why: [] as string[],
@@ -471,7 +520,15 @@ export type PostScore = {
 };
 
 function emptyFields(): Record<FieldName, number> {
-  return { price: 0, currency: 0, platform: 0, discount: 0, expiry: 0 };
+  return {
+    price: 0,
+    currency: 0,
+    platform: 0,
+    discount: 0,
+    expiry: 0,
+    set: 0,
+    link: 0,
+  };
 }
 
 /** The counts one valid reply comes to. */
@@ -734,3 +791,356 @@ export function percentile(
   );
   return sorted[rank - 1];
 }
+
+/**
+ * The failures the gate blocks on. `missed` and `wrongGame` come from the
+ * marks, the others from the fields of a listed item. `currency`, `platform`
+ * and `discount` stay reported only.
+ */
+export type GatedFailure =
+  "missed" | "wrongGame" | "price" | "expiry" | "set" | "link";
+
+export const GATED_FAILURES: readonly GatedFailure[] = [
+  "missed",
+  "wrongGame",
+  "price",
+  "expiry",
+  "set",
+  "link",
+];
+
+const GATED_FIELDS: ReadonlySet<FieldName> = new Set<FieldName>([
+  "price",
+  "expiry",
+  "set",
+  "link",
+]);
+
+/** A labelled item's key: its post and its index in `label.items`. */
+export function itemKey(postId: string, index: number): string {
+  return `${postId}#${index}`;
+}
+
+/** Item key → the gated failures it showed, `[]` when it was right. */
+export type ItemFailures = Record<string, GatedFailure[]>;
+
+function inGateOrder(failures: Iterable<GatedFailure>): GatedFailure[] {
+  const set = new Set(failures);
+  return GATED_FAILURES.filter((failure) => set.has(failure));
+}
+
+/**
+ * The gated failures of every labelled item of one post in one call, keyed by
+ * itemKey, the items that came back right included as `[]`:
+ * - an invalid reply misses every item the label expects listed, as
+ *   scoreInvalid counts it;
+ * - an unpaired listable item is missed;
+ * - a field error on a listed item is its own failure;
+ * - a `wrong game` pairs with no labelled item, so it is charged to the
+ *   post's first physical game — a wrong game is only ever marked in a post
+ *   that expects one.
+ *
+ * An unmeasured call yields nothing: it says nothing about the items, and
+ * judgeRuns fails the run on it.
+ */
+export function itemFailures(
+  label: Label,
+  call: { record: CallRecord; comparison: Comparison | null },
+): ItemFailures {
+  if (call.record.outcome === "unmeasured") return {};
+
+  const failures = label.items.map(() => new Set<GatedFailure>());
+  const { comparison } = call;
+  if (call.record.outcome === "invalid" || comparison === null) {
+    label.items.forEach((item, i) => {
+      if (isListableLabel(item)) failures[i].add("missed");
+    });
+  } else {
+    for (const marked of comparison.items) {
+      if (marked.mark === "wrong game") {
+        const first = label.items.findIndex(isPhysicalGame);
+        if (first !== -1) failures[first].add("wrongGame");
+        continue;
+      }
+      if (marked.expectedIndex === null) continue;
+      if (marked.mark === "missed") {
+        failures[marked.expectedIndex].add("missed");
+      }
+      for (const field of marked.fields) {
+        if (GATED_FIELDS.has(field)) {
+          failures[marked.expectedIndex].add(field as GatedFailure);
+        }
+      }
+    }
+    for (const item of comparison.unpaired) {
+      failures[label.items.indexOf(item)].add("missed");
+    }
+  }
+
+  return Object.fromEntries(
+    failures.map((set, i) => [itemKey(label.postId, i), inGateOrder(set)]),
+  );
+}
+
+/** The counts of one model's run that fail the gate whatever the baseline. */
+export type RunTotals = Pick<
+  Tally,
+  "posts" | "leaks" | "unmeasured" | "otherModel"
+>;
+
+/** One model's run over the labelled set, as the gate reads it. */
+export type ModelRun = { totals: RunTotals; items: ItemFailures };
+
+/** One run of the eval: model → its run. */
+export type EvalRun = Record<string, ModelRun>;
+
+/** One model's calls over every labelled post, reduced to what the gate reads. */
+export function modelRun(
+  model: string,
+  calls: {
+    label: Label;
+    record: CallRecord;
+    comparison: Comparison | null;
+  }[],
+): ModelRun {
+  const tally = tallyCalls(
+    model,
+    calls.map((call) => call.record),
+  );
+  const items: ItemFailures = {};
+  for (const call of calls) {
+    Object.assign(items, itemFailures(call.label, call));
+  }
+  return {
+    totals: {
+      posts: tally.posts,
+      leaks: tally.leaks,
+      unmeasured: tally.unmeasured,
+      otherModel: tally.otherModel,
+    },
+    items,
+  };
+}
+
+/** Model → item key → the gated failures allowed or recorded. */
+export type GateRecord = Record<string, ItemFailures>;
+
+export type Verdict = "pass" | "fail";
+
+export type Judgement = {
+  verdict: Verdict;
+  /** Every reason for a fail; empty on a pass. */
+  reasons: string[];
+  /**
+   * Per production model, every item key with the union of its gated
+   * failures across the runs, `[]` for an item right in every run. On a pass
+   * it is the next baseline.
+   */
+  record: GateRecord;
+};
+
+/**
+ * The entries a model is held to: its own, or, for a model the baseline does
+ * not hold yet, its predecessor's — the baseline's first model, which is the
+ * production primary the record was written for.
+ */
+function entriesFor(baseline: GateRecord, model: string): ItemFailures {
+  const own = baseline[model];
+  if (own !== undefined) return own;
+  const [predecessor] = Object.keys(baseline);
+  return predecessor === undefined ? {} : baseline[predecessor];
+}
+
+/**
+ * Judges the runs of one eval against the baseline, the record of the last
+ * passing eval. Only the production models are judged; a candidate outside
+ * them is reported, never gated. Each run must pass on its own. A production
+ * model fails the gate when, in any run:
+ * - it was not evaluated;
+ * - it listed anything the label says is not a physical game (a leak);
+ * - a post was left unmeasured, which would shrink the denominator;
+ * - a reply came from a model other than the one asked;
+ * - an item shows a gated failure its baseline entry lacks.
+ *
+ * An item whose key the baseline lacks is new, accepted on first sight and
+ * recorded. An item that improved is recorded as `[]`, so failures can only
+ * shrink from one record to the next.
+ */
+export function judgeRuns(input: {
+  baseline: GateRecord;
+  runs: readonly EvalRun[];
+  models: readonly string[];
+}): Judgement {
+  const { baseline, runs, models } = input;
+  const reasons: string[] = [];
+  const record: GateRecord = {};
+
+  if (runs.length === 0) reasons.push("no run was made");
+  if (models.length === 0) reasons.push("MODELS is empty");
+
+  for (const model of models) {
+    const allowed = entriesFor(baseline, model);
+    const union = new Map<string, Set<GatedFailure>>();
+
+    runs.forEach((run, r) => {
+      const name = `run ${r + 1}`;
+      const outcome = run[model];
+      if (outcome === undefined) {
+        reasons.push(`${model} was not evaluated in ${name}`);
+        return;
+      }
+      const { totals } = outcome;
+      if (totals.leaks > 0) {
+        reasons.push(
+          `${model} listed ${totals.leaks} item(s) that are not physical games (leaks) in ${name}`,
+        );
+      }
+      if (totals.unmeasured > 0) {
+        reasons.push(
+          `${model} left ${totals.unmeasured} post(s) unmeasured in ${name}`,
+        );
+      }
+      if (totals.otherModel > 0) {
+        reasons.push(
+          `${totals.otherModel} reply(ies) to ${model} came from another model in ${name}`,
+        );
+      }
+
+      for (const [key, failures] of Object.entries(outcome.items)) {
+        const seen = union.get(key) ?? new Set<GatedFailure>();
+        for (const failure of failures) seen.add(failure);
+        union.set(key, seen);
+
+        const entry = allowed[key];
+        if (entry === undefined) continue;
+        const newFailures = failures.filter(
+          (failure) => !entry.includes(failure),
+        );
+        if (newFailures.length > 0) {
+          reasons.push(
+            `${model}: ${key} newly fails ${newFailures.join(", ")} in ${name}` +
+              ` (baseline: ${entry.length === 0 ? "none" : entry.join(", ")})`,
+          );
+        }
+      }
+    });
+
+    record[model] = Object.fromEntries(
+      [...union].map(([key, failures]) => [key, inGateOrder(failures)]),
+    );
+  }
+
+  return {
+    verdict: reasons.length === 0 ? "pass" : "fail",
+    reasons,
+    record,
+  };
+}
+
+/**
+ * Reads the baseline out of a parsed result.json: its `record`, validated so
+ * that a hand-edited or truncated file cannot loosen the gate silently.
+ */
+export function parseBaseline(data: unknown): Parsed<GateRecord> {
+  const parsed = z
+    .object({
+      record: z.record(
+        z.string(),
+        z.record(z.string(), z.array(z.enum(GATED_FAILURES))),
+      ),
+    })
+    .safeParse(data);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      reason: `result.json holds no valid record — ${firstIssue(parsed.error)}`,
+    };
+  }
+  return { ok: true, value: parsed.data.record };
+}
+
+// The keys of the 55 labels evaluation.md
+// (context/changes/physical-deals-from-real-posts/) records, in labels.json
+// order — the order its numbering follows, because eval.mts numbers the posts
+// of its report in label order. A post that expects nothing has no key.
+const V3_KEYS = [
+  "0f5cc06c045eb321#0",
+  "21992a93f6d95283#0",
+  "35f9ffbf227d28a3#0",
+  "7e6598e4ba19ae79#0",
+  "80b992c95c74a3d0#0",
+  "83328db2b6466093#0",
+  "8a51f8e9a8bd27d9#0",
+  "9d4b5010d732e207#0",
+  "aafc9cf6cbc51857#0",
+  "cd21c66efdee0b82#0",
+  "db678008ec9a4f31#0",
+  "f1586d19dab5c195#0",
+  "09b1153826a6c918#0",
+  "1682822fa7cf7b7d#0",
+  "1ba5fb9a24d655f2#0",
+  "1ba5fb9a24d655f2#1",
+  "66ee4a26b278abb5#0",
+  "773cee9350629db7#0",
+  "7e3fd28bfe5e243c#0",
+  "8410aaf7573d95a7#0",
+  "af2c1cb46eb61f25#0",
+  "da46d8fb2c4f753c#0",
+  "dc6b8a966ab2d97e#0",
+  "f60aae03ac782340#0",
+  "f647131aa127e5f0#0",
+  "177da139d6c1c235#0",
+  "290c07bba85be6df#0",
+  "2c5b90ea87e74a91#0",
+  "40e923c089c02c46#0",
+  "4780c2c26320636f#0",
+  "553a5c179b3fb366#0",
+  "5d02587d7b3216e8#0",
+  "5d02587d7b3216e8#1",
+  "69a6d68732570c9a#0",
+  "7a81989f145fb596#0",
+  "82c6e55196928d62#0",
+  "9084b8dec6fa59da#0",
+  "9220654893e4b984#0",
+  "9d718bcdfa7fdca2#0",
+  "9f637e9775ac2828#0",
+  "9fc29fb2a638ffce#0",
+  "b499462a6223aff0#0",
+  "bac6b58408e8d112#0",
+  "bac6ff8ce71904d9#0",
+  "be25eecd82bbf812#0",
+  "c86fa2ad9e24cc38#0",
+  "d03942ee8b83b7b8#0",
+  "d31a86d97c2b4922#0",
+  "d31a86d97c2b4922#1",
+  "d7bc4657c73d0f06#0",
+  "d7bc4657c73d0f06#1",
+  "f167c50ce0f5f980#0",
+  "f167c50ce0f5f980#1",
+  "f167c50ce0f5f980#2",
+  "f89ad2ca3d0c61f8#0",
+];
+
+// evaluation.md's #49, No More Heroes 3 at Empik and Neonet, is the 49th
+// label in labels.json: post be25eecd82bbf812, whose one item is index 0. It
+// came back `unclear` in every run, the one missed physical deal of v3
+// (1 of 23; evaluation.md, "Prompt version 3" and "Findings").
+const V3_MISSED = "be25eecd82bbf812#0";
+
+/**
+ * The baseline for the first gated eval, used only while no result.json
+ * exists: prompt version 3's outcome for Mistral Small 3.2 as evaluation.md
+ * records it — no digital leak, one missed physical deal (#49), no wrong game
+ * and no wrong price (evaluation.md:100,126). Expiry measured nothing then
+ * (no label stated one), and set and link had no labels, so no other failure
+ * is allowed. The synthetic posts' keys are absent: they are new, accepted on
+ * first sight and recorded.
+ */
+export const BOOTSTRAP_BASELINE: GateRecord = {
+  "mistralai/mistral-small-3.2-24b-instruct": Object.fromEntries(
+    V3_KEYS.map((key): [string, GatedFailure[]] => [
+      key,
+      key === V3_MISSED ? ["missed"] : [],
+    ]),
+  ),
+};
