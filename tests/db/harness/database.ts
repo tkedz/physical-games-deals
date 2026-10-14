@@ -6,7 +6,10 @@
  * non-superuser owner standing in for hosted postgres, so a missing grant fails
  * here as it fails hosted instead of being waved through. Each migration runs
  * under Supabase's default privileges of its own date: granted before
- * 20261030000000, revoked from the first version at or after it.
+ * 20261030000000, revoked from the first version at or after it. A build may
+ * move that end (BuildOptions.defaultPrivilegesEnd); NO_DEFAULT_PRIVILEGES
+ * runs the whole chain without them, as a stack whose CLI no longer grants new
+ * public objects to the API roles does.
  *
  * Every call builds a fresh in-memory database, which takes 1–2 s and about
  * 400 MB, so a test file builds one in beforeAll and closes it in afterAll.
@@ -29,6 +32,12 @@ export const OWNER = "migrator";
 
 /** The first version Supabase no longer grants new public objects to the API roles. */
 export const DEFAULT_PRIVILEGES_END = "20261030000000";
+
+/**
+ * A defaultPrivilegesEnd before every migration: the whole chain runs with no
+ * Supabase default privileges, as on a stack whose CLI no longer grants them.
+ */
+export const NO_DEFAULT_PRIVILEGES = "00000000000000";
 
 /**
  * Undoes exactly the grants of default-privileges.sql. The build checks that
@@ -74,6 +83,13 @@ export type BuildOptions = {
    * Each must sort after the one before it.
    */
   extraMigrations?: readonly Migration[];
+  /**
+   * The first version that runs without Supabase's default privileges, in
+   * place of DEFAULT_PRIVILEGES_END for this build: a 14-digit version, which
+   * need not name a migration. One at or before the first migration's version,
+   * such as NO_DEFAULT_PRIVILEGES, builds the whole chain without them.
+   */
+  defaultPrivilegesEnd?: string;
 };
 
 /** "<SQLSTATE> <message>" of a database error, as a failure report names it. */
@@ -127,6 +143,15 @@ export async function buildDatabase(
       `The seed checkpoint ${seed.beforeVersion} names no migration in supabase/migrations/ or among the extra ones`,
     );
   }
+  // Compared as text with each version, so anything but 14 digits would sort
+  // somewhere unintended rather than fail.
+  const defaultPrivilegesEnd =
+    options.defaultPrivilegesEnd ?? DEFAULT_PRIVILEGES_END;
+  if (!/^\d{14}$/.test(defaultPrivilegesEnd)) {
+    throw new Error(
+      `defaultPrivilegesEnd ${defaultPrivilegesEnd} is not a 14-digit version`,
+    );
+  }
 
   const pg = await PGlite.create({ extensions: { amcheck } });
   // PGlite's single-user backend gives RESET SESSION AUTHORIZATION nothing to
@@ -172,7 +197,7 @@ export async function buildDatabase(
     let granted = false;
     for (const [index, migration] of chain.entries()) {
       const version = versions[index];
-      const wanted = version < DEFAULT_PRIVILEGES_END;
+      const wanted = version < defaultPrivilegesEnd;
       if (wanted !== granted) {
         await superuser(() =>
           pg.exec(wanted ? grantDefaultPrivileges : REVOKE_DEFAULT_PRIVILEGES),

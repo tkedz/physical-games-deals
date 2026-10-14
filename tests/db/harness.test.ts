@@ -8,14 +8,21 @@
  *
  * The expected privileges come from the date rule CLAUDE.md states (Database
  * migrations): new public tables are granted to anon, authenticated and
- * service_role until 2026-10-30, and to none of them after it.
+ * service_role until 2026-10-30, and to none of them after it. A build with
+ * defaultPrivilegesEnd at NO_DEFAULT_PRIVILEGES grants them nothing at any
+ * date, as a stack whose CLI no longer grants new public objects does.
  */
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { runCheckFile } from "./harness/check-file";
-import { buildDatabase, OWNER, type Database } from "./harness/database";
+import {
+  buildDatabase,
+  NO_DEFAULT_PRIVILEGES,
+  OWNER,
+  type Database,
+} from "./harness/database";
 
 const API_ROLES = ["anon", "authenticated", "service_role"];
 
@@ -65,8 +72,8 @@ afterAll(async () => {
 });
 
 /** Which of the API roles hold any privilege on the table. */
-async function holders(table: string): Promise<string[]> {
-  const { rows } = await db.pg.query<{ role: string }>(
+async function holders(table: string, at: Database = db): Promise<string[]> {
+  const { rows } = await at.pg.query<{ role: string }>(
     `select r.role from unnest($1::text[]) as r(role)
      where has_table_privilege(r.role, $2,
        'select, insert, update, delete, truncate, references, trigger')
@@ -136,6 +143,44 @@ describe("Supabase's default privileges, by migration date", () => {
 
   it("grant a table created after 2026-10-30 to none of them", async () => {
     expect(await holders("public.synthetic_after")).toEqual([]);
+  });
+});
+
+describe("a build with defaultPrivilegesEnd before every migration", () => {
+  let bare: Database;
+
+  beforeAll(async () => {
+    bare = await buildDatabase({
+      defaultPrivilegesEnd: NO_DEFAULT_PRIVILEGES,
+      extraMigrations: [
+        {
+          name: "20261029000000_synthetic_before_the_change.sql",
+          sql: "create table public.synthetic_before (id integer);",
+        },
+      ],
+    });
+  });
+
+  afterAll(async () => {
+    await bare?.close();
+  });
+
+  it("leaves no default privileges for the owner", async () => {
+    const { rows } = await bare.pg.query<{ kind: string }>(
+      "select defaclobjtype::text as kind from pg_default_acl where defaclrole = $1::regrole",
+      [OWNER],
+    );
+    expect(rows).toEqual([]);
+  });
+
+  it("grants a table created before 2026-10-30 to none of the API roles", async () => {
+    expect(await holders("public.synthetic_before", bare)).toEqual([]);
+  });
+
+  it("refuses a value that is not a 14-digit version", async () => {
+    await expect(
+      buildDatabase({ defaultPrivilegesEnd: "2026-10-30" }),
+    ).rejects.toThrow(/2026-10-30 is not a 14-digit version/);
   });
 });
 
