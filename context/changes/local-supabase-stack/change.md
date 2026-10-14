@@ -48,3 +48,16 @@ archived_at: null
   - `extract:report:hosted --sample 5` drew from production's 2694 links.
   - `db:status` listed all 15 migrations on both sides.
 - **Observation, outside this change.** Twice after `npm run dev` sessions, Next's generated `.next/dev/types/validator.ts` held a stray tail, which fails `tsc --noEmit`. A single `next dev` session with a page load and a kill left it intact, so the cause is not pinned down. Deleting the file fixes it, because `next dev` writes it again.
+
+### 2026-10-14 — Phase 4
+
+- **The docs state what shipped, not the plan's wording.** That means the snapshot command without `--use-copy`, `dev:hosted` through `scripts/dev-hosted.mts`, and `--linked` commands that need no database password because the CLI mints a temporary login role. CLAUDE.md's claim that `supabase link` asks for the password stays as it was, because it was not re-tested.
+- **Additions to `.env.example` beyond the contract:**
+  - a note that `vercel env pull` writes `.env.local` unless given a file name, so pulls go into another file;
+  - the hosted section kept as comments only, so that copying the file as `.env.local` never sets `SUPABASE_TARGET=hosted`;
+  - the swap in three steps.
+- **Additions to CLAUDE.md beyond the contract:**
+  - under `npm run dev:hosted`, Next still reads `.env.local` for every name `.env.hosted.local` does not set;
+  - `next build` and `next start` are unguarded;
+  - a first "Local stack" bullet on which runs reach which project, and one on the wrappers' held-back-lines count.
+- **`context/foundation/test-plan.md` §6.3** also notes that `npm run extract:report` now reads the local stack.

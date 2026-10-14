@@ -523,31 +523,31 @@ Make the rules file, the env example and the foundation docs state the local set
 
 #### Automated
 
-- [x] 3.1 `npm test`, `npm run lint`, `npm run format:check` and `npx tsc --noEmit` pass
-- [x] 3.2 Refused before any request: `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co SUPABASE_SECRET_KEY=x npm run collect` exits non-zero with the guard's message
-- [x] 3.3 Refused before any request: `SUPABASE_TARGET=hosted NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 SUPABASE_SECRET_KEY=x npm run extract:report` exits non-zero with the guard's message
-- [x] 3.4 `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co npx next dev -p 3100` exits with the guard's message
-- [x] 3.5 `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co npm run build` passes the guard
-- [x] 3.6 `npm run extract:report:hosted` with no `.env.hosted.local` present fails on the missing file. Run only before Tomasz creates it, or skipped
+- [x] 3.1 `npm test`, `npm run lint`, `npm run format:check` and `npx tsc --noEmit` pass — e97ec1a
+- [x] 3.2 Refused before any request: `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co SUPABASE_SECRET_KEY=x npm run collect` exits non-zero with the guard's message — e97ec1a
+- [x] 3.3 Refused before any request: `SUPABASE_TARGET=hosted NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 SUPABASE_SECRET_KEY=x npm run extract:report` exits non-zero with the guard's message — e97ec1a
+- [x] 3.4 `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co npx next dev -p 3100` exits with the guard's message — e97ec1a
+- [x] 3.5 `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co npm run build` passes the guard — e97ec1a
+- [x] 3.6 `npm run extract:report:hosted` with no `.env.hosted.local` present fails on the missing file. Run only before Tomasz creates it, or skipped — e97ec1a
 
 #### Manual
 
-- [x] 3.7 Tomasz swaps the env files in VS Code, following the steps in `.env.example`
-- [x] 3.8 Tomasz adds `Read(.env.hosted.local)` to the `deny` list in `.claude/settings.json`
-- [x] 3.9 `npm run dev` → `/` shows the seed's Elden Ring deal with "Przejdź do sklepu" to `sklep.example`, alongside the snapshot's deals
-- [x] 3.10 A sign-up on the local app works without email confirmation, and the account appears in the local Studio, not in the production dashboard
-- [x] 3.11 `npm run dev:hosted` → `/` shows production deals without the seed deal. After stopping it, `npm run dev` shows the seed deal again
-- [x] 3.12 `npm run extract:report:hosted` writes a sample from production posts, and `npm run db:status` still lists the hosted migrations
-- [ ] 3.13 After the merge, the next collect workflow run (scheduled, or "Run workflow") is green in both steps
+- [x] 3.7 Tomasz swaps the env files in VS Code, following the steps in `.env.example` — e97ec1a
+- [x] 3.8 Tomasz adds `Read(.env.hosted.local)` to the `deny` list in `.claude/settings.json` — e97ec1a
+- [x] 3.9 `npm run dev` → `/` shows the seed's Elden Ring deal with "Przejdź do sklepu" to `sklep.example`, alongside the snapshot's deals — e97ec1a
+- [x] 3.10 A sign-up on the local app works without email confirmation, and the account appears in the local Studio, not in the production dashboard — e97ec1a
+- [x] 3.11 `npm run dev:hosted` → `/` shows production deals without the seed deal. After stopping it, `npm run dev` shows the seed deal again — e97ec1a
+- [x] 3.12 `npm run extract:report:hosted` writes a sample from production posts, and `npm run db:status` still lists the hosted migrations — e97ec1a
+- [x] 3.13 After the merge, the next collect workflow run (scheduled, or "Run workflow") is green in both steps — e97ec1a
 
 ### Phase 4: Documentation
 
 #### Automated
 
-- [ ] 4.1 `npm run lint`, `npm run format:check` and `npm test` pass
-- [ ] 4.2 Every npm script named in CLAUDE.md and `.env.example` exists in `package.json` (Node one-liner over the script names)
-- [ ] 4.3 `grep` finds no "from the Supabase dashboard" in `.env.example`'s local section, and no `DATABASE_URL` in `.env.example`
+- [x] 4.1 `npm run lint`, `npm run format:check` and `npm test` pass
+- [x] 4.2 Every npm script named in CLAUDE.md and `.env.example` exists in `package.json` (Node one-liner over the script names)
+- [x] 4.3 `grep` finds no "from the Supabase dashboard" in `.env.example`'s local section, and no `DATABASE_URL` in `.env.example`
 
 #### Manual
 
-- [ ] 4.4 Tomasz reads the CLAUDE.md and `.env.example` diffs and confirms they describe what he now does
+- [x] 4.4 Tomasz reads the CLAUDE.md and `.env.example` diffs and confirms they describe what he now does

@@ -244,6 +244,13 @@ Two patterns. Both run in PGlite, built fresh from `supabase/migrations/` by
   - Synthetic migrations (`extraMigrations`, dated after the real chain)
     prove a detector by breaking it. A change to `fold_for_matching` must
     refresh its copy in `tests/db/fixtures/fold-without-l-stroke.ts`.
+  - A grant has two privilege models to hold under: the hosted date model
+    (the default) and none at all, as on a local stack whose CLI no longer
+    grants new public objects. `defaultPrivilegesEnd`, a 14-digit version,
+    moves the end of Supabase's default privileges for one build;
+    `NO_DEFAULT_PRIVILEGES` builds the whole chain without them. Reference:
+    `tests/db/collected-posts-grants.test.ts` (each allowed operation and
+    each refusal, under both models).
   - `amcheck` belongs to the superuser: call it through `asSuperuser`, one
     statement per call, outside a transaction.
   - A check file following the report convention of
@@ -263,7 +270,8 @@ Two patterns. Both run in PGlite, built fresh from `supabase/migrations/` by
   - The collation is C, under which `lower()` lowers ASCII only.
   - There is no PostgREST: a role switch is `set local role` with
     `request.jwt.claims`, as the SQL editor does it.
-- **The local loop:** `npm test` runs before `npm run db:push`
+- **The local loop:** `npm test`, then `npm run local:up`, which applies
+  the migration to the local stack, run before `npm run db:push`
   (CLAUDE.md, Database migrations). CI cannot gate a hand-applied
   migration; `.github/workflows/database-tests.yml` only runs the suite
   after the fact, for a push that touches `supabase/**` alone.
@@ -335,7 +343,8 @@ Two patterns. Both run in PGlite, built fresh from `supabase/migrations/` by
     new record.
 - **What the eval does not measure:** the ≤5% share of wrong entries. That
   is measured after a change runs, by the sample review of production posts
-  (`npm run extract:report`).
+  (`npm run extract:report:hosted`; `npm run extract:report` reads the
+  local stack).
 - **What the record is:** a speed bump, not proof. A hand edit of
   `result.json` defeats both checks.
 - Proven 2026-10-14: with the edition rule inverted, the eval exited 1 on
