@@ -208,7 +208,10 @@ describe("lint-edited-file.mjs (PostToolUse, per edit)", () => {
   it("passes a clean file silently, having run both tools on it alone", () => {
     const result = hook("lint-edited-file.mjs", edit(join(work, "src/a.ts")));
     expect(result).toEqual({ code: 0, stdout: "", stderr: "" });
-    expect(calls()).toEqual([
+    // The hook starts both tools at once, so the log's order is a race.
+    expect(
+      calls().sort((one, other) => one.tool.localeCompare(other.tool)),
+    ).toEqual([
       { tool: "eslint", cwd: work, args: expect.arrayContaining(["src/a.ts"]) },
       {
         tool: "prettier",
@@ -277,7 +280,9 @@ describe("lint-edited-file.mjs (PostToolUse, per edit)", () => {
     );
     expect(result.code).toBe(2);
     expect(result.stderr).toContain("src/bad.ts");
-    expect(calls()[0]).toMatchObject({ tool: "eslint", cwd: worktree });
+    expect(calls()).toContainEqual(
+      expect.objectContaining({ tool: "eslint", cwd: worktree }),
+    );
   });
 
   it("tells Claude a worktree without node_modules was not checked", () => {
