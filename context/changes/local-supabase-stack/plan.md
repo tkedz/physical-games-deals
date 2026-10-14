@@ -544,10 +544,10 @@ Make the rules file, the env example and the foundation docs state the local set
 
 #### Automated
 
-- [x] 4.1 `npm run lint`, `npm run format:check` and `npm test` pass
-- [x] 4.2 Every npm script named in CLAUDE.md and `.env.example` exists in `package.json` (Node one-liner over the script names)
-- [x] 4.3 `grep` finds no "from the Supabase dashboard" in `.env.example`'s local section, and no `DATABASE_URL` in `.env.example`
+- [x] 4.1 `npm run lint`, `npm run format:check` and `npm test` pass — 8215843
+- [x] 4.2 Every npm script named in CLAUDE.md and `.env.example` exists in `package.json` (Node one-liner over the script names) — 8215843
+- [x] 4.3 `grep` finds no "from the Supabase dashboard" in `.env.example`'s local section, and no `DATABASE_URL` in `.env.example` — 8215843
 
 #### Manual
 
-- [x] 4.4 Tomasz reads the CLAUDE.md and `.env.example` diffs and confirms they describe what he now does
+- [x] 4.4 Tomasz reads the CLAUDE.md and `.env.example` diffs and confirms they describe what he now does — 8215843
