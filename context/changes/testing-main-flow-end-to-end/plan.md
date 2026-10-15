@@ -454,29 +454,29 @@ The env step is the one place a key could leak, so its shape is fixed here. Veri
 
 #### Automated
 
-- [x] 1.1 `npm test` passes, including the new rows in `tests/unit/env/supabase-target.test.ts` and `tests/unit/e2e/accounts.test.ts`
-- [x] 1.2 `npm run lint` and `npm run format:check` pass
-- [x] 1.3 `npx tsc --noEmit` passes
-- [x] 1.4 `npx playwright test` stays green locally (setup + seed) under the new settings, with port 3000 free
-- [x] 1.5 `npm run e2e:account -- create`, then `-- delete`, with a throwaway `E2E_USERNAME`/`E2E_PASSWORD` set in the command's environment (password generated in a subshell, never echoed), creates and removes a local account and prints no credential; a repeated `-- delete` reports nothing to delete
-- [x] 1.6 With `SUPABASE_TARGET=hosted` in the command's environment, `npm run e2e:account -- create` exits 1 with the refusal before any request
+- [x] 1.1 `npm test` passes, including the new rows in `tests/unit/env/supabase-target.test.ts` and `tests/unit/e2e/accounts.test.ts` — 542edbe
+- [x] 1.2 `npm run lint` and `npm run format:check` pass — 542edbe
+- [x] 1.3 `npx tsc --noEmit` passes — 542edbe
+- [x] 1.4 `npx playwright test` stays green locally (setup + seed) under the new settings, with port 3000 free — 542edbe
+- [x] 1.5 `npm run e2e:account -- create`, then `-- delete`, with a throwaway `E2E_USERNAME`/`E2E_PASSWORD` set in the command's environment (password generated in a subshell, never echoed), creates and removes a local account and prints no credential; a repeated `-- delete` reports nothing to delete — 542edbe
+- [x] 1.6 With `SUPABASE_TARGET=hosted` in the command's environment, `npm run e2e:account -- create` exits 1 with the refusal before any request — 542edbe
 
 ### Phase 2: Main-Flow E2E Test
 
 #### Automated
 
-- [ ] 2.1 Exploring the E2E build, a `/watchlist` search shows „Katalog gier jest chwilowo niedostępny” and the phrase offer — the server under test holds no RAWG key
-- [ ] 2.2 `npx playwright test tests/e2e/main-flow.spec.ts` passes on the local stack as it stands (snapshot data if loaded), with port 3000 free
-- [ ] 2.3 `npx playwright test tests/e2e/main-flow.spec.ts --repeat-each=3` passes — parallel attempts on separate accounts do not collide
-- [ ] 2.4 Deliberate break: `/my-deals` reading no rows turns the spec red at the deal assertion; the break is reverted
-- [ ] 2.5 Deliberate break: a sign-out that leaves the server session alive turns the spec red at the replayed-cookies assertion; the break is reverted
-- [ ] 2.6 No test account remains in the local stack after the green runs and after each red run
-- [ ] 2.7 The spec passes review against the five anti-patterns in `.claude/skills/10x-e2e/references/e2e-anti-patterns.md`
-- [ ] 2.8 `npx playwright test` (setup, seed and main flow) passes, and `npm run lint`, `npm run format:check` and `npx tsc --noEmit` pass
+- [x] 2.1 Exploring the E2E build, a `/watchlist` search shows „Katalog gier jest chwilowo niedostępny” and the phrase offer — the server under test holds no RAWG key
+- [x] 2.2 `npx playwright test tests/e2e/main-flow.spec.ts` passes on the local stack as it stands (snapshot data if loaded), with port 3000 free
+- [x] 2.3 `npx playwright test tests/e2e/main-flow.spec.ts --repeat-each=3` passes — parallel attempts on separate accounts do not collide
+- [x] 2.4 Deliberate break: `/my-deals` reading no rows turns the spec red at the deal assertion; the break is reverted
+- [x] 2.5 Deliberate break: a sign-out that leaves the server session alive turns the spec red at the replayed-cookies assertion; the break is reverted
+- [x] 2.6 No test account remains in the local stack after the green runs and after each red run
+- [x] 2.7 The spec passes review against the five anti-patterns in `.claude/skills/10x-e2e/references/e2e-anti-patterns.md`
+- [x] 2.8 `npx playwright test` (setup, seed and main flow) passes, and `npm run lint`, `npm run format:check` and `npx tsc --noEmit` pass
 
 #### Manual
 
-- [ ] 2.9 Tomasz watches one headed run (`npx playwright test tests/e2e/main-flow.spec.ts --headed`) and confirms it walks the PRD's main flow
+- [x] 2.9 Tomasz watches one headed run (`npx playwright test tests/e2e/main-flow.spec.ts --headed`) and confirms it walks the PRD's main flow
 
 ### Phase 3: E2E Job in CI
 
