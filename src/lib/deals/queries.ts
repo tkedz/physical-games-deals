@@ -198,7 +198,8 @@ export function loadMatchedDealsPage(
   page: number,
   now: Date,
 ): Promise<DealsPageResult> {
-  return Promise.resolve({ ok: true, deals: [], hasOlder: false }); // DELIBERATE BREAK: do not merge
+  // DELIBERATE BREAK, do not merge: /my-deals reads a page past the end.
+  return loadListedDealsPage(client, "matched_deals", page + 1000, now);
 }
 
 export type LastRefreshResult =
