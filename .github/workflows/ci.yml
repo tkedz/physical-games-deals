@@ -4,10 +4,13 @@ name: CI
 # preview deployment. GitHub evaluates these patterns against the union of files
 # across every commit in a push, so one unmatched file runs the whole pipeline.
 #
-# `supabase/**` is inert only while nothing under it feeds the Next build: the
-# migrations are applied by hand and `config.toml` configures the local stack.
-# A push that touches it still runs the tests, in `database-tests.yml`, without
-# a build or a deploy.
+# `supabase/**` is inert for the deploy only while nothing under it feeds the
+# Next build: the migrations are applied by hand and `config.toml` configures
+# the local stack. The `e2e` job does read it — it starts the stack from
+# `config.toml` and builds the database from `supabase/migrations/` and
+# `supabase/seed.sql` — yet a push touching only `supabase/**` still skips this
+# workflow, by decision: `database-tests.yml` runs `npm test` for it, without a
+# build or a deploy, and the E2E test runs on the next push that runs this one.
 # If generated database types ever land there and `src/` imports them, a schema
 # change would skip the deploy that needs it — put generated types under `src/`.
 # Note this pattern is rooted at the repository, so `src/utils/supabase/` is not
@@ -50,8 +53,11 @@ permissions:
   contents: read
 
 jobs:
-  # Gate. Cheap checks only — no build here, so the build runs exactly once
-  # per pipeline, inside `vercel build` in the deploy job.
+  # Gate. Cheap checks only, and no build. The shipped build runs once per
+  # pipeline, inside `vercel build` in the deploy job. `e2e` builds a copy of
+  # its own against the local stack, and that copy cannot stand in for the
+  # shipped one: `next build` inlines the NEXT_PUBLIC_* values, so it points at
+  # the local stack for good.
   verify:
     runs-on: ubuntu-latest
     steps:
@@ -67,8 +73,90 @@ jobs:
       - run: npm run format:check
       - run: npm test
 
+  # Gate. The main flow in a browser (tests/e2e/), against a disposable local
+  # Supabase stack started inside the runner. It runs alongside `verify`, so
+  # `deploy` waits for the longer of the two rather than their sum. It takes no
+  # secret and keeps the workflow's `contents: read`: every value it needs
+  # comes from the stack it starts, and dies with the job.
+  e2e:
+    runs-on: ubuntu-latest
+    # The test run is bounded at 15 minutes by Playwright's globalTimeout
+    # (playwright.config.ts); the stack start, the reset, the browser install
+    # and the build inside the run come on top. Anything beyond this is a hang.
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # Also installs the Supabase CLI the lockfile pins, whose linux-x64
+      # binary is an optional dependency — so never `--omit=optional` here.
+      - run: npm ci
+
+      # The wrapper, never a bare `supabase start`: the CLI prints the local
+      # keys on stdout, and the wrapper prints only the API and Studio URLs.
+      - run: npm run local:start
+
+      # A start applies the migrations but not supabase/seed.sql, because
+      # `[db.seed]` stays disabled in config.toml; the reset loads it. CI has no
+      # supabase/snapshot.sql, so the test runs on the seed alone. Screened like
+      # the start.
+      - run: npm run local:reset
+
+      # Never a bare `supabase status`: it prints the local keys. Only these
+      # three names leave this step, into a file no step echoes. The shell runs
+      # without pipefail, so a failed `status` leaves the file empty, and the
+      # `test` line — which compares names, never values — fails the step.
+      - name: Write the local stack's env
+        run: |
+          npx supabase status -o env \
+            --override-name api.url=NEXT_PUBLIC_SUPABASE_URL \
+            --override-name auth.publishable_key=NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
+            | sed -n -e 's/^SECRET_KEY=/SUPABASE_SECRET_KEY=/p' \
+                     -e '/^NEXT_PUBLIC_SUPABASE_\(URL\|PUBLISHABLE_KEY\)=/p' \
+            > .env.local
+          test "$(cut -d= -f1 .env.local | sort | tr '\n' ' ')" = \
+            "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY NEXT_PUBLIC_SUPABASE_URL SUPABASE_SECRET_KEY "
+
+      # The account tests/e2e/auth.setup.ts signs in as, new for every run and
+      # attempt. The password is generated inside the script, and the runner
+      # logs the script, not its expansions, so the value never reaches the
+      # log; nothing here prints it either. The fixed `Aa1!` prefix meets every
+      # character set the local Auth requires, whatever the random part holds.
+      - name: Per-run test user
+        run: |
+          echo "E2E_USERNAME=e2e-setup-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}@example.com" >> .env.local
+          printf 'E2E_PASSWORD=Aa1!%s\n' "$(openssl rand -hex 16)" >> .env.local
+
+      # Creates that account through the local Auth admin API, with the secret
+      # key from .env.local. Its one line names neither the address nor the
+      # password.
+      - run: npm run e2e:account -- create
+
+      # Chromium only: the one browser the config's projects run.
+      - run: npx playwright install --with-deps chromium
+
+      # playwright.config.ts loads .env.local, then builds and starts the app
+      # on the local stack's values. The runner sets CI, which turns on the
+      # config's CI settings: retries, one worker, and a flaky pass failing the
+      # run.
+      - run: npx playwright test
+
+      # Kept for every run that was not cancelled: a failed one holds the
+      # failure's trace and screenshot. Only playwright-report/ goes up;
+      # .env.local and playwright/.auth/ lie outside the path.
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
   deploy:
-    needs: verify
+    needs: [verify, e2e]
     runs-on: ubuntu-latest
     permissions:
       contents: read

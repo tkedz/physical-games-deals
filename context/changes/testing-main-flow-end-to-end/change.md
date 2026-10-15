@@ -36,3 +36,15 @@ archived_at: null
   - 2.5: with sign-out deleting the `sb-` cookies in the browser and never calling Auth, it failed at step 9: the replayed cookies opened `/my-deals`. On unbroken code the same replay lands on `/login`, so GoTrue rejects a revoked session's token. That settles the plan's open question.
   - 2.6: after every run, each attempt's annotated address reported "nothing to delete".
   - 2.9: Tomasz watched a headed run slowed to 800 ms per action and confirmed the flow. The slowdown came from a temporary config that imported `playwright.config.ts` and added only `launchOptions.slowMo`; it was deleted after the run. UI mode (`--ui`) was tried first: it lists only the `setup` project until `chromium` is ticked, runs headless, and showed him no steps.
+
+### 2026-10-15 — Phase 3
+
+- **One sentence beyond the plan's env-step comment.** The default `run:` shell is `bash -e` without `pipefail`, so a failed `supabase status` leaves `.env.local` empty, and the name check fails the step. The step's commands are the plan's, verbatim.
+- **Unnamed steps.** `npm ci`, `local:start`, `local:reset`, `e2e:account`, the browser install and `npx playwright test` are unnamed, like `verify`'s, and their log titles tell them apart. `next build` runs inside the `npx playwright test` step (`webServer`), so its time is read from the build output's timestamps, which the CI-only `stdout: "pipe"` puts in the log.
+- **`actions/upload-artifact@v7`.** Its releases page listed v7.0.2 as the latest on 2026-10-15.
+- **The env step, proven locally (3.3).**
+  - The pipeline into a scratch file gave exactly `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY NEXT_PUBLIC_SUPABASE_URL SUPABASE_SECRET_KEY`, so CLI 2.117.0 names the secret key `SECRET_KEY`.
+  - `process.loadEnvFile` read all three without quotes, and the URL is loopback http.
+  - Its stderr reaches the CI log unscreened. Locally it held four lines and no `sb_secret_`, `sb_publishable_` or `eyJ`: an npm config warning, the stopped services' names, the CLI's update notice and a docs URL.
+- **The per-run user, proven locally (3.4).** The step's two lines were appended to a copy of that file, which was loaded into the environment. `npm run e2e:account` then printed "created", "deleted" and "nothing to delete", with no credential.
+- **The branch-protection caveat** (`ci.yml:17-19`) still names only `verify`. It now holds for `e2e` too, and stays as written, as the plan says.

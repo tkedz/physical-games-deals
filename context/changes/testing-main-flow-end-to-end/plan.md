@@ -465,27 +465,27 @@ The env step is the one place a key could leak, so its shape is fixed here. Veri
 
 #### Automated
 
-- [x] 2.1 Exploring the E2E build, a `/watchlist` search shows „Katalog gier jest chwilowo niedostępny” and the phrase offer — the server under test holds no RAWG key
-- [x] 2.2 `npx playwright test tests/e2e/main-flow.spec.ts` passes on the local stack as it stands (snapshot data if loaded), with port 3000 free
-- [x] 2.3 `npx playwright test tests/e2e/main-flow.spec.ts --repeat-each=3` passes — parallel attempts on separate accounts do not collide
-- [x] 2.4 Deliberate break: `/my-deals` reading no rows turns the spec red at the deal assertion; the break is reverted
-- [x] 2.5 Deliberate break: a sign-out that leaves the server session alive turns the spec red at the replayed-cookies assertion; the break is reverted
-- [x] 2.6 No test account remains in the local stack after the green runs and after each red run
-- [x] 2.7 The spec passes review against the five anti-patterns in `.claude/skills/10x-e2e/references/e2e-anti-patterns.md`
-- [x] 2.8 `npx playwright test` (setup, seed and main flow) passes, and `npm run lint`, `npm run format:check` and `npx tsc --noEmit` pass
+- [x] 2.1 Exploring the E2E build, a `/watchlist` search shows „Katalog gier jest chwilowo niedostępny” and the phrase offer — the server under test holds no RAWG key — d06f6fd
+- [x] 2.2 `npx playwright test tests/e2e/main-flow.spec.ts` passes on the local stack as it stands (snapshot data if loaded), with port 3000 free — d06f6fd
+- [x] 2.3 `npx playwright test tests/e2e/main-flow.spec.ts --repeat-each=3` passes — parallel attempts on separate accounts do not collide — d06f6fd
+- [x] 2.4 Deliberate break: `/my-deals` reading no rows turns the spec red at the deal assertion; the break is reverted — d06f6fd
+- [x] 2.5 Deliberate break: a sign-out that leaves the server session alive turns the spec red at the replayed-cookies assertion; the break is reverted — d06f6fd
+- [x] 2.6 No test account remains in the local stack after the green runs and after each red run — d06f6fd
+- [x] 2.7 The spec passes review against the five anti-patterns in `.claude/skills/10x-e2e/references/e2e-anti-patterns.md` — d06f6fd
+- [x] 2.8 `npx playwright test` (setup, seed and main flow) passes, and `npm run lint`, `npm run format:check` and `npx tsc --noEmit` pass — d06f6fd
 
 #### Manual
 
-- [x] 2.9 Tomasz watches one headed run (`npx playwright test tests/e2e/main-flow.spec.ts --headed`) and confirms it walks the PRD's main flow
+- [x] 2.9 Tomasz watches one headed run (`npx playwright test tests/e2e/main-flow.spec.ts --headed`) and confirms it walks the PRD's main flow — d06f6fd
 
 ### Phase 3: E2E Job in CI
 
 #### Automated
 
-- [ ] 3.1 `npm run lint`, `npm run format:check` and `npm test` pass
-- [ ] 3.2 `.github/workflows/ci.yml` parses as YAML (js-yaml from `node_modules`) and `jobs.deploy.needs` lists `verify` and `e2e`
-- [ ] 3.3 The env step's pipeline, run locally into a scratch file outside the repository, yields exactly the three names (checked by name only), and `process.loadEnvFile` on that file gives values with no surrounding quote (boolean check)
-- [ ] 3.4 Credentials generated locally the way the per-run step generates them, loaded with the scratch file's values into the environment, create and delete an account through `npm run e2e:account` without printing a credential
+- [x] 3.1 `npm run lint`, `npm run format:check` and `npm test` pass
+- [x] 3.2 `.github/workflows/ci.yml` parses as YAML (js-yaml from `node_modules`) and `jobs.deploy.needs` lists `verify` and `e2e`
+- [x] 3.3 The env step's pipeline, run locally into a scratch file outside the repository, yields exactly the three names (checked by name only), and `process.loadEnvFile` on that file gives values with no surrounding quote (boolean check)
+- [x] 3.4 Credentials generated locally the way the per-run step generates them, loaded with the scratch file's values into the environment, create and delete an account through `npm run e2e:account` without printing a credential
 
 #### Manual
 
