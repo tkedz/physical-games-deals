@@ -198,7 +198,7 @@ export function loadMatchedDealsPage(
   page: number,
   now: Date,
 ): Promise<DealsPageResult> {
-  return loadListedDealsPage(client, "matched_deals", page, now);
+  return Promise.resolve({ ok: true, deals: [], hasOlder: false }); // DELIBERATE BREAK: do not merge
 }
 
 export type LastRefreshResult =
