@@ -29,7 +29,8 @@
     "extract": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/extract/extract.mts",
     "extract:eval": "node --env-file-if-exists=.env.local scripts/extract/eval.mts",
     "extract:report": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/extract/report.mts",
-    "extract:report:hosted": "node --env-file=.env.hosted.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/extract/report.mts"
+    "extract:report:hosted": "node --env-file=.env.hosted.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/extract/report.mts",
+    "e2e:account": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/e2e/account.mts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

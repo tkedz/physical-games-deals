@@ -13,11 +13,20 @@
  * pinned too: the target is matched case-sensitively, an empty one counts as
  * unset, and only http and https URLs parse.
  *
+ * refuseE2eTarget, the stricter guard of the E2E runs (playwright.config.ts
+ * and createE2eAdminClient() in scripts/e2e/accounts.mts), comes from the
+ * contract in Phase 1 of context/changes/testing-main-flow-end-to-end/plan.md:
+ * `hosted` is refused with either URL, and every other pair is judged as
+ * refuseSupabaseTarget judges it, so only the local stack passes.
+ *
  * The credential-shaped values are placeholders, assembled at run time so
  * that no secret scanner reads this file as a leaked key.
  */
 import { describe, expect, it } from "vitest";
-import { refuseSupabaseTarget } from "@/lib/env/supabase-target";
+import {
+  refuseE2eTarget,
+  refuseSupabaseTarget,
+} from "@/lib/env/supabase-target";
 
 const HOSTED = "https://abcdefghijklmnop.supabase.co";
 const LOCAL = "http://127.0.0.1:54321";
@@ -172,4 +181,33 @@ describe("refuseSupabaseTarget: the message", () => {
     expect(message).not.toContain("eyJ");
     expect(message).not.toContain("PLACEHOLDER");
   });
+});
+
+describe("refuseE2eTarget", () => {
+  it.each([
+    { name: "hosted, the hosted project", url: HOSTED },
+    { name: "hosted, the local stack", url: LOCAL },
+  ])("refuses $name: E2E never runs under hosted", ({ url }) => {
+    expect(refuseE2eTarget({ url, target: "hosted" })).toBe(
+      "E2E tests run against the local Supabase stack only; unset SUPABASE_TARGET.",
+    );
+  });
+
+  it("refuses the hosted project with SUPABASE_TARGET unset, as refuseSupabaseTarget does", () => {
+    const message = refuseE2eTarget({ url: HOSTED, target: undefined });
+    expect(message).toEqual(expect.any(String));
+    expect(message).toBe(
+      refuseSupabaseTarget({ url: HOSTED, target: undefined }),
+    );
+  });
+
+  it.each([
+    { name: "unset", target: undefined },
+    { name: "local", target: "local" },
+  ])(
+    "lets a run reach the local stack with SUPABASE_TARGET $name",
+    ({ target }) => {
+      expect(refuseE2eTarget({ url: LOCAL, target })).toBeNull();
+    },
+  );
 });

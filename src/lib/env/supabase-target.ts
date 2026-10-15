@@ -1,7 +1,9 @@
 /**
  * Which Supabase project a process may reach: the one decision behind the
  * guard in createCollectorClient() (scripts/collector/supabase.mts) and the
- * one in next.config.ts, which stops `next dev`.
+ * one in next.config.ts, which stops `next dev`. A stricter form of it,
+ * refuseE2eTarget, guards the E2E runs: playwright.config.ts and
+ * createE2eAdminClient() (scripts/e2e/accounts.mts).
  *
  * Local work runs against the Supabase stack on this machine, so a URL that
  * points anywhere else is the hosted project, which is production. A process
@@ -83,6 +85,26 @@ export function refuseSupabaseTarget({
     return `SUPABASE_TARGET is "hosted", but NEXT_PUBLIC_SUPABASE_URL points at ${parsed.host}, the local Supabase stack. ${WAY_OUT}`;
   }
   return null;
+}
+
+/**
+ * Returns why an E2E run may not use `url` under `target`, or null when it
+ * may.
+ *
+ * E2E runs against the local stack only: a run signs in and writes as test
+ * users, and its account module holds the secret key, which creates and
+ * deletes accounts. So `hosted` is refused whatever the URL, even where the
+ * environment says so in writing, and every other pair is judged by
+ * refuseSupabaseTarget, which then takes a loopback URL only.
+ */
+export function refuseE2eTarget({
+  url,
+  target,
+}: SupabaseTargetInput): string | null {
+  if (target === "hosted") {
+    return "E2E tests run against the local Supabase stack only; unset SUPABASE_TARGET.";
+  }
+  return refuseSupabaseTarget({ url, target });
 }
 
 /**
