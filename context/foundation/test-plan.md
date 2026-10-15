@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-10-14
+> Last updated: 2026-10-15
 
 ## 1. Strategy
 
@@ -96,7 +96,7 @@ orchestrator updates Status as artifacts appear on disk.
 | 2 | Extraction and listing guard | Prove a prompt or model change cannot raise digital leaks or wrong entries unnoticed, that listing and link rules hold on expiry, DST and adversarial posts, and that edits to the rule or the prompt run the fast suites | #2, #5 | unit + AI-native eval gate + post-edit hook | complete | `context/changes/testing-extraction-and-listing-guard/` |
 | 3 | Pipeline delivery and catalogue boundary | Prove one bad post or feed cannot stall delivery, no post is billed twice, stale data never reads as fresh, and catalogue failures degrade to the generic message without leaking the key | #3, #7 | unit + integration with stubbed boundaries + build-output scan | not started | — |
 | 4 | Isolation and access | Prove no other user or guest can reach a user's watchlist or matched deals, and that session changes keep sign-in, sign-out and private-page caching correct | #4, #6 | database integration per role + unit + integration | not started | — |
-| 5 | Main flow end to end | Prove the PRD's primary flow works in a real browser: guest redirect, sign-in, empty state, a watched phrase reaching `/my-deals` with price and link, removal, sign-out | #1, #4, #6 | e2e (one Playwright test) | change opened | `context/changes/testing-main-flow-end-to-end/` |
+| 5 | Main flow end to end | Prove the PRD's primary flow works in a real browser: guest redirect, sign-in, empty state, a watched phrase reaching `/my-deals` with price and link, removal, sign-out | #1, #4, #6 | e2e (one Playwright test) | complete | `context/changes/testing-main-flow-end-to-end/` |
 
 Status vocabulary (parser literals): `not started` → `change opened` →
 `researched` → `planned` → `implementing` → `complete`.
