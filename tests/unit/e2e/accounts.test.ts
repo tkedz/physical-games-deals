@@ -2,15 +2,20 @@
  * scripts/e2e/accounts.mts, the module that creates and deletes E2E test
  * accounts in the local Supabase stack. The expected behaviour comes from the
  * contract in Phase 1 of context/changes/testing-main-flow-end-to-end/plan.md:
- * - a generated password passes the app's sign-up rule, hasRequiredCharacters
- *   and the 8–72 UTF-8 byte bounds of src/lib/auth/credentials.ts, imported
- *   here rather than copied, so a change to the rule shows up as a failure;
+ * - a generated password passes the app's sign-up rule, signUpSchema of
+ *   src/lib/auth/credentials.ts (hasRequiredCharacters and the 8–72 bounds),
+ *   imported here rather than copied, so a change to the rule shows up as a
+ *   failure;
  * - a generated address is unique, carries its label and ends in
  *   TEST_EMAIL_DOMAIN;
  * - createE2eAdminClient refuses the hosted project, a non-loopback URL and a
  *   missing secret key before any request, with the environment injected;
  * - a failed admin request throws the Auth error code and never the password
- *   or the address, and the account lookup pages through the whole user list.
+ *   or the address, and the account lookup pages through the whole user list,
+ *   giving up after 100 pages;
+ * - the CLI's create and delete report a taken address and a missing account
+ *   as outcomes, not failures, in lines that name neither the address nor the
+ *   password.
  *
  * The admin requests run against a stand-in client, so nothing here reaches a
  * network. The credential-shaped values are placeholders, assembled at run
@@ -18,11 +23,13 @@
  */
 import { AuthApiError, AuthRetryableFetchError } from "@supabase/supabase-js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { hasRequiredCharacters } from "@/lib/auth/credentials";
+import { signUpSchema } from "@/lib/auth/credentials";
 import { refuseE2eTarget } from "@/lib/env/supabase-target";
 import {
+  createAccountCommand,
   createE2eAdminClient,
   createTestAccount,
+  deleteAccountCommand,
   deleteTestAccount,
   findTestAccountId,
   TEST_EMAIL_DOMAIN,
@@ -43,10 +50,13 @@ describe("testAccountPassword", () => {
 
   it("meets the sign-up rule every time", () => {
     for (const password of passwords) {
-      const bytes = new TextEncoder().encode(password).length;
-      expect(hasRequiredCharacters(password)).toBe(true);
-      expect(bytes).toBeGreaterThanOrEqual(8);
-      expect(bytes).toBeLessThanOrEqual(72);
+      const signUp = signUpSchema.safeParse({
+        email: `someone@${TEST_EMAIL_DOMAIN}`,
+        password,
+        passwordRepeat: password,
+      });
+      // The issues, not a bare false, so a failure says which rule broke.
+      expect(signUp.error?.issues).toBeUndefined();
     }
   });
 
@@ -149,13 +159,16 @@ describe("createE2eAdminClient", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it("builds a client for the local stack without a request", () => {
+  it("builds a client for the local stack without a request", async () => {
     const client = createE2eAdminClient({
       NEXT_PUBLIC_SUPABASE_URL: LOCAL,
       SUPABASE_TARGET: "local",
       SUPABASE_SECRET_KEY: SECRET_KEY,
     });
     expect(client.auth.admin).toBeDefined();
+    // getSession waits for the client's start-up, so a request sent during it
+    // has reached the spy by now; with no session stored it sends none itself.
+    await client.auth.getSession();
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 });
@@ -272,4 +285,90 @@ describe("the admin requests", () => {
     ).resolves.toBeNull();
     expect(listUsers).toHaveBeenCalledTimes(3);
   });
+
+  it("give up on a user list that never ends", async () => {
+    const listUsers = vi.fn(async () => ({
+      data: { users: [{ id: "other-1", email: "someone@example.com" }] },
+      error: null,
+    }));
+    await expect(
+      findTestAccountId(standInClient({ listUsers }), email),
+    ).rejects.toEqual(
+      new TestAccountError(
+        "Looking up the test account failed: the user list did not end within 100 pages.",
+      ),
+    );
+    expect(listUsers).toHaveBeenCalledTimes(100);
+  });
+});
+
+describe("the e2e:account subcommands", () => {
+  const email = uniqueTestEmail("unit");
+  const password = testAccountPassword();
+  const taken = new AuthApiError(
+    "A user with this email address has already been registered",
+    422,
+    "email_exists",
+  );
+
+  it.each([
+    { name: "a new account", error: null, line: /^created: / },
+    { name: "a taken address", error: taken, line: /^already exists: / },
+  ])(
+    "create reports $name as an outcome, not a failure",
+    async ({ error, line }) => {
+      const createUser = vi.fn().mockResolvedValue({
+        data: { user: error === null ? { id: "user-1", email } : null },
+        error,
+      });
+      const printed = await createAccountCommand(
+        standInClient({ createUser }),
+        { email, password },
+      );
+      expect(printed).toMatch(line);
+      expect(printed).not.toContain(email);
+      expect(printed).not.toContain(password);
+    },
+  );
+
+  it("create fails on any other Auth error", async () => {
+    const createUser = vi.fn().mockResolvedValue({
+      data: { user: null },
+      error: new AuthApiError("Password is too weak", 422, "weak_password"),
+    });
+    await expect(
+      createAccountCommand(standInClient({ createUser }), { email, password }),
+    ).rejects.toMatchObject({ code: "weak_password" });
+  });
+
+  it.each([
+    {
+      name: "the account it finds",
+      users: [{ id: "user-2", email }],
+      line: /^deleted: /,
+      deleted: ["user-2"],
+    },
+    {
+      name: "no account",
+      users: [],
+      line: /^nothing to delete: /,
+      deleted: [],
+    },
+  ])(
+    "delete reports $name as an outcome, not a failure",
+    async ({ users, line, deleted }) => {
+      const listUsers = vi.fn(async ({ page }: { page: number }) => ({
+        data: { users: page === 1 ? users : [] },
+        error: null,
+      }));
+      const deleteUser = vi.fn().mockResolvedValue({ data: {}, error: null });
+      const printed = await deleteAccountCommand(
+        standInClient({ listUsers, deleteUser }),
+        email,
+      );
+      expect(printed).toMatch(line);
+      expect(printed).not.toContain(email);
+      expect(deleteUser.mock.calls.map(([id]) => id)).toEqual(deleted);
+    },
+  );
 });

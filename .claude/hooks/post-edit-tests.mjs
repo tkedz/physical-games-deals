@@ -48,8 +48,10 @@ import {
 /** Path prefixes, relative to the checkout, that each project covers. */
 const SUITE_PATHS = {
   unit: [
+    "scripts/e2e/",
     "scripts/extract/",
     "scripts/local/",
+    "src/lib/auth/",
     "src/lib/deals/",
     "src/lib/env/",
     "src/lib/watchlist/",

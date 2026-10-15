@@ -1,7 +1,7 @@
 ---
 change_id: testing-main-flow-end-to-end
 title: Testing main flow end to end
-status: implemented
+status: impl_reviewed
 created: 2026-10-14
 updated: 2026-10-15
 archived_at: null
@@ -76,3 +76,18 @@ archived_at: null
   - the Local stack line also states the env step's three-name filter;
   - the Secrets list now says "credential-loading commands", not "scripts", because `npx playwright test` is not an npm script.
 - **Left as they are.** These are not false, so they stay unchanged: CLAUDE.md's Supabase bullet, which names `createCollectorClient()` and `next.config.ts` as the callers of `refuseSupabaseTarget` and does not name `refuseE2eTarget`; and `.env.example`, which says to create the E2E user by signing up at `/signup`. Test-plan §1–§5 are left to `/10x-test-plan`, as the plan says, though some of it is now stale: the §3 Phase 5 status, the §4 e2e row ("none yet"), §4's note that Phase 5 research decides where the test runs, and the §5 e2e gate's "Where".
+
+### 2026-10-15 — Implementation review triage
+
+The findings and the decisions are in `reviews/impl-review.md` (verdict NEEDS ATTENTION, no critical findings). All seven were fixed. Departures from the plan made in triage:
+
+- **F1.** CLAUDE.md's Secrets section gains a point: `npx playwright test` writes what the tests type into `playwright-report/` and `test-results/`, `E2E_USERNAME`, `E2E_PASSWORD` and the throwaway passwords included. These are local-stack test credentials and not secrets, so agents may open both folders. Tomasz chose this over keeping agents out of the reports. The spec, test-plan §6.5 and `ci.yml` now say the report shows the typed password.
+- **F2.** Step 6 of the main flow asserts that one of the cards carrying the title has the recorded price and links, not that exactly one card carries the title. A same-titled deal beyond the first page of `/` no longer turns it red.
+- **F3.** `findTestAccountId` gives up after 100 pages.
+- **F4.** Three statements corrected:
+  - the CI job writes `.env.local` (`playwright.config.ts`);
+  - the build counts toward the 15-minute `globalTimeout` (`ci.yml`);
+  - a server reused on the port is not checked (test-plan §6.5).
+- **F5.** The post-edit hook maps `scripts/e2e/` and `src/lib/auth/` to the unit project.
+- **F6.** The CLI's subcommands moved from `account.mts` to `accounts.mts` as `createAccountCommand` and `deleteAccountCommand`, with a unit row for every outcome.
+- **F7.** The password row checks `signUpSchema`. The client row waits for the client's start-up before it checks that no request went out.

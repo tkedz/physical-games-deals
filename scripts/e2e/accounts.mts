@@ -10,6 +10,8 @@
  * a spec imports it without starting anything, and
  * tests/unit/e2e/accounts.test.ts calls the pure parts with data and the I/O
  * parts with a stand-in client (context/foundation/lessons.md).
+ * The CLI's two subcommands live here too, not in account.mts, because that
+ * file calls main() at the top level, so no test could import them.
  *
  * The admin API needs SUPABASE_SECRET_KEY, which bypasses row-level security.
  * So the client factory lives here, outside src/, beside
@@ -212,19 +214,26 @@ function accountIdIn(
 const PAGE_SIZE = 1000;
 
 /**
+ * Pages the lookup reads before it gives up: 100,000 accounts, far more than
+ * a local stack holds. A server that ignored the page number would otherwise
+ * answer the same page for ever.
+ */
+const MAX_PAGES = 100;
+
+/**
  * The id of the account with `email`, or null when there is none.
  *
  * The admin API cannot look an address up, so this walks the user list page
  * by page until the address turns up or a page comes back empty. It counts
  * the pages itself: the client's `nextPage` reads only the first digit of the
  * page number, and a page shorter than PAGE_SIZE would end the walk early
- * should the server cap the page size.
+ * should the server cap the page size. Past MAX_PAGES it throws.
  */
 export async function findTestAccountId(
   client: E2eAdminClient,
   email: string,
 ): Promise<string | null> {
-  for (let page = 1; ; page += 1) {
+  for (let page = 1; page <= MAX_PAGES; page += 1) {
     const { data } = await adminRequest("Looking up the test account", () =>
       client.auth.admin.listUsers({ page, perPage: PAGE_SIZE }),
     );
@@ -232,6 +241,9 @@ export async function findTestAccountId(
     const id = accountIdIn(data.users, email);
     if (id !== null) return id;
   }
+  throw new TestAccountError(
+    `Looking up the test account failed: the user list did not end within ${MAX_PAGES} pages.`,
+  );
 }
 
 /** Deletes the account for good, its watchlist rows with it. */
@@ -242,4 +254,40 @@ export async function deleteTestAccount(
   await adminRequest("Deleting the test account", () =>
     client.auth.admin.deleteUser(id),
   );
+}
+
+/**
+ * The `create` subcommand of `npm run e2e:account` (account.mts): creates the
+ * account, or leaves one already at the address as it is, and returns the
+ * line the CLI prints. The line names the variables, never their values.
+ */
+export async function createAccountCommand(
+  client: E2eAdminClient,
+  account: { email: string; password: string },
+): Promise<string> {
+  try {
+    await createTestAccount(client, account);
+  } catch (error) {
+    if (error instanceof TestAccountError && error.code === "email_exists") {
+      return "already exists: the E2E_USERNAME account was left as it is, its password included.";
+    }
+    throw error;
+  }
+  return "created: the E2E_USERNAME account is in the local stack, with E2E_PASSWORD and a confirmed address.";
+}
+
+/**
+ * The `delete` subcommand of `npm run e2e:account`: deletes the account at
+ * the address, if there is one, and returns the line the CLI prints.
+ */
+export async function deleteAccountCommand(
+  client: E2eAdminClient,
+  email: string,
+): Promise<string> {
+  const id = await findTestAccountId(client, email);
+  if (id === null) {
+    return "nothing to delete: the local stack holds no E2E_USERNAME account.";
+  }
+  await deleteTestAccount(client, id);
+  return "deleted: the E2E_USERNAME account is gone from the local stack, its watchlist with it.";
 }

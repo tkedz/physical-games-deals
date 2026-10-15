@@ -80,9 +80,9 @@ jobs:
   # comes from the stack it starts, and dies with the job.
   e2e:
     runs-on: ubuntu-latest
-    # The test run is bounded at 15 minutes by Playwright's globalTimeout
-    # (playwright.config.ts); the stack start, the reset, the browser install
-    # and the build inside the run come on top. Anything beyond this is a hang.
+    # The test run, the build inside it included, is bounded at 15 minutes by
+    # Playwright's globalTimeout (playwright.config.ts); the stack start, the
+    # reset and the browser install come on top. Anything beyond this is a hang.
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
@@ -147,7 +147,9 @@ jobs:
 
       # Kept for every run that was not cancelled: a failed one holds the
       # failure's trace and screenshot. Only playwright-report/ goes up;
-      # .env.local and playwright/.auth/ lie outside the path.
+      # .env.local and playwright/.auth/ lie outside the path. The report does
+      # show what the tests typed, the run's throwaway passwords included,
+      # and those sign in to nothing once the job's stack is gone.
       - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:

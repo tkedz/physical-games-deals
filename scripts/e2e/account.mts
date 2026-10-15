@@ -23,13 +23,11 @@
 // The .mts extension is written out because Node strips the types without
 // rewriting the specifier, so this has to be the real file name.
 import {
+  createAccountCommand,
   createE2eAdminClient,
-  createTestAccount,
-  deleteTestAccount,
-  findTestAccountId,
+  deleteAccountCommand,
   TestAccountError,
 } from "./accounts.mts";
-import type { E2eAdminClient } from "./accounts.mts";
 
 /** The variable's value, or a TestAccountError naming the variable. */
 function requiredVariable(name: "E2E_USERNAME" | "E2E_PASSWORD"): string {
@@ -40,31 +38,6 @@ function requiredVariable(name: "E2E_USERNAME" | "E2E_PASSWORD"): string {
     );
   }
   return value;
-}
-
-async function create(
-  client: E2eAdminClient,
-  email: string,
-  password: string,
-): Promise<string> {
-  try {
-    await createTestAccount(client, { email, password });
-  } catch (error) {
-    if (error instanceof TestAccountError && error.code === "email_exists") {
-      return "already exists: the E2E_USERNAME account was left as it is, its password included.";
-    }
-    throw error;
-  }
-  return "created: the E2E_USERNAME account is in the local stack, with E2E_PASSWORD and a confirmed address.";
-}
-
-async function remove(client: E2eAdminClient, email: string): Promise<string> {
-  const id = await findTestAccountId(client, email);
-  if (id === null) {
-    return "nothing to delete: the local stack holds no E2E_USERNAME account.";
-  }
-  await deleteTestAccount(client, id);
-  return "deleted: the E2E_USERNAME account is gone from the local stack, its watchlist with it.";
 }
 
 async function main(): Promise<void> {
@@ -80,8 +53,11 @@ async function main(): Promise<void> {
   const email = requiredVariable("E2E_USERNAME");
   console.log(
     command === "create"
-      ? await create(client, email, requiredVariable("E2E_PASSWORD"))
-      : await remove(client, email),
+      ? await createAccountCommand(client, {
+          email,
+          password: requiredVariable("E2E_PASSWORD"),
+        })
+      : await deleteAccountCommand(client, email),
   );
 }
 

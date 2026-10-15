@@ -28,7 +28,8 @@ type Account = { email: string; password: string };
 // a retry or a parallel run never meets another attempt's entries. Deleting
 // it removes its watchlist rows too (on delete cascade), and the deletion is
 // asserted, so a cleanup that fails turns the run red. The address is
-// recorded on the test to find any residue; the password never is.
+// recorded on the test to find any residue. The password is not, though the
+// report still shows it in the fill step: a throwaway for the local stack.
 const test = base.extend<{ account: Account }>({
   // Playwright reads the fixture's dependencies from this destructuring
   // pattern, so it has to be there even though the fixture needs none. The
@@ -69,7 +70,7 @@ function isWatchable(title: string): boolean {
   return length >= 3 && length <= 100;
 }
 
-/** The deal card, on / or /my-deals, whose title is `title`. */
+/** The deal cards, on / or /my-deals, whose title is `title`. */
 function dealCard(page: Page, title: string): Locator {
   return page.getByRole("listitem").filter({
     has: page.getByRole("heading", { level: 2, name: title, exact: true }),
@@ -154,12 +155,22 @@ test.describe("main flow", () => {
 
     // 6. The deal reaches /my-deals: a card with that title, the same price
     // and the same links as on /. Its presence, not a count: on snapshot
-    // data the phrase may match more deals.
+    // data the phrase may match more deals, and a deal with the same title
+    // may sit beyond the first page of /, so one of the cards carrying the
+    // title has to match.
     await page.goto("/my-deals");
-    const matchedCard = dealCard(page, title);
-    await expect(matchedCard).toBeVisible();
-    await expect(matchedCard.getByText(PRICE)).toHaveText(price);
-    await expect.poll(() => linkTargets(matchedCard)).toEqual(links);
+    const matchedCards = dealCard(page, title);
+    await expect(matchedCards.first()).toBeVisible();
+    await expect
+      .poll(async () =>
+        Promise.all(
+          (await matchedCards.all()).map(async (card) => ({
+            price: await card.getByText(PRICE).innerText(),
+            links: await linkTargets(card),
+          })),
+        ),
+      )
+      .toContainEqual({ price, links });
 
     // 7. Removal: "Usuń" on the entry, and /my-deals is empty again.
     await page.goto("/watchlist");

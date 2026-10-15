@@ -373,10 +373,12 @@ Two patterns. Both run in PGlite, built fresh from `supabase/migrations/` by
     `findTestAccountId` that it is gone. Its watchlist rows go with it
     (`on delete cascade`). So the empty state holds by construction, and a
     retry or a parallel attempt never meets another attempt's entries. The
-    address goes on the test as a `test-data` annotation; the password
-    never does. The fixture's callback is not called `use`, because the
-    React hooks lint rule takes that for React's `use()`. The module's pure
-    parts are tested in `tests/unit/e2e/accounts.test.ts`.
+    address goes on the test as a `test-data` annotation. The password does
+    not, though the report shows it in the fill step's title, as it shows
+    everything a test types: a throwaway for the local stack, not a secret
+    (CLAUDE.md, Secrets). The fixture's callback is not called `use`,
+    because the React hooks lint rule takes that for React's `use()`. The
+    module's pure parts are tested in `tests/unit/e2e/accounts.test.ts`.
   - **Its own sign-in when it signs out.** Sign-out uses `scope: "local"`
     and ends the session it is pressed in. So a spec that signs out opts
     out of the saved session, with
@@ -421,11 +423,12 @@ Two patterns. Both run in PGlite, built fresh from `supabase/migrations/` by
     `npx playwright test tests/e2e/main-flow.spec.ts` runs one spec, and
     `--repeat-each=3` shows that parallel attempts do not collide. It
     builds and starts the app on the local stack's values from `.env.local`
-    and refuses any other target (`refuseE2eTarget` in
-    `src/lib/env/supabase-target.ts`).
+    and refuses any other target in its own environment (`refuseE2eTarget`
+    in `src/lib/env/supabase-target.ts`).
   - Free port 3000 first, or set `E2E_PORT`. Outside CI
     `reuseExistingServer` tests whatever already listens on the port,
-    `npm run dev` with the live RAWG key included.
+    unchecked: `npm run dev` with the live RAWG key, or `npm run dev:hosted`
+    against the hosted project.
   - Local data may be the production snapshot (`supabase/snapshot.sql`), so
     a new step has to hold on it and on the seed alone.
   - `npm run local:reset` deletes every local account, the E2E user among
@@ -462,10 +465,11 @@ Two patterns. Both run in PGlite, built fresh from `supabase/migrations/` by
   - The CI build is not the shipped one. `next build` inlines the
     `NEXT_PUBLIC_*` values, so `e2e` builds its own copy against the local
     stack, and the shipped build runs once, inside `vercel build`.
-  - A traced retry carries request and response bodies into the artifact:
-    the local stack's publishable key, and the throwaway account's sign-in
-    and tokens. Accepted, because they belong to a stack destroyed with the
-    job.
+  - The report artifact carries everything the tests typed, passwords
+    included, in its step titles, and a traced retry adds request and
+    response bodies: the local stack's publishable key, and the throwaway
+    accounts' sign-in and tokens. Accepted, because they belong to a stack
+    destroyed with the job.
 
 ### 6.6 Per-rollout-phase notes
 

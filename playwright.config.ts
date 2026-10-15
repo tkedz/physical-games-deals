@@ -7,7 +7,7 @@ import { refuseE2eTarget } from "./src/lib/env/supabase-target.ts";
 // The test user's credentials (E2E_USERNAME, E2E_PASSWORD) and the app's env
 // come from the gitignored .env.local, which holds the local Supabase stack's
 // values. A variable already set in the environment wins over the file. In CI
-// the file is absent and the variables come from the job.
+// the e2e job writes the file from the stack it starts (ci.yml).
 if (existsSync(".env.local")) process.loadEnvFile(".env.local");
 
 // The webServer below runs next build and next start, which skip the guard
