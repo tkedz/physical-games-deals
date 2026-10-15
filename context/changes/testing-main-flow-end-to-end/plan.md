@@ -498,9 +498,9 @@ The env step is the one place a key could leak, so its shape is fixed here. Veri
 
 #### Automated
 
-- [x] 4.1 `npm run format:check` passes
-- [x] 4.2 Test-plan §6.5 no longer reads "TBD", and CLAUDE.md's Secrets list names `npm run e2e:account` and `npx playwright test` (grep)
+- [x] 4.1 `npm run format:check` passes — 10bec23
+- [x] 4.2 Test-plan §6.5 no longer reads "TBD", and CLAUDE.md's Secrets list names `npm run e2e:account` and `npx playwright test` (grep) — 10bec23
 
 #### Manual
 
-- [x] 4.3 Tomasz reads §6.5 and the new CLAUDE.md lines and confirms they match how he runs the test
+- [x] 4.3 Tomasz reads §6.5 and the new CLAUDE.md lines and confirms they match how he runs the test — 10bec23
