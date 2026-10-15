@@ -409,17 +409,17 @@ None. `/10x-test-plan` reads §3 by column, and its rows keep their shape. The n
 
 #### Automated
 
-- [x] 1.1 Only the guide and this change folder changed
-- [x] 1.2 §2 ratings unchanged against c4ef68b
-- [x] 1.3 §3 Status and Change folder unchanged against c4ef68b
-- [x] 1.4 No file anchor in §2
-- [x] 1.5 Stale phrases gone
-- [x] 1.6 §7 has seven top-level bullets
-- [x] 1.7 §8 is dated 2026-10-15
-- [x] 1.8 §4's counts match the repository
+- [x] 1.1 Only the guide and this change folder changed — 70115b1
+- [x] 1.2 §2 ratings unchanged against c4ef68b — 70115b1
+- [x] 1.3 §3 Status and Change folder unchanged against c4ef68b — 70115b1
+- [x] 1.4 No file anchor in §2 — 70115b1
+- [x] 1.5 Stale phrases gone — 70115b1
+- [x] 1.6 §7 has seven top-level bullets — 70115b1
+- [x] 1.7 §8 is dated 2026-10-15 — 70115b1
+- [x] 1.8 §4's counts match the repository — 70115b1
 
 #### Manual
 
-- [x] 1.9 Tomasz confirms the §1–§2 diff matches his direction
-- [x] 1.10 Tomasz confirms the §3–§5, §7 and §8 diff
-- [x] 1.11 Every table in §2–§5 renders with no broken row
+- [x] 1.9 Tomasz confirms the §1–§2 diff matches his direction — 70115b1
+- [x] 1.10 Tomasz confirms the §3–§5, §7 and §8 diff — 70115b1
+- [x] 1.11 Every table in §2–§5 renders with no broken row — 70115b1
