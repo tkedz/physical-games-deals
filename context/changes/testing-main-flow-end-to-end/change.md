@@ -48,3 +48,31 @@ archived_at: null
   - Its stderr reaches the CI log unscreened. Locally it held four lines and no `sb_secret_`, `sb_publishable_` or `eyJ`: an npm config warning, the stopped services' names, the CLI's update notice and a docs URL.
 - **The per-run user, proven locally (3.4).** The step's two lines were appended to a copy of that file, which was loaded into the environment. `npm run e2e:account` then printed "created", "deleted" and "nothing to delete", with no credential.
 - **The branch-protection caveat** (`ci.yml:17-19`) still names only `verify`. It now holds for `e2e` too, and stays as written, as the plan says.
+- **The first pull request, from the branch `testing-main-flow-end-to-end` at `431e088` (3.5, 3.6).**
+  - `e2e` ran green: 3 tests passed in 41.8 s, and `deploy` made a preview.
+  - Times, read from the log archive:
+    - `verify` took 52 s;
+    - `e2e` took 4 min 20 s, beside it: `npm ci` 33 s, `local:start` 2 min 06 s, `local:reset` 21 s, the env step 2 s, `e2e:account` 1 s, the Chromium install 26 s, and `npx playwright test` 43 s, of which `next build` plus start took 29 s and the tests 11 s;
+    - `deploy` started 6 s after `e2e` ended and took 1 min 28 s.
+  - So a pipeline run lasts about 6 minutes, of which `e2e` adds about 3.5 minutes beyond `verify`. The plan estimated 6–10 minutes for the job.
+  - No log file of the run holds `sb_secret_`, `sb_publishable_` or `eyJ`. `local:start` printed the two URLs and held back 11 lines.
+- **The red pull request, from the throwaway branch `e2e-gate-break` (3.7).**
+  - The first break was Phase 2's break 1 as written: `loadMatchedDealsPage` returned an empty page. Its three unused parameters failed `verify` through ESLint's `--max-warnings 0`. With `verify` red, `deploy` is skipped whatever `e2e` says, so that run proved nothing about `e2e`.
+  - The break that counts asks `public.matched_deals` for a page past the end (`page + 1000`). It passes ESLint, Prettier and tsc, and no unit or db test calls the function. Locally it failed the spec at the same assertion before it was pushed.
+  - On that run:
+    - `verify` passed;
+    - `e2e` failed the main flow on all three attempts at the matched card (`main-flow.spec.ts:160`), while setup and seed passed;
+    - `deploy` never ran: the log archive has no `deploy` log;
+    - the `playwright-report` artifact held a screenshot per attempt, showing „Brak okazji na gry z Twojej listy” under the signed-in header, plus the first retry's trace;
+    - no log file held a key mark.
+  - The branch was never merged; the pull request was closed and the branch deleted.
+- **To `main` without a merge (3.8).** Both pull requests were closed and both branches deleted, so nothing was merged. Local `main`, which the green pull request carried exactly, was then pushed as a fast-forward (`e97ec1a..431e088`, 09:36:07 UTC), so the commits' SHAs stayed as Progress records them. A new production deployment, `dpl_HwShXeuyj9HmjpCKBSBiFTj76yba`, went Ready 5 min 34 s later. `deploy` needs `verify` and `e2e`, so both passed on `main`. Production then answered `/` and `/login` with 200, and sent a guest from `/my-deals` and `/watchlist` to `/login`.
+
+### 2026-10-15 — Phase 4
+
+- **Test-plan §6.5 beyond the contract.** It also names the hydration traps of sign-in and sign-out, the fixture callback that may not be called `use`, `--repeat-each=3`, and what `--headed` and UI mode show. Under CI it adds that a gate-proving break must pass `verify`. A third known gap is the retry trace in the report artifact, which can carry the local publishable key and the throwaway account's sign-in and tokens. The header's "Last updated" stays as it was, as in the earlier cookbook commits; only `/10x-test-plan` moves it.
+- **CLAUDE.md beyond the contract:**
+  - the Verification bullet also states that a pass on a retry fails the run in CI (`failOnFlakyTests`), and points to §6.5;
+  - the Local stack line also states the env step's three-name filter;
+  - the Secrets list now says "credential-loading commands", not "scripts", because `npx playwright test` is not an npm script.
+- **Left as they are.** These are not false, so they stay unchanged: CLAUDE.md's Supabase bullet, which names `createCollectorClient()` and `next.config.ts` as the callers of `refuseSupabaseTarget` and does not name `refuseE2eTarget`; and `.env.example`, which says to create the E2E user by signing up at `/signup`. Test-plan §1–§5 are left to `/10x-test-plan`, as the plan says, though some of it is now stale: the §3 Phase 5 status, the §4 e2e row ("none yet"), §4's note that Phase 5 research decides where the test runs, and the §5 e2e gate's "Where".

@@ -357,8 +357,115 @@ Two patterns. Both run in PGlite, built fresh from `supabase/migrations/` by
 
 ### 6.5 Adding to the e2e test
 
-- TBD — see §3 Phase 5 (main-flow pattern: self-seeded from the public
-  deals list, behaviour over layout).
+- **Where:** `tests/e2e/`, one test per file, run by the `chromium` project
+  after the `setup` project (`tests/e2e/auth.setup.ts`) has saved the E2E
+  user's session. A new step of the PRD's main flow goes into
+  `tests/e2e/main-flow.spec.ts`. A new file is only for a risk that needs a
+  browser and that no cheaper layer covers (§1), and never one per access
+  combination (§2 #6). References: `tests/e2e/main-flow.spec.ts` (risks #1,
+  #4 and #6) and `tests/e2e/seed.spec.ts` (the smallest shape: a guest, no
+  data). The config and its commands are recorded in
+  `context/foundation/test-stack.md`.
+- **The pattern,** as `tests/e2e/main-flow.spec.ts` follows it:
+  - **A fresh account per attempt.** A fixture creates it through
+    `scripts/e2e/accounts.mts` (`uniqueTestEmail`, `testAccountPassword`,
+    `createTestAccount`), deletes it after the test, and asserts with
+    `findTestAccountId` that it is gone. Its watchlist rows go with it
+    (`on delete cascade`). So the empty state holds by construction, and a
+    retry or a parallel attempt never meets another attempt's entries. The
+    address goes on the test as a `test-data` annotation; the password
+    never does. The fixture's callback is not called `use`, because the
+    React hooks lint rule takes that for React's `use()`. The module's pure
+    parts are tested in `tests/unit/e2e/accounts.test.ts`.
+  - **Its own sign-in when it signs out.** Sign-out uses `scope: "local"`
+    and ends the session it is pressed in. So a spec that signs out opts
+    out of the saved session, with
+    `test.use({ storageState: { cookies: [], origins: [] } })` as
+    `seed.spec.ts` does, and signs in itself. Clicked before it hydrates,
+    the sign-in form submits natively, as a GET carrying both fields in the
+    URL: first prove it interactive with an empty submit answered by
+    „Podaj hasło.”, as `auth.setup.ts` does. „Wyloguj się” does nothing
+    before hydration: press it inside `toPass` until the header offers
+    „Zaloguj się”, and only while it is still there.
+  - **Self-seeded from `/`, behaviour over layout.** The test takes the
+    first deal card on `/` whose title has 3–100 characters (a watchable
+    phrase) and appears on no other card: the `/my-deals` card is found by
+    its title, and the snapshot lists different deals under one title. It
+    records the title, the price text
+    and the card's link targets, and expects them again on `/my-deals`. It
+    names no deal and no seed row, so it passes on `supabase/seed.sql`
+    alone (CI) and on the production snapshot. It asserts the matched
+    card's presence, not a count: snapshot data may match more deals.
+    Locators are roles, labels and the visible Polish text; there is no
+    layout or screenshot assertion (§7).
+  - **The phrase path, because the server under test has no RAWG key.**
+    `playwright.config.ts` starts it with `webServer.env` setting
+    `RAWG_API_KEY` to `""`, so a `/watchlist` search shows „Katalog gier
+    jest chwilowo niedostępny” and the phrase offer. The test presses the
+    phrase button by its full name, `Obserwuj frazę „<title>”`, so the step
+    holds whatever the catalogue answers; a reused server may hold a key.
+    Auth, PostgREST, RLS and the proxy stay real, and there is no
+    `page.route` mock. Catalogue failures are risk #7's, below the browser.
+  - **Deliberate breaks, and no residue.** A new assertion counts once a
+    break of the code it guards turns it red; revert the break at once.
+    The main flow's two: `/my-deals` reading no rows
+    (`loadMatchedDealsPage` in `src/lib/deals/queries.ts`) fails step 6,
+    and a sign-out that clears only the browser's cookies fails step 9,
+    where a new context replays the cookies from before sign-out. An
+    assertion that fails on unbroken code is a finding: report it, and
+    never weaken it. After every run, green or red, each attempt's
+    annotated address must report "nothing to delete" through
+    `E2E_USERNAME=<address> npm run e2e:account -- delete`.
+- **Run:**
+  - `npx playwright test` runs setup, seed and the main flow;
+    `npx playwright test tests/e2e/main-flow.spec.ts` runs one spec, and
+    `--repeat-each=3` shows that parallel attempts do not collide. It
+    builds and starts the app on the local stack's values from `.env.local`
+    and refuses any other target (`refuseE2eTarget` in
+    `src/lib/env/supabase-target.ts`).
+  - Free port 3000 first, or set `E2E_PORT`. Outside CI
+    `reuseExistingServer` tests whatever already listens on the port,
+    `npm run dev` with the live RAWG key included.
+  - Local data may be the production snapshot (`supabase/snapshot.sql`), so
+    a new step has to hold on it and on the seed alone.
+  - `npm run local:reset` deletes every local account, the E2E user among
+    them. `npm run e2e:account -- create` restores it from `E2E_USERNAME`
+    and `E2E_PASSWORD` in `.env.local`. When it reports "already exists",
+    the account keeps its old password; `-- delete` first to change it.
+  - `--headed` shows a run. UI mode (`--ui`) lists only the `setup` project
+    until `chromium` is ticked, and runs headless.
+    `npx playwright show-report` opens the last report.
+- **CI:** the `e2e` job in `.github/workflows/ci.yml`, beside `verify`.
+  - It runs `npm run local:start` and `npm run local:reset` in the runner
+    (migrations plus `supabase/seed.sql`; CI has no snapshot). It writes a
+    workspace `.env.local` from `supabase status -o env` through a filter
+    that lets out three names, and appends a per-run E2E user
+    (`e2e-setup-<run id>-<attempt>@example.com`, a generated password).
+    Then it creates that user with `npm run e2e:account -- create`,
+    installs Chromium and runs `npx playwright test`. It takes no secret.
+  - `deploy` needs `verify` and `e2e`, so a red `e2e` stops the preview and
+    the production deploy alike.
+  - With `CI` set: `retries: 2` with `failOnFlakyTests`, so a test that
+    passes only on a retry fails the run; one worker; a `globalTimeout` of
+    15 minutes inside the job's 30; and the `next build` output in the log
+    (`webServer.stdout: "pipe"`).
+  - Every run that is not cancelled uploads `playwright-report/` as the
+    `playwright-report` artifact, kept 14 days: a screenshot per failed
+    attempt, plus the first retry's trace.
+  - A break meant to prove the gate in CI must also pass `verify`
+    (`eslint --max-warnings 0`). With `verify` red, `deploy` is skipped
+    whatever `e2e` says, and the run proves nothing about `e2e`.
+- **Known gaps:**
+  - A push touching only `supabase/**` skips `ci.yml`, E2E included, by
+    decision: `database-tests.yml` runs `npm test` for it, and E2E runs on
+    the next push that runs `ci.yml`.
+  - The CI build is not the shipped one. `next build` inlines the
+    `NEXT_PUBLIC_*` values, so `e2e` builds its own copy against the local
+    stack, and the shipped build runs once, inside `vercel build`.
+  - A traced retry carries request and response bodies into the artifact:
+    the local stack's publishable key, and the throwaway account's sign-in
+    and tokens. Accepted, because they belong to a stack destroyed with the
+    job.
 
 ### 6.6 Per-rollout-phase notes
 
@@ -381,6 +488,20 @@ here capturing anything surprising the rollout phase taught.)
   - Hooks on Windows use exec form (`"command": "node"` with `args`). The
     lint hook starts ESLint and Prettier at once, so a test asserting their
     order passed on Windows and failed on Linux CI.
+- **2026-10-15, Phase 5 (main flow end to end):**
+  - Sign-out with `scope: "local"` also revokes the session on the server:
+    the cookies from before sign-out, replayed in a new context, land on
+    `/login`. With a sign-out that only cleared the browser's cookies, they
+    still opened `/my-deals`.
+  - The first CI break failed `verify` on unused parameters, so `deploy`
+    was skipped for the wrong reason. The lint-clean break (`page + 1000`)
+    proved that a red `e2e` alone keeps `deploy` from starting.
+  - Measured on the first green pull request: `e2e` took 4 min 20 s beside
+    `verify`'s 52 s, of which `local:start` took 2 min 06 s and
+    `npx playwright test` 43 s (build and start 29 s, tests 11 s). A
+    pipeline run, `deploy` included, lasts about 6 minutes, and `e2e` adds
+    about 3.5 minutes beyond `verify`. The plan estimated 6–10 minutes for
+    the job.
 
 ## 7. What We Deliberately Don't Test
 

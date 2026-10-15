@@ -482,25 +482,25 @@ The env step is the one place a key could leak, so its shape is fixed here. Veri
 
 #### Automated
 
-- [x] 3.1 `npm run lint`, `npm run format:check` and `npm test` pass
-- [x] 3.2 `.github/workflows/ci.yml` parses as YAML (js-yaml from `node_modules`) and `jobs.deploy.needs` lists `verify` and `e2e`
-- [x] 3.3 The env step's pipeline, run locally into a scratch file outside the repository, yields exactly the three names (checked by name only), and `process.loadEnvFile` on that file gives values with no surrounding quote (boolean check)
-- [x] 3.4 Credentials generated locally the way the per-run step generates them, loaded with the scratch file's values into the environment, create and delete an account through `npm run e2e:account` without printing a credential
+- [x] 3.1 `npm run lint`, `npm run format:check` and `npm test` pass — 431e088
+- [x] 3.2 `.github/workflows/ci.yml` parses as YAML (js-yaml from `node_modules`) and `jobs.deploy.needs` lists `verify` and `e2e` — 431e088
+- [x] 3.3 The env step's pipeline, run locally into a scratch file outside the repository, yields exactly the three names (checked by name only), and `process.loadEnvFile` on that file gives values with no surrounding quote (boolean check) — 431e088
+- [x] 3.4 Credentials generated locally the way the per-run step generates them, loaded with the scratch file's values into the environment, create and delete an account through `npm run e2e:account` without printing a credential — 431e088
 
 #### Manual
 
-- [ ] 3.5 A pull request carrying this phase runs `e2e` green; the job time and its stack-start, reset, build and test step times are recorded in `change.md` Notes
-- [ ] 3.6 The `e2e` job log holds no `sb_secret_`, `sb_publishable_` or `eyJ` string (GitHub log search)
-- [ ] 3.7 A pull request whose only change is a deliberate break the main-flow test catches turns `e2e` red, `deploy` never starts (no preview comment), and its `playwright-report` artifact holds the failure's trace or screenshot; the branch is deleted afterwards
-- [ ] 3.8 After the merge to `main`, the push runs `verify` and `e2e` green and the production deploy goes ahead
+- [x] 3.5 A pull request carrying this phase runs `e2e` green; the job time and its stack-start, reset, build and test step times are recorded in `change.md` Notes — 431e088
+- [x] 3.6 The `e2e` job log holds no `sb_secret_`, `sb_publishable_` or `eyJ` string (GitHub log search) — 431e088
+- [x] 3.7 A pull request whose only change is a deliberate break the main-flow test catches turns `e2e` red, `deploy` never starts (no preview comment), and its `playwright-report` artifact holds the failure's trace or screenshot; the branch is deleted afterwards — 431e088
+- [x] 3.8 After the merge to `main`, the push runs `verify` and `e2e` green and the production deploy goes ahead — 431e088
 
 ### Phase 4: Cookbook and Rules-File Facts
 
 #### Automated
 
-- [ ] 4.1 `npm run format:check` passes
-- [ ] 4.2 Test-plan §6.5 no longer reads "TBD", and CLAUDE.md's Secrets list names `npm run e2e:account` and `npx playwright test` (grep)
+- [x] 4.1 `npm run format:check` passes
+- [x] 4.2 Test-plan §6.5 no longer reads "TBD", and CLAUDE.md's Secrets list names `npm run e2e:account` and `npx playwright test` (grep)
 
 #### Manual
 
-- [ ] 4.3 Tomasz reads §6.5 and the new CLAUDE.md lines and confirms they match how he runs the test
+- [x] 4.3 Tomasz reads §6.5 and the new CLAUDE.md lines and confirms they match how he runs the test
