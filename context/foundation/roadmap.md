@@ -58,7 +58,7 @@ Choosing it first also settles two of the PRD's open questions by doing rather t
 | ---- | ------------------------------------ | --------------------------------------------------------------------------- | ---------------- | ------------------------------- | -------- |
 | F-01 | `schema-migrations-and-rls-baseline` | (foundation) schema lives in repo migrations; every new table starts locked  | —                | Access Control, Guardrails, NFR | done |
 | F-02 | `collector-into-repo-and-database`   | (foundation) collected posts land in the database, in this repository        | F-01             | Business Logic, NFR             | done |
-| F-03 | `game-catalog-provider-proven`       | (foundation) a catalogue provider is chosen and proven on real Polish titles | —                | FR-003, Business Logic          | in-progress |
+| F-03 | `game-catalog-provider-proven`       | (foundation) a catalogue provider is chosen and proven on real Polish titles | —                | FR-003, Business Logic          | done |
 | S-01 | `physical-deals-from-real-posts`     | see physical-edition deals extracted from real posts, with price and link    | F-01, F-02       | FR-005, FR-006, US-01           | in-progress |
 | S-02 | `email-password-accounts`            | create an account with e-mail and password, sign in and sign out             | —                | FR-001, Access Control          | done |
 | S-03 | `watchlist-from-catalog`             | search the catalogue, add a game or a phrase to a watchlist, remove one      | F-01, F-03, S-02 | FR-003, FR-004, FR-010, US-01   | in-progress |
@@ -128,7 +128,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Which provider — `.env.example` carries empty `IGDB_CLIENT_ID` / `IGDB_CLIENT_SECRET` slots and its comment leaves RAWG open. Owner: user. Block: no — choosing is this foundation's work. Answered 2026-09-26: RAWG — chosen by the user after a desk comparison with IGDB, as the simpler integration for a course project.
 - **Risk:** The PRD calls the catalogue "the only external dependency on the main path of adding a game" and warns that its coverage sets the ceiling on how useful the product can be. If it does not know Polish boxed releases, the ruling that only catalogued games may be watched has to be reopened — and that reshapes `S-03` rather than merely delaying it. Sequenced early and cheaply for exactly that reason: the PRD itself says the check is a few queries for real titles. It has no prerequisites, so it can be done in an evening alongside anything else.
-- **Status:** in-progress
+- **Status:** done
 
 ## Slices
 
@@ -237,3 +237,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **F-01: (foundation) the database schema lives in migrations inside this repository and can be reproduced on a fresh local database and applied to the hosted project; every table added from here on starts with row-level security on and no policy, so access has to be granted deliberately rather than remembered. The first migration — storage for collected source posts — lands as the proof that the path works.** — Archived 2026-10-26 → `context/archive/2026-09-21-schema-migrations-and-rls-baseline/`. Lesson: —.
 - **F-02: (foundation) the RSS collector runs from this repository on its schedule and appends collected posts to the database instead of a JSON file, with the 659 posts gathered so far imported. Deduplication behaves as it does today, so re-running changes nothing.** — Archived 2026-10-26 → `context/archive/2026-09-22-collector-into-repo-and-database/`. Lesson: —.
 - **S-02: user registers with an e-mail address and a password, signs in, signs out, and is sent away from private views when not signed in. A prepared demo account can be handed to someone who wants to look at the product without building a watchlist of their own.** — Archived 2026-10-26 → `context/archive/2026-09-25-email-password-accounts/`. Lesson: —.
+- **F-03: (foundation) one external game catalogue is selected, reachable with credentials, and checked against a handful of real boxed titles from the user's own list; a thin search call exists behind an interface the application can hold onto. The answer to "does this catalogue know the games this product is for" is on record either way.** — Archived 2026-10-26 → `context/archive/2026-09-26-game-catalog-provider-proven/`. Lesson: —.
