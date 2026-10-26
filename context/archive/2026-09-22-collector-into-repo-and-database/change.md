@@ -1,10 +1,10 @@
 ---
 change_id: collector-into-repo-and-database
 title: Collector into repo and database
-status: implemented
+status: archived
 created: 2026-09-22
-updated: 2026-09-24
-archived_at: null
+updated: 2026-10-26
+archived_at: 2026-10-26T12:50:36Z
 ---
 
 ## Notes

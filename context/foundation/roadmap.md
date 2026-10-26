@@ -57,7 +57,7 @@ Choosing it first also settles two of the PRD's open questions by doing rather t
 | ID   | Change ID                            | Outcome (user can …)                                                        | Prerequisites    | PRD refs                        | Status   |
 | ---- | ------------------------------------ | --------------------------------------------------------------------------- | ---------------- | ------------------------------- | -------- |
 | F-01 | `schema-migrations-and-rls-baseline` | (foundation) schema lives in repo migrations; every new table starts locked  | —                | Access Control, Guardrails, NFR | done |
-| F-02 | `collector-into-repo-and-database`   | (foundation) collected posts land in the database, in this repository        | F-01             | Business Logic, NFR             | in-progress |
+| F-02 | `collector-into-repo-and-database`   | (foundation) collected posts land in the database, in this repository        | F-01             | Business Logic, NFR             | done |
 | F-03 | `game-catalog-provider-proven`       | (foundation) a catalogue provider is chosen and proven on real Polish titles | —                | FR-003, Business Logic          | in-progress |
 | S-01 | `physical-deals-from-real-posts`     | see physical-edition deals extracted from real posts, with price and link    | F-01, F-02       | FR-005, FR-006, US-01           | in-progress |
 | S-02 | `email-password-accounts`            | create an account with e-mail and password, sign in and sign out             | —                | FR-001, Access Control          | in-progress |
@@ -114,7 +114,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** The code already works and the data already exists, so the risk is not in writing it but in the move: the collector currently lives in a gitignored staging directory and runs from a different repository. Two things can go wrong — the feed identifiers change during the move, which the collector's own README warns duplicates every past entry, and the schedule lapses in the gap between switching the old cron off and the new one on. RSS feeds here retain roughly two days, so a lapse loses those days permanently. Sequenced immediately after `F-01` for that reason, and kept to a move rather than a rewrite.
-- **Status:** in-progress
+- **Status:** done
 
 ### F-03: A catalogue provider is chosen and proven against real Polish titles
 
@@ -235,3 +235,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 (Empty on first generation. `/10x-archive` appends an entry here — and flips that item's `Status` to `done` — when a change whose `Change ID` matches the item is archived.)
 
 - **F-01: (foundation) the database schema lives in migrations inside this repository and can be reproduced on a fresh local database and applied to the hosted project; every table added from here on starts with row-level security on and no policy, so access has to be granted deliberately rather than remembered. The first migration — storage for collected source posts — lands as the proof that the path works.** — Archived 2026-10-26 → `context/archive/2026-09-21-schema-migrations-and-rls-baseline/`. Lesson: —.
+- **F-02: (foundation) the RSS collector runs from this repository on its schedule and appends collected posts to the database instead of a JSON file, with the 659 posts gathered so far imported. Deduplication behaves as it does today, so re-running changes nothing.** — Archived 2026-10-26 → `context/archive/2026-09-22-collector-into-repo-and-database/`. Lesson: —.
