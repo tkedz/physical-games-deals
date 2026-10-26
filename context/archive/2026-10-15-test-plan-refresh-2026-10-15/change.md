@@ -1,10 +1,10 @@
 ---
 change_id: test-plan-refresh-2026-10-15
 title: Refresh test-plan.md after Phases 1, 2, 5 and the local Supabase stack
-status: implemented
+status: archived
 created: 2026-10-15
-updated: 2026-10-15
-archived_at: null
+updated: 2026-10-26
+archived_at: 2026-10-26T12:50:49Z
 ---
 
 ## Notes
