@@ -1,10 +1,10 @@
 ---
 change_id: testing-extraction-and-listing-guard
 title: Guard extraction quality, listing rules and deal links with tests and an eval gate
-status: implemented
+status: archived
 created: 2026-10-13
-updated: 2026-10-14
-archived_at: null
+updated: 2026-10-26
+archived_at: 2026-10-26T12:50:46Z
 ---
 
 ## Notes
