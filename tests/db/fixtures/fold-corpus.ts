@@ -8,7 +8,7 @@
  * Built the same way on every run, from two parts:
  * - curated inputs: the fold cases of supabase/checks/matching.sql, section 1
  *   (inputs only), the PRD's and roadmap S-04's examples, the 20 catalogue
- *   names of context/changes/deals-matched-to-watchlist/acceptance.md, and
+ *   names of context/archive/2026-10-09-deals-matched-to-watchlist/acceptance.md, and
  *   the Polish pangram;
  * - generated probes: every code point of the blocks where Latin letters,
  *   their diacritics, apostrophes, dashes, letterlike symbols and fullwidth

@@ -1,6 +1,6 @@
 /**
  * The two safety properties of the local stack wrappers (scripts/local/),
- * from Phase 2 of context/changes/local-supabase-stack/plan.md:
+ * from Phase 2 of context/archive/2026-10-14-local-supabase-stack/plan.md:
  * - a reset always targets the local database: its arguments carry
  *   `--local` and never `--linked` or `--db-url`, and load the snapshot before
  *   the seed;

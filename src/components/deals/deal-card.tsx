@@ -103,7 +103,7 @@ export function DealCard({ deal }: { deal: ListedDeal }) {
         </div>
         {/* Right under the price, so the card says at once that the price
             is the whole set's (#58 in
-            context/changes/physical-deals-from-real-posts/review.md). The
+            context/archive/2026-09-28-physical-deals-from-real-posts/review.md). The
             names follow a colon, so no title has to be declined. */}
         {deal.set_with.length > 0 && (
           <p className="font-medium">

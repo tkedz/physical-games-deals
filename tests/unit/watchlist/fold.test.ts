@@ -6,7 +6,7 @@
  * the fold: the PRD (FR-010, Business Logic: case, diacritics and punctuation
  * are ignored), roadmap S-04 (ł mapped explicitly, apostrophes removed, "&"
  * reads "and", every other run outside letters and digits is one space) and
- * the S-04 plan in context/changes/deals-matched-to-watchlist/plan.md (the
+ * the S-04 plan in context/archive/2026-10-09-deals-matched-to-watchlist/plan.md (the
  * result is trimmed; an empty key matches nothing). So each rule is asserted as
  * spellings that must fold alike, paired with near misses that must stay
  * apart, which no constant or over-eager fold passes. Every class carries

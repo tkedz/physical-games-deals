@@ -53,11 +53,11 @@
  * :root and .dark hold tweakcn's `vercel` preset, from the registry item
  * https://tweakcn.com/r/themes/vercel.json, whose values originate in
  * https://github.com/jnsahaj/tweakcn/blob/main/utils/theme-presets.ts
- * (Apache-2.0). Pinned copy: context/changes/ui-init/tweakcn-vercel.json.
+ * (Apache-2.0). Pinned copy: context/archive/2026-09-24-ui-init/tweakcn-vercel.json.
  *
  * Mapped by hand onto the existing variables instead of running
  * `shadcn add <theme-url>`, which would also rewrite the font wiring and add
- * tokens nothing uses. Mapping and skip list: context/changes/ui-init/plan.md.
+ * tokens nothing uses. Mapping and skip list: context/archive/2026-09-24-ui-init/plan.md.
  */
 :root {
   --background: oklch(0.99 0 0);

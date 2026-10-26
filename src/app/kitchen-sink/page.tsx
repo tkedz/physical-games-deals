@@ -71,7 +71,7 @@ const buttonSamples = [
 // - without a platform, and in euro (103);
 // - a title long enough to wrap at 375 px, ending in an unbroken word (104);
 // - one game of a set offer (105, the case recorded as #58 in
-//   context/changes/physical-deals-from-real-posts/review.md).
+//   context/archive/2026-09-28-physical-deals-from-real-posts/review.md).
 const sampleDeals: ListedDeal[] = [
   {
     id: 101,

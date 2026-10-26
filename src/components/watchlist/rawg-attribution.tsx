@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 /**
  * The credit RAWG's terms ask for: an active link to rawg.io on every page
  * that shows its data (https://rawg.io/tos_api, the F-03 handoff in
- * context/changes/game-catalog-provider-proven/coverage.md). Unlike a deal's
+ * context/archive/2026-09-26-game-catalog-provider-proven/coverage.md). Unlike a deal's
  * links it carries no `nofollow`, because the link is the credit.
  *
  * It opens in a new tab, which its accessible name says, as the deal card's

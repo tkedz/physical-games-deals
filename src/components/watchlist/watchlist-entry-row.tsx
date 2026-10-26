@@ -15,7 +15,7 @@ import type { WatchlistAction, WatchlistEntry } from "@/lib/watchlist/types";
  * the pin: the platform's badge, or "Dowolna platforma".
  *
  * "Usuń" is a ghost button: the outline and destructive variants' focus
- * indicator is below 3:1 (context/changes/ui-init/change.md). It is described
+ * indicator is below 3:1 (context/archive/2026-09-24-ui-init/change.md). It is described
  * by the game's name or the phrase, so a screen reader can tell one row's
  * "Usuń" from the next. Removal asks for no confirmation; adding the entry
  * again is one search away.

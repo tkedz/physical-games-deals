@@ -168,7 +168,7 @@ export function SearchResultsList({
 /**
  * The catalogue found nothing. A Polish title can miss where the English one
  * finds the game (the F-03 handoff in
- * context/changes/game-catalog-provider-proven/coverage.md), and a game the
+ * context/archive/2026-09-26-game-catalog-provider-proven/coverage.md), and a game the
  * catalogue does not know can still be watched as a phrase.
  */
 export function SearchNoResults({

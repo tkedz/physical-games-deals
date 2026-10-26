@@ -4,7 +4,7 @@
  * it after the migrations (scripts/local/reset.mts).
  *
  * It pins what the seed shows, as Phase 2 of
- * context/changes/local-supabase-stack/plan.md states it: anon lists exactly
+ * context/archive/2026-10-14-local-supabase-stack/plan.md states it: anon lists exactly
  * D1 and D2, newest first, with the fields their cards render; the newest ok
  * run has just finished, so the freshness line reads fresh; and a signed-in
  * user's phrase "silksong" matches D2 alone in public.matched_deals. D3, a

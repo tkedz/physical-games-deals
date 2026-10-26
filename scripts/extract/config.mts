@@ -15,7 +15,7 @@ export const CANDIDATES: readonly string[] = [
  * model further down answers only when those above it fail. Every model here
  * must have passed the labelled set, because a fallback writes deals too — so
  * it holds one model: gpt-4.1-nano leaked digital editions in both runs that
- * evaluation.md in context/changes/physical-deals-from-real-posts/ records.
+ * evaluation.md in context/archive/2026-09-28-physical-deals-from-real-posts/ records.
  */
 export const MODELS: readonly string[] = [
   "mistralai/mistral-small-3.2-24b-instruct",

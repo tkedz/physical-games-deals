@@ -31,7 +31,7 @@ const RESULT_LIMIT = 10;
  * key is a failure like any other, `misconfigured`, instead of the throw
  * readRawgApiKey makes of it. `excludeAdditions` stays off: in F-03's probe it
  * dropped games a collector wants, the Silent Hill 2 remake among them (the
- * handoff in context/changes/game-catalog-provider-proven/coverage.md).
+ * handoff in context/archive/2026-09-26-game-catalog-provider-proven/coverage.md).
  */
 export async function searchCatalog(
   query: string,

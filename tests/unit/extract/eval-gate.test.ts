@@ -15,7 +15,7 @@
  * on a gated failure — missed, wrong game, price, expiry, set or link — its
  * baseline entry lacks; a new item is accepted and recorded; failures only
  * shrink. The bootstrap rows come from
- * context/changes/physical-deals-from-real-posts/evaluation.md (v3: #49
+ * context/archive/2026-09-28-physical-deals-from-real-posts/evaluation.md (v3: #49
  * missed, no wrong game and no wrong price for Mistral).
  */
 import { readFileSync } from "node:fs";

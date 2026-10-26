@@ -43,7 +43,7 @@ function compareText(a: string, b: string): number {
 /**
  * Earlier `first_seen_at` first, then the smaller id: the order in which the
  * labelled set's sample query picked each link's representative row
- * (evaluation.md in context/changes/physical-deals-from-real-posts/).
+ * (evaluation.md in context/archive/2026-09-28-physical-deals-from-real-posts/).
  */
 function compareSightings(a: CollectedPost, b: CollectedPost): number {
   return (

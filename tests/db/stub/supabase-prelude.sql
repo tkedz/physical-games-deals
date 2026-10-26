@@ -8,7 +8,7 @@
 -- checks touch: auth.users as a foreign-key target, and auth.uid(),
 -- auth.role() and auth.jwt() as Supabase Auth defines them. It was carried
 -- over from the PGlite probe of
--- context/changes/testing-matching-rule-protection/research.md (Bootstrap: a
+-- context/archive/2026-10-13-testing-matching-rule-protection/research.md (Bootstrap: a
 -- disposable Postgres). Everything else Supabase installs (storage, realtime,
 -- vault, graphql, event triggers, the authenticator's login) is left out on
 -- purpose: a migration that needs it should fail here first.

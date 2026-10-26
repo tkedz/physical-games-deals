@@ -1,7 +1,7 @@
 /**
  * scripts/e2e/accounts.mts, the module that creates and deletes E2E test
  * accounts in the local Supabase stack. The expected behaviour comes from the
- * contract in Phase 1 of context/changes/testing-main-flow-end-to-end/plan.md:
+ * contract in Phase 1 of context/archive/2026-10-14-testing-main-flow-end-to-end/plan.md:
  * - a generated password passes the app's sign-up rule, signUpSchema of
  *   src/lib/auth/credentials.ts (hasRequiredCharacters and the 8–72 bounds),
  *   imported here rather than copied, so a change to the rule shows up as a

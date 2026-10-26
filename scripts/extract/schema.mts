@@ -81,7 +81,7 @@ export type ExtractedItem = ExtractionOutput["items"][number];
  * as zod generates it, its `$schema` key and integer bounds included: no
  * endpoint had been tested against either before the first live call, and
  * that call is what decides whether they stay (evaluation.md in
- * context/changes/physical-deals-from-real-posts/).
+ * context/archive/2026-09-28-physical-deals-from-real-posts/).
  */
 export function toResponseFormat(): ResponseFormat {
   return {

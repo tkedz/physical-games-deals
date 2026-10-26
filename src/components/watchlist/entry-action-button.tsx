@@ -32,7 +32,7 @@ const noAction: WatchlistAction = async (state) => state;
  * the layout around them: in a row's grid the line spans the whole row under
  * it. Only the default, secondary and ghost variants are allowed: the outline
  * and destructive variants' focus indicator is below 3:1
- * (context/changes/ui-init/change.md).
+ * (context/archive/2026-09-24-ui-init/change.md).
  */
 export function EntryActionButton({
   action,

@@ -5,7 +5,7 @@
  * returns.
  *
  * The expected decisions come from the contract in Phase 3 of
- * context/changes/local-supabase-stack/plan.md: unset or `local` takes a
+ * context/archive/2026-10-14-local-supabase-stack/plan.md: unset or `local` takes a
  * loopback URL only (127.0.0.1, localhost or [::1], any port), `hosted` takes
  * anything else; a missing or unparsable URL and any other target are
  * refused. Lookalike hosts are not loopback, and a host is matched whatever
@@ -15,7 +15,7 @@
  *
  * refuseE2eTarget, the stricter guard of the E2E runs (playwright.config.ts
  * and createE2eAdminClient() in scripts/e2e/accounts.mts), comes from the
- * contract in Phase 1 of context/changes/testing-main-flow-end-to-end/plan.md:
+ * contract in Phase 1 of context/archive/2026-10-14-testing-main-flow-end-to-end/plan.md:
  * `hosted` is refused with either URL, and every other pair is judged as
  * refuseSupabaseTarget judges it, so only the local stack passes.
  *

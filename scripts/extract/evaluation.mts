@@ -1060,7 +1060,7 @@ export function parseBaseline(data: unknown): Parsed<GateRecord> {
 }
 
 // The keys of the 55 labels evaluation.md
-// (context/changes/physical-deals-from-real-posts/) records, in labels.json
+// (context/archive/2026-09-28-physical-deals-from-real-posts/) records, in labels.json
 // order — the order its numbering follows, because eval.mts numbers the posts
 // of its report in label order. A post that expects nothing has no key.
 const V3_KEYS = [

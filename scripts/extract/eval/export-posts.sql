@@ -10,7 +10,7 @@
 -- result elsewhere and compare it rather than overwriting posts.json.
 --
 -- This is the sample query of
--- context/changes/physical-deals-from-real-posts/evaluation.md ("Sample
+-- context/archive/2026-09-28-physical-deals-from-real-posts/evaluation.md ("Sample
 -- query") with its random() sample replaced by the labels' postIds, so a
 -- rerun returns the same posts. A label added to labels.json for a real post
 -- needs its id added below. The synthetic posts live in synthetic-posts.json
