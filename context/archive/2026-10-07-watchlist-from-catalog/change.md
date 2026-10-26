@@ -1,10 +1,10 @@
 ---
 change_id: watchlist-from-catalog
 title: Watchlist of catalogue games and phrases, with optional platform
-status: impl_reviewed
+status: archived
 created: 2026-10-07
-updated: 2026-10-09
-archived_at: null
+updated: 2026-10-26
+archived_at: 2026-10-26T12:50:42Z
 ---
 
 ## Notes
