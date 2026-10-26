@@ -1,10 +1,10 @@
 ---
 change_id: testing-matching-rule-protection
 title: Protect the matching rule with the first test runner and database tests
-status: implemented
+status: archived
 created: 2026-10-13
-updated: 2026-10-13
-archived_at: null
+updated: 2026-10-26
+archived_at: 2026-10-26T12:50:45Z
 ---
 
 ## Notes
