@@ -1,10 +1,10 @@
 ---
 change_id: testing-main-flow-end-to-end
 title: Testing main flow end to end
-status: impl_reviewed
+status: archived
 created: 2026-10-14
-updated: 2026-10-15
-archived_at: null
+updated: 2026-10-26
+archived_at: 2026-10-26T12:50:47Z
 ---
 
 ## Notes
