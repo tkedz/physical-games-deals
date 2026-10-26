@@ -60,7 +60,7 @@ Choosing it first also settles two of the PRD's open questions by doing rather t
 | F-02 | `collector-into-repo-and-database`   | (foundation) collected posts land in the database, in this repository        | F-01             | Business Logic, NFR             | done |
 | F-03 | `game-catalog-provider-proven`       | (foundation) a catalogue provider is chosen and proven on real Polish titles | —                | FR-003, Business Logic          | in-progress |
 | S-01 | `physical-deals-from-real-posts`     | see physical-edition deals extracted from real posts, with price and link    | F-01, F-02       | FR-005, FR-006, US-01           | in-progress |
-| S-02 | `email-password-accounts`            | create an account with e-mail and password, sign in and sign out             | —                | FR-001, Access Control          | in-progress |
+| S-02 | `email-password-accounts`            | create an account with e-mail and password, sign in and sign out             | —                | FR-001, Access Control          | done |
 | S-03 | `watchlist-from-catalog`             | search the catalogue, add a game or a phrase to a watchlist, remove one      | F-01, F-03, S-02 | FR-003, FR-004, FR-010, US-01   | in-progress |
 | S-04 | `deals-matched-to-watchlist`         | see only deals for the games and phrases they watch, platform rule applied   | S-01, S-03       | US-01, FR-005, FR-010, Guardrails | in-progress |
 
@@ -157,7 +157,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** The least uncertain slice in the milestone — the session plumbing is already wired and proven, so what remains is screens and route protection. Its value under a time constraint is that it depends on nothing at all and can fill any evening that the pipeline work leaves blocked. The one thing to get right is that signing out actually clears the session on the server and not only in the browser; the PRD's isolation guardrail is about what a URL can reach, not about what the interface shows.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-03: A collector keeps a watchlist of games from the catalogue
 
@@ -236,3 +236,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 - **F-01: (foundation) the database schema lives in migrations inside this repository and can be reproduced on a fresh local database and applied to the hosted project; every table added from here on starts with row-level security on and no policy, so access has to be granted deliberately rather than remembered. The first migration — storage for collected source posts — lands as the proof that the path works.** — Archived 2026-10-26 → `context/archive/2026-09-21-schema-migrations-and-rls-baseline/`. Lesson: —.
 - **F-02: (foundation) the RSS collector runs from this repository on its schedule and appends collected posts to the database instead of a JSON file, with the 659 posts gathered so far imported. Deduplication behaves as it does today, so re-running changes nothing.** — Archived 2026-10-26 → `context/archive/2026-09-22-collector-into-repo-and-database/`. Lesson: —.
+- **S-02: user registers with an e-mail address and a password, signs in, signs out, and is sent away from private views when not signed in. A prepared demo account can be handed to someone who wants to look at the product without building a watchlist of their own.** — Archived 2026-10-26 → `context/archive/2026-09-25-email-password-accounts/`. Lesson: —.

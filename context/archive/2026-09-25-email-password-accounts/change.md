@@ -1,10 +1,10 @@
 ---
 change_id: email-password-accounts
 title: Email password accounts
-status: impl_reviewed
+status: archived
 created: 2026-09-25
-updated: 2026-10-06
-archived_at: null
+updated: 2026-10-26
+archived_at: 2026-10-26T12:50:38Z
 ---
 
 ## Notes
