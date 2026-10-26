@@ -1,35 +1,44 @@
 ---
 project: physical-games-deals
-version: 1
+version: 2
 status: draft
 created: 2026-09-21
 updated: 2026-10-26
 prd_version: 2
 main_goal: speed
 top_blocker: time
-milestone_id: first-matched-physical-deals
-milestone_seq: 1
+milestone_id: public-game-pages
+milestone_seq: 2
 milestone_status: open
 ---
 
 # Roadmap: physical-games-deals
 
-> Derived from `context/foundation/prd.md` (v2) + auto-researched codebase baseline.
-> Edit-in-place; archive when superseded.
+> Derived from `context/foundation/prd.md` (v2), the intent recorded in `context/changes/game-search-and-pages/` (`change.md`, `frame.md`) + auto-researched codebase baseline.
+> Edit-in-place; the next milestone continues this file. Archive only when an independent roadmap replaces it.
 > Slices below are listed in dependency order. The "At a glance" table is the index.
 >
 > The PRD is written in Polish and stays that way. This roadmap is in English, matching
 > the other derived documents in `context/` (`infrastructure.md`, `deploy-plan.md`).
 > Requirement IDs (`FR-001`, `US-01`) are quoted verbatim from the PRD.
+>
+> M-1's items (`F-01`–`F-03`, `S-01`–`S-04`) stay below with status `done`, and numbering
+> continues from them, so an ID never names two items. The PRD (`prd.md:76`, `:100`) and the
+> test plan (`test-plan.md:82-87`, `:97`) cite those items and Open Roadmap Question 9 by ID.
 
 ## Milestone
 
-**M-1: First matched physical deals** — Status: open
+**M-2: Game pages and catalogue search for everyone** — Status: open
 
-- **Intent:** Prove the product's central claim end to end — that posts written by people, each one worded differently, can be turned automatically into a clean list of boxed-edition deals narrowed to the games a given user actually wants. That is the PRD's primary success criterion; nothing before it counts as the product working.
-- **Source materials:** `context/foundation/prd.md` (v2)
+- **Intent:** Give anyone, signed in or not, a page per catalogue game that lists every listed deal matching it, and a catalogue search on the front page that leads there — without public traffic exhausting the shared catalogue quota. Watching stays the one thing that needs an account, and the watchlist moves in with the matched deals. This is the PRD's per-game view (`FR-009`), whose precondition — "po domknięciu głównego przepływu" — M-1 met.
+- **Source materials:** `context/foundation/prd.md` (v2, the next tranche: `FR-009`); Tomasz's intent of 2026-10-26 in `context/changes/game-search-and-pages/change.md`, narrowed by his answers in `frame.md` (Narrowing Signals).
 - **Done when:** every `F-NN` and `S-NN` below is `done`.
-- **Scope anchors:** PRD v2 — `FR-001`, `FR-003`, `FR-004`, `FR-005`, `FR-006`, `FR-010` (all must-have); `US-01` with its five acceptance criteria; the `## Access Control` section; the non-functional requirements on freshness, progress feedback, responsiveness and per-user isolation.
+- **Scope anchors:** PRD v2 — `FR-009` (nice-to-have; leaves `## Parked`). From the user's description, verbatim intent in `change.md`, narrowed in `frame.md`:
+  - MS-01: The game search moves out of `/watchlist` onto the front page, above the deals list. Anyone may search; its results open in an absolutely positioned container that does not shift the list, and `/` stays the public list of every deal.
+  - MS-02: A signed-in user adds a game — or the typed text as a phrase, optionally pinned to a platform — to the watchlist straight from that search. For a visitor, watching leads to sign-in.
+  - MS-03: Clicking a game opens its own public page, which shows the listed deals matched to that game without watching it. If time runs short, this is the part that ships.
+  - MS-04: The search and the game page show an image of the game from the catalogue — any image, not necessarily the box cover — and every page showing catalogue data carries the catalogue's credit.
+  - MS-05: The watchlist merges into `/my-deals`; `/watchlist` goes away behind a redirect.
 
 ## Vision recap
 
@@ -41,16 +50,16 @@ The one trait that, if removed, would make this indistinguishable from any other
 
 ## North star
 
-**S-01: A visitor sees physical-edition deals extracted from real collected posts** — the smallest slice that tests whether the automatic reading of freehand posts works at all, and whether digital editions stay out.
+**S-05: Anyone opens a game's page with its matching deals, found from a search on the front page** — the milestone's only slice. Its game page comes first inside it, because that is the part whose shape is genuinely new: a public way to read matched deals, which today exist only per signed-in user.
 
 > "North star" here means the smallest end-to-end slice whose successful delivery would
-> prove the core product idea — the claim the whole product rests on. It is placed as
-> early as its Prerequisites allow, because every other slice only matters if this one
-> works. Everything else in this roadmap (accounts, catalogue, watchlist) is well-trodden
-> work whose outcome is not in doubt; the automatic reading of human-written posts is the
-> part nobody has yet shown to work on this data.
+> prove the milestone's idea — the claim the rest of it rests on. It is placed as early as
+> its Prerequisites allow, because everything else in the milestone only matters if this
+> works. The search on the front page, the merged watchlist and the images are relocation
+> and presentation over parts that exist; a public per-game match path, and a catalogue
+> that survives public traffic, are not.
 
-Choosing it first also settles two of the PRD's open questions by doing rather than deciding: the PRD defers both the pipeline's v1 scope (question 2) and the acceptable share of wrong entries (question 3) to "after the first extraction run on real posts".
+M-1's north star was `S-01`, the automatic reading of freehand posts; it is `done`.
 
 ## At a glance
 
@@ -63,29 +72,20 @@ Choosing it first also settles two of the PRD's open questions by doing rather t
 | S-02 | `email-password-accounts`            | create an account with e-mail and password, sign in and sign out             | —                | FR-001, Access Control          | done |
 | S-03 | `watchlist-from-catalog`             | search the catalogue, add a game or a phrase to a watchlist, remove one      | F-01, F-03, S-02 | FR-003, FR-004, FR-010, US-01   | done |
 | S-04 | `deals-matched-to-watchlist`         | see only deals for the games and phrases they watch, platform rule applied   | S-01, S-03       | US-01, FR-005, FR-010, Guardrails | done |
-
-## Streams
-
-Navigation aid — groups items that share a Prerequisites chain. Canonical ordering still lives in the dependency graph below; this table is the proposed reading order across parallel tracks.
-
-| Stream | Theme                     | Chain                    | Note                                                                                                              |
-| ------ | ------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| A      | Pipeline and first proof  | `F-01` → `F-02` → `S-01` | The north-star track. Under `main_goal: speed` it takes precedence on every tie.                                   |
-| B      | Identity and watchlist    | `S-02` → `S-03` → `S-04` | `S-02` needs nothing and can start immediately, in parallel with all of Stream A. `S-04` joins Stream A at `S-01`. |
-| C      | Game catalogue de-risking | `F-03`                   | Standalone; feeds `S-03` in Stream B. Independent of everything else, so it can run alongside any other item.      |
+| S-05 | `game-search-and-pages`              | open any catalogue game's page and see its matching deals, found from a search on `/`; watch from there, manage the list in `/my-deals` | S-01, S-03, S-04 | FR-009, FR-003, FR-004, FR-010, MS-01–MS-05 | ready |
 
 ## Baseline
 
-What's already in place in the codebase as of `2026-09-21` (auto-researched + user-confirmed).
+What's already in place in the codebase as of `2026-10-26` (auto-researched for M-2; M-1's baseline of 2026-09-21 is in git history).
 Foundations below assume these are present and do NOT re-scaffold them.
 
-- **Frontend:** present — Next 16.3.5 App Router, React 19, Tailwind v4, shadcn/ui (`components.json`, `src/components/ui/button.tsx`) and Base UI. `src/app/page.tsx` is still the create-next-app landing page; no product screens exist.
-- **Backend / API:** absent — no route handlers, no server actions. The only server-side entry point is `src/proxy.ts`, which exists solely to refresh the session.
-- **Data:** partial — `@supabase/ssr`, `supabase-js` and the Supabase CLI are installed and `supabase/config.toml` is present, but there are no migrations and no tables at all.
-- **Auth:** partial — all three Supabase clients are wired (`src/utils/supabase/client.ts`, `server.ts`, `session.ts`) and `src/proxy.ts` refreshes the session on every request. There are no sign-up or sign-in screens, no route protection, and no RLS policies (there is no schema to attach them to).
-- **Deploy / infra:** present — `.github/workflows/ci.yml` runs `verify` (`npm run lint`, `npm run format:check`) gating a `deploy` job (`vercel pull` / `build` / `deploy --prebuilt`). Production is live at `physical-games-deals.vercel.app`, region `fra1`, Node 24.x.
-- **Observability:** absent — no logging library, no error tracking, no metrics.
-- **Deal collection (extra layer):** partial, and staged outside the build — `_incoming/cron-collector/` holds a working RSS collector: 15 enabled feeds across three aggregators (Pepper, Łowcy Gier, cenograj) and 659 raw posts in `data/raw.jsonl`, on a four-hourly Actions cron. The directory is gitignored, the cron runs in a different repository, it writes JSONL rather than a database, and nothing under `src/` imports it. `F-02` exists to close exactly that gap.
+- **Frontend:** present — Next 16.3.5 App Router, Tailwind v4, shadcn/ui (eleven components in `src/components/ui/`) and Base UI 1.8.0. Product routes: `/` (the public, paged deals list), `/my-deals`, `/watchlist` (catalogue search and the list on one page), `/login`, `/signup`. There is no popover or overlay component yet, and nothing renders an image.
+- **Backend / API:** present — Server Components read Supabase; Server Actions add and remove watchlist entries (`src/app/(app)/watchlist/actions.ts`). The catalogue is reached only through `src/lib/catalog/rawg.ts` behind a server-only wrapper, by signed-in users only. Nothing caches, throttles or retries catalogue calls, and the catalogue contract has a search call and no lookup of one game.
+- **Data:** present — 15 migrations in `supabase/migrations/`: collected posts, extractions, deals, pipeline runs and watchlist entries, every table locked by default. Matching lives in Postgres: a view of the deals matching the signed-in caller's watchlist, and matching functions granted to signed-in users only. No public per-game match path exists.
+- **Auth:** present — e-mail and password accounts; `src/proxy.ts` with `src/lib/auth/access.ts` keeps `/watchlist` and `/my-deals` private; per-user rows sit behind row-level security.
+- **Deploy / infra:** present — `.github/workflows/ci.yml` gates `deploy` (Vercel Hobby, `fra1`) on `verify` (lint, format, `npm test`) and `e2e` (Playwright against a local Supabase stack); `collect.yml` collects and extracts every four hours; `database-tests.yml` runs the database test suite on every push that touches the schema. Development runs against a local Supabase stack on Docker.
+- **Observability:** partial — the pipeline records each run in a table, and the deals views' freshness line reads it. Server-side failures go to `console.error`, which Hobby keeps for one hour. No error tracking, no metrics.
+- **Deal collection (extra layer):** present — the collector runs from this repository and writes to the database (`F-02`, done).
 
 ## Foundations
 
@@ -189,6 +189,20 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** The slice that completes the PRD's primary success criterion, and the only one depending on both tracks, so it is last by necessity rather than by choice. The load-bearing detail is that one absent platform means "any platform" while a present one means "only this one" — a single field with two behaviours, which the PRD's own example (Silent Hill 2 with and without PS5) exists to pin down. Worth building against that example directly.
 - **Status:** done
 
+### S-05: Anyone opens a game's page with its matching deals, found from a search on the front page
+
+- **Outcome:** user — signed in or not — opens a catalogue game's own page and sees every listed deal matching that game: the deals an entry for it with no platform would match, shown without watching it. They find the game from a search above the deals list on `/`, whose results open over the list without moving it; `/` stays the public list of every deal. A signed-in user watches a game, or the typed text as a phrase, straight from those results, optionally pinned to a platform; a visitor is sent to sign in. The watchlist lives in `/my-deals`, and `/watchlist` redirects there. The search and the game page show the game's image from the catalogue, and every page showing catalogue data credits the catalogue. In order of priority: the game page, the search on `/`, the merged watchlist, the images — if time runs short, the game page is what ships.
+- **Change ID:** `game-search-and-pages`
+- **PRD refs:** `FR-009`; `MS-01`, `MS-02`, `MS-03`, `MS-04`, `MS-05`; `FR-003`, `FR-004`, `FR-010` (the search, removal and the phrase offer move with the search and the list); `## Business Logic` (the game rule a game page applies unchanged); `## Access Control` and the guardrail on watchlist isolation (the merged `/my-deals` stays private)
+- **Prerequisites:** S-01, S-03, S-04
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:**
+  - Should search engines index game pages? Indexing invites crawler traffic, which spends the catalogue quota on every crawl unless something caches it. Owner: user. Block: no — `/10x-plan` puts it to him (`context/changes/game-search-and-pages/research.md`, Open Questions).
+  - What does a game page show when the catalogue fails or the month's quota is spent? If the game's name comes only from the catalogue, the page cannot list its matches. PRD Open Question 6 settles this for the search only. Owner: user. Block: no — same route.
+- **Risk:** Larger than this roadmap's rule of one main user action per slice: it covers four — open a game page, search and watch from `/`, keep the list in `/my-deals`, see images. Kept as one item by the user's decision of 2026-10-26: one change folder, one plan and one branch, merged into `main` only if it is done before the 2026-11-04 deadline; the plan's phases carry the split, game page first. The load-bearing risk is the public audience. It opens two things that were signed-in only: a way to read matched deals that the anonymous role can use — new database surface, under the rule that every function ships locked and is granted deliberately, with the matching truth table updated to match — and the shared catalogue quota of 20,000 requests a month, which visitors and crawlers can now spend. The register's accepted catalogue risk assumed one signed-in account (`infrastructure.md`, Risk Register). The merge's own cost is breadth, not depth: access rules, navigation, and the end-to-end test that gates deploy, which pins the search and the list to `/watchlist`.
+- **Status:** ready
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID                            | Suggested issue title                                           | Ready for `/10x-plan` | Notes                                                            |
@@ -200,6 +214,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-02       | `email-password-accounts`            | E-mail and password accounts with sign-in and sign-out           | yes                   | No prerequisites — fills an evening blocked on the pipeline       |
 | S-03       | `watchlist-from-catalog`             | Watchlist of catalogue games and phrases, with optional platform | yes                   | Planned 2026-10-07: `context/archive/2026-10-07-watchlist-from-catalog/plan.md` |
 | S-04       | `deals-matched-to-watchlist`         | Show each user the deals matching their watchlist, at /my-deals  | no                    | Waits on S-01 and S-03. Completes the primary success criterion   |
+| S-05       | `game-search-and-pages`              | Public game pages with matched deals, search on /, watchlist in /my-deals, images | yes      | Framed and researched in `context/changes/game-search-and-pages/`; run `/10x-plan game-search-and-pages`. M-2's north star |
 
 ## Open Roadmap Questions
 
@@ -216,7 +231,6 @@ Foundations below assume these are present and do NOT re-scaffold them.
 ## Parked
 
 - **Marking a watched game as purchased** (`FR-007`) — Why parked: nice-to-have in the PRD, and not needed for the main flow. Under `main_goal: speed` it is deferred rather than sequenced late.
-- **A per-game view of all offers found** (`FR-009`) — Why parked: nice-to-have; the PRD itself says it "wchodzi po domknięciu głównego przepływu, jeśli zostanie czas".
 - **Querying shops for prices or availability** — Why parked: PRD `## Non-Goals`. Posts written by people are the only input; the price comes from the post and is not verified at the source.
 - **Identifying a specific edition of a game** — Why parked: PRD `## Non-Goals`. The game is recognised, not its edition, region or box contents.
 - **Judging whether a price is good** — Why parked: PRD `## Non-Goals`. Lowest-seen price returns to consideration only once several weeks of collection exist.
@@ -224,11 +238,13 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Promising completeness** — Why parked: PRD `## Non-Goals`. A quality exclusion, not a functional one — some posts will be misread and some will never reach a source.
 - **An admin panel** — Why parked: PRD `## Access Control` puts source lists and processing rules outside the interface in the MVP.
 - **Observability beyond the user-facing freshness timestamp** — Why parked: the baseline reports none, and no requirement forces it. `US-01`'s "when was this last refreshed" is covered inside `S-01`. Under `top_blocker: time`, proper logging and error tracking wait.
-- **Resolving deals to a catalogue id** — Why parked: `S-04` matches games by name, and the catalogue provider is not settled for good: RAWG serves the MVP, and IGDB may replace it. What it would unlock: matching by id rather than by name, and images on deal cards. What it costs: a pipeline step, the provider's key in GitHub Actions, about one catalogue search per deal, and parent lookups for editions that carry an id of their own (`context/archive/2026-09-26-game-catalog-provider-proven/coverage.md`, handoff to S-04).
+- **Resolving deals to a catalogue id** — Why parked: `S-04` matches games by name, and the catalogue provider is not settled for good: RAWG serves the MVP, and IGDB may replace it. What it would unlock: matching by id rather than by name, and images on deal cards. What it costs: a pipeline step, the provider's key in GitHub Actions, about one catalogue search per deal, and parent lookups for editions that carry an id of their own (`context/archive/2026-09-26-game-catalog-provider-proven/coverage.md`, handoff to S-04). Update 2026-10-26: it would also unlock a link from each deal card to its game page; `S-05` gives deal cards neither an image nor that link, for this reason (`context/changes/game-search-and-pages/frame.md`).
 
 ## Milestone History
 
 (Append-only. Carried forward verbatim into each successor milestone's roadmap; empty on the very first milestone.)
+
+- **M-1: First matched physical deals** (`first-matched-physical-deals`) — closed 2026-10-26. Deals read automatically from real posts, physical editions only, narrowed at `/my-deals` to each user's watchlist of catalogue games and phrases; measured on production with 20 watched games, 90.7% of their deals found (39 of 43) and none wrong (0 of 39). Its items `F-01`–`F-03` and `S-01`–`S-04` stay in this file as `done`.
 
 ## Done
 
