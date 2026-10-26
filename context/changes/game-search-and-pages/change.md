@@ -18,3 +18,13 @@ archived_at: null
 - **2026-10-26 — framed.** Tomasz's four answers are in `frame.md` (Narrowing Signals): search and game pages are public, an account is needed only to watch; the search sits above the deals list on `/`, with its results in an absolutely positioned container that does not shift the layout; the watchlist merges into `/my-deals`; the game page comes first if time runs short.
 - **2026-10-26 — researched.** `research.md` lists the choices it leaves to `/10x-plan` (Open Questions) and two product questions for Tomasz there: whether search engines index game pages, and what a game page shows when RAWG fails. `frame.md`'s log-retention anchor now points at `infrastructure.md:116,130`, not `:133`.
 - **2026-10-26 — roadmap.** `/10x-roadmap` closed M-1 and opened M-2 (`public-game-pages`), whose one item S-05 carries this change's ID, status `ready`. Tomasz chose one item over four. Next step: `/10x-plan game-search-and-pages`.
+- **2026-10-26 — planning interview done, plan not yet written.** Complexity HIGH, budget 8 questions. Decisions:
+  - Match path (settled from CLAUDE.md and the S-04 review, not asked): one public invoker function `public.deals_for_game(name)` with a `security definer` key helper in a new non-exposed schema `private`; the grants on `game_match_key` and `fold_for_matching` stay as they are.
+  - Game URL: `/games/<RAWG id>`, no provider prefix. The id is provider-specific, as `watchlist_entries.game_id` already is.
+  - RAWG quota: a cache only, provider-neutral — it wraps the `GameCatalog` contract with the provider in its keys (search 24 h, game 7 days, failures never stored), so a switch to IGDB leaves it unchanged. No WAF for now; a Risk Register row in `infrastructure.md` records it with a trigger.
+  - RAWG failure on a game page: a game seen before renders from the cache with live deals; an unseen one shows the one generic catalogue message with a link to `/`.
+  - Indexing: `noindex` on `/games/…` and `/?q=…`, no sitemap.
+  - Search URL: `?page=` and `?q=`/`platform` coexist; closing the overlay drops `q` and `platform`.
+  - Images: RAWG's own resized files (`/media/resize/420/-/…`) through `next/image` `unoptimized`; the resize knowledge stays in `rawg.ts`.
+  - A guest who wants to watch gets a sign-in link and lands on `/` afterwards; no return parameter.
+  - The game page also gets the watch control, as in the search results (Tomasz chose this over the recommendation).
