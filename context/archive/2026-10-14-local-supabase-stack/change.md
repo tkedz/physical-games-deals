@@ -1,10 +1,10 @@
 ---
 change_id: local-supabase-stack
 title: Local supabase stack
-status: implemented
+status: archived
 created: 2026-10-14
-updated: 2026-10-14
-archived_at: null
+updated: 2026-10-26
+archived_at: 2026-10-26T12:50:48Z
 ---
 
 ## Notes
