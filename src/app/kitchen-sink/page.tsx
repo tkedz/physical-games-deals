@@ -54,7 +54,11 @@ import {
   WatchlistError,
   WatchlistSkeleton,
 } from "@/components/watchlist/watchlist-entries";
-import type { CatalogGame, CatalogPlatform } from "@/lib/catalog/types";
+import type {
+  CatalogGame,
+  CatalogImage,
+  CatalogPlatform,
+} from "@/lib/catalog/types";
 import type { Freshness } from "@/lib/deals/freshness";
 import type { ListedDeal } from "@/lib/deals/queries";
 import { isKitchenSinkVisible } from "@/lib/kitchen-sink";
@@ -201,6 +205,8 @@ const freshnessSamples: Freshness[] = [
 //   the list for any platform), and results it does not;
 // - a result without a release date (Ys Memoire), and one with four
 //   platforms, long enough to wrap at 375 px (Ys X);
+// - a result with art (Fire Emblem Engage, from sampleArt), and results
+//   without, which show the empty box;
 // - a phrase the list already holds ("fire emblem" against "Fire Emblem");
 // - entries for a game on any platform, a game pinned to PS5, a phrase on any
 //   platform and a pinned phrase, newest first, as the read orders them.
@@ -211,6 +217,19 @@ const catalogPlatforms = {
   switch: { id: 7, slug: "nintendo-switch", name: "Nintendo Switch" },
 } as const satisfies Record<string, CatalogPlatform>;
 
+// The art of the one sample game that has some: a 16:9 gradient as an inline
+// SVG, so the filled image state renders without reaching any image host. The
+// same file serves both uses, as the catalogue's original does when it has no
+// smaller copy.
+const sampleArtUrl = `data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 9"><defs><linearGradient id="g" x2="1" y2="1"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#be185d"/></linearGradient></defs><rect width="16" height="9" fill="url(#g)"/></svg>',
+)}`;
+
+const sampleArt: CatalogImage = {
+  thumbnailUrl: sampleArtUrl,
+  pageUrl: sampleArtUrl,
+};
+
 const fireEmblemResults: CatalogGame[] = [
   {
     id: 900101,
@@ -218,7 +237,7 @@ const fireEmblemResults: CatalogGame[] = [
     name: "Fire Emblem: Three Houses",
     released: "2019-07-26",
     platforms: [catalogPlatforms.switch],
-    imageUrl: null,
+    image: null,
   },
   {
     id: 900102,
@@ -226,7 +245,7 @@ const fireEmblemResults: CatalogGame[] = [
     name: "Fire Emblem Engage",
     released: "2023-01-20",
     platforms: [catalogPlatforms.switch],
-    imageUrl: null,
+    image: sampleArt,
   },
   {
     id: 900103,
@@ -234,7 +253,7 @@ const fireEmblemResults: CatalogGame[] = [
     name: "Fire Emblem Warriors: Three Hopes",
     released: "2022-06-24",
     platforms: [catalogPlatforms.switch],
-    imageUrl: null,
+    image: null,
   },
 ];
 
@@ -250,7 +269,7 @@ const ysResults: CatalogGame[] = [
       catalogPlatforms.switch,
       catalogPlatforms.pc,
     ],
-    imageUrl: null,
+    image: null,
   },
   {
     id: 900202,
@@ -262,7 +281,7 @@ const ysResults: CatalogGame[] = [
       catalogPlatforms.switch,
       catalogPlatforms.pc,
     ],
-    imageUrl: null,
+    image: null,
   },
   {
     id: 900203,
@@ -270,7 +289,7 @@ const ysResults: CatalogGame[] = [
     name: "Ys Memoire: Revelations in Celceta",
     released: null,
     platforms: [catalogPlatforms.ps5, catalogPlatforms.switch],
-    imageUrl: null,
+    image: null,
   },
 ];
 
@@ -300,9 +319,12 @@ const sampleEntries: WatchlistEntry[] = [
 // "Strona gry" shows one game, Fire Emblem Engage, which the sample list
 // holds for any platform: with that list its watch control reads "Na liście",
 // and with an empty one it offers "Obserwuj". Every control is described by
-// the one header's name. Its deals take ids of their own, for the reason
-// myDealsSamples gives.
+// its header's name. It has art; a second header, for Fire Emblem: Three
+// Houses, shows the empty box. Its deals take ids of their own, for the
+// reason myDealsSamples gives.
 const gamePageSample: CatalogGame = fireEmblemResults[1];
+
+const gamePageWithoutArt: CatalogGame = fireEmblemResults[0];
 
 const gameDealsSamples: ListedDeal[] = sampleDeals
   .slice(0, 2)
@@ -855,8 +877,8 @@ export default function KitchenSinkPage() {
       {/* A game's page, `/games/<id>`, in every state it can be in, from the
           sample data above: the visual gate before the page depends on them.
           No action is passed, so "Obserwuj" renders inert, and nothing here
-          reaches Supabase or the catalogue. The header and the unavailable
-          state each hold the page's h1. */}
+          reaches Supabase or the catalogue. Each header and the unavailable
+          state hold the page's h1. */}
       <section className="flex flex-col gap-6">
         <h2 className="font-heading text-xl font-semibold tracking-tight">
           Strona gry
@@ -865,6 +887,13 @@ export default function KitchenSinkPage() {
         <div className="flex flex-col gap-3">
           <h3 className="font-heading text-base font-medium">Nagłówek</h3>
           <GameHeader game={gamePageSample} />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Nagłówek bez obrazu
+          </h3>
+          <GameHeader game={gamePageWithoutArt} />
         </div>
 
         <div className="flex flex-col gap-3">

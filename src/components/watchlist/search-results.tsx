@@ -269,7 +269,10 @@ export function SearchResultsSkeleton() {
       <div className="flex flex-col gap-2">
         {Array.from({ length: PLACEHOLDER_ROWS }, (_, index) => (
           <Card key={index} size="sm">
-            <CardContent className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4">
+            {/* SearchResultRow's grid: the art's box, the name and the
+                button, which sits under the name on a phone. */}
+            <CardContent className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-2 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-x-4">
+              <Skeleton className="row-span-2 aspect-video w-20 self-start sm:row-span-1 sm:w-28 sm:self-center" />
               <div className="flex flex-col gap-1.5">
                 <Skeleton className="h-4 w-2/3" />
                 <Skeleton className="h-4 w-1/2" />

@@ -13,6 +13,24 @@ export type CatalogPlatform = {
   name: string;
 };
 
+/**
+ * A game's art by use, never by a provider's URL rules: the adapter decides
+ * which of the provider's files serves each use. Background art, not a box
+ * cover.
+ */
+export type CatalogImage = {
+  /**
+   * For the small box beside a search result: a file about 420 px wide where
+   * the provider serves one, the original otherwise.
+   */
+  thumbnailUrl: string;
+  /**
+   * For the wide box at the top of the game's page: a file about 640 px wide
+   * where the provider serves one, the original otherwise.
+   */
+  pageUrl: string;
+};
+
 export type CatalogGame = {
   id: number;
   slug: string;
@@ -20,8 +38,8 @@ export type CatalogGame = {
   /** `YYYY-MM-DD`, or null when the date is unknown or TBA. */
   released: string | null;
   platforms: CatalogPlatform[];
-  /** Background art, not a box cover. */
-  imageUrl: string | null;
+  /** Null when the catalogue has no art for the game. */
+  image: CatalogImage | null;
 };
 
 export type CatalogFailureReason =

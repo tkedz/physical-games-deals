@@ -17,6 +17,7 @@ import { z } from "zod";
 import type {
   CatalogFailureReason,
   CatalogGame,
+  CatalogImage,
   CatalogResult,
   GameCatalog,
   LookupOptions,
@@ -77,10 +78,43 @@ const rawgSearchResponseSchema = z.object({
   results: z.array(rawgGameSchema),
 });
 
+// Where RAWG serves its media, and the two resized copies it serves of a file
+// there. The resize paths are undocumented: during planning, `resize/420/-/`
+// and `resize/640/-/` were checked to serve a smaller file (39 KB against
+// 222 KB for one original), while `resize/500/-/` redirects to a 404, so the
+// widths are not free to choose (context/changes/game-search-and-pages/plan.md,
+// Key Discoveries).
+const RAWG_MEDIA_URL = "https://media.rawg.io/media/";
+const THUMBNAIL_PATH = "resize/420/-/";
+const PAGE_PATH = "resize/640/-/";
+
+/**
+ * A game's `background_image` as the contract's image. A file under RAWG's
+ * media path is served from RAWG's own smaller copies: 420 px wide for a
+ * search result, 640 px for the game's page. A file already resized or
+ * cropped (`resize/…`, `crop/…`), or one on any other host, is used as it is
+ * for both. Null, or an empty string, is no image.
+ */
+export function rawgImage(backgroundImage: string | null): CatalogImage | null {
+  if (backgroundImage === null || backgroundImage === "") return null;
+
+  const path = backgroundImage.startsWith(RAWG_MEDIA_URL)
+    ? backgroundImage.slice(RAWG_MEDIA_URL.length)
+    : null;
+  if (path === null || path.startsWith("resize/") || path.startsWith("crop/")) {
+    return { thumbnailUrl: backgroundImage, pageUrl: backgroundImage };
+  }
+  return {
+    thumbnailUrl: `${RAWG_MEDIA_URL}${THUMBNAIL_PATH}${path}`,
+    pageUrl: `${RAWG_MEDIA_URL}${PAGE_PATH}${path}`,
+  };
+}
+
 /**
  * One RAWG game in the contract's shape, the same for a search result and a
- * lookup. `platforms: null` becomes an empty list, and an absent or null
- * `released` or `background_image` becomes null.
+ * lookup. `platforms: null` becomes an empty list, an absent or null
+ * `released` becomes null, and `background_image` becomes the image as
+ * rawgImage maps it.
  */
 function toCatalogGame(game: z.infer<typeof rawgGameSchema>): CatalogGame {
   return {
@@ -93,7 +127,7 @@ function toCatalogGame(game: z.infer<typeof rawgGameSchema>): CatalogGame {
       slug: platform.slug,
       name: platform.name,
     })),
-    imageUrl: game.background_image ?? null,
+    image: rawgImage(game.background_image ?? null),
   };
 }
 

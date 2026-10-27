@@ -1,3 +1,4 @@
+import { GameImage } from "@/components/games/game-image";
 import type { CatalogGame } from "@/lib/catalog/types";
 import { releaseYear } from "@/lib/watchlist/rules";
 
@@ -11,11 +12,16 @@ export function gameNameId(gameId: number): string {
 }
 
 /**
- * The top of a game's page: the game's name as the page's heading, then its
- * release year and the catalogue's platform names, as a search result shows
- * them, and a line saying what the page lists. The platform names are
- * information only, not a filter: the page lists the game's deals on every
- * platform.
+ * The top of a game's page: the game's art across the page's column
+ * (GameImage, the page's size, or the empty box when the catalogue has none),
+ * then the game's name as the page's heading, its release year and the
+ * catalogue's platform names, as a search result shows them, and a line
+ * saying what the page lists. The platform names are information only, not a
+ * filter: the page lists the game's deals on every platform.
+ *
+ * The art is the page's largest image and stands above the fold, so it loads
+ * first. The column is 640 px wide at most (GamePage), the width of the
+ * catalogue's page-sized file.
  */
 export function GameHeader({ game }: { game: CatalogGame }) {
   const details = [
@@ -26,20 +32,27 @@ export function GameHeader({ game }: { game: CatalogGame }) {
     .join(" · ");
 
   return (
-    // wrap-anywhere lets a long unbroken word in a name break instead of
-    // pushing the page wider than a 375 px screen, as on the deal card.
-    <div className="flex flex-col gap-2 wrap-anywhere">
-      <h1
-        id={gameNameId(game.id)}
-        className="font-heading text-3xl font-semibold tracking-tight"
-      >
-        {game.name}
-      </h1>
-      {details !== "" && <p className="text-muted-foreground">{details}</p>}
-      <p className="text-muted-foreground">
-        Promocje na pudełkowe wydania tej gry z polskich serwisów z okazjami, od
-        najnowszych.
-      </p>
+    <div className="flex flex-col gap-4">
+      <GameImage
+        url={game.image?.pageUrl ?? null}
+        largest
+        className="w-full rounded-xl"
+      />
+      {/* wrap-anywhere lets a long unbroken word in a name break instead of
+          pushing the page wider than a 375 px screen, as on the deal card. */}
+      <div className="flex flex-col gap-2 wrap-anywhere">
+        <h1
+          id={gameNameId(game.id)}
+          className="font-heading text-3xl font-semibold tracking-tight"
+        >
+          {game.name}
+        </h1>
+        {details !== "" && <p className="text-muted-foreground">{details}</p>}
+        <p className="text-muted-foreground">
+          Promocje na pudełkowe wydania tej gry z polskich serwisów z okazjami,
+          od najnowszych.
+        </p>
+      </div>
     </div>
   );
 }

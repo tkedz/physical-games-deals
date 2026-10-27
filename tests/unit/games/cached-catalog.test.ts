@@ -44,7 +44,7 @@ const ELDEN_RING: CatalogGame = {
   name: "Elden Ring",
   released: "2022-02-25",
   platforms: [{ id: 187, slug: "playstation5", name: "PlayStation 5" }],
-  imageUrl: null,
+  image: null,
 };
 
 /** The in-memory stand-in for unstable_cache, and what passed through it. */

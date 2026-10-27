@@ -86,8 +86,12 @@ describe("getGame: answers", () => {
           { id: 187, slug: "playstation5", name: "PlayStation 5" },
           { id: 4, slug: "pc", name: "PC" },
         ],
-        imageUrl:
-          "https://media.rawg.io/media/games/b29/b294fdd866dcdb643e7bab370a552855.jpg",
+        image: {
+          thumbnailUrl:
+            "https://media.rawg.io/media/resize/420/-/games/b29/b294fdd866dcdb643e7bab370a552855.jpg",
+          pageUrl:
+            "https://media.rawg.io/media/resize/640/-/games/b29/b294fdd866dcdb643e7bab370a552855.jpg",
+        },
       },
     });
   });
@@ -110,7 +114,7 @@ describe("getGame: answers", () => {
         name: "TBA",
         released: null,
         platforms: [],
-        imageUrl: null,
+        image: null,
       },
     });
   });

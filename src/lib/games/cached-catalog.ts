@@ -24,8 +24,11 @@ import type {
  * outlive deployments (Next's Data Cache keeps them across deploys), so a
  * change to CatalogGame bumps this in the same commit, and an answer stored
  * under the old shape is never read as the new one.
+ *
+ * - 1: the first shape, with the art as `imageUrl`.
+ * - 2: the art as `image`, a URL per use (thumbnail and page).
  */
-export const CATALOG_SHAPE_VERSION = 1;
+export const CATALOG_SHAPE_VERSION = 2;
 
 /** How long a search answer is kept: 24 h. */
 export const SEARCH_REVALIDATE_SECONDS = 86_400;
