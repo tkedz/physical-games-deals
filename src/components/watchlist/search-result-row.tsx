@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { GameLink } from "@/components/games/game-link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EntryActionButton } from "@/components/watchlist/entry-action-button";
@@ -7,9 +8,10 @@ import { gameEntryFields, releaseYear } from "@/lib/watchlist/rules";
 import type { PinnablePlatform, WatchlistAction } from "@/lib/watchlist/types";
 
 /**
- * One game the catalogue found: its name, then its release year and the
- * catalogue's platform names. The platform names are information only; the
- * pin is the platform chosen in the form, one of the fixed seven.
+ * One game the catalogue found: its name, which links to the game's page,
+ * then its release year and the catalogue's platform names. The platform
+ * names are information only; the pin is the platform chosen in the form, one
+ * of the fixed seven.
  *
  * "Obserwuj" adds the game with that platform. When the list already holds it
  * for that platform (isGameOnList, worked out by the caller), the button reads
@@ -45,7 +47,7 @@ export function SearchResultRow({
       <CardContent className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2">
         <div className="flex flex-col gap-0.5">
           <p id={nameId} className="font-medium">
-            {game.name}
+            <GameLink id={game.id}>{game.name}</GameLink>
           </p>
           {details !== "" && <p className="text-muted-foreground">{details}</p>}
         </div>

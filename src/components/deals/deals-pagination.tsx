@@ -42,9 +42,9 @@ function PendingArrow({ direction }: { direction: "newer" | "older" }) {
 }
 
 /**
- * "Nowsze" and "Starsze" between the pages of a list of deals, `/` or
- * `/my-deals`, with the page number between them. Nothing renders on a first
- * page that has no older one.
+ * "Nowsze" and "Starsze" between the pages of a list of deals, `/`,
+ * `/my-deals` or a game's page, with the page number between them. Nothing
+ * renders on a first page that has no older one.
  *
  * Moving between pages changes only the search params, and such a navigation
  * shows no pending state of its own until the server answers

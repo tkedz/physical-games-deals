@@ -1,7 +1,7 @@
 /**
  * Which page of a list of deals a request asks for, and where each page lives.
- * Two lists are paged this way: `/`, every listed deal, and `/my-deals`, the
- * signed-in user's matches.
+ * Three lists are paged this way: `/`, every listed deal, `/my-deals`, the
+ * signed-in user's matches, and `/games/<id>`, the deals one game matches.
  *
  * Pure, with no framework import, so the pages, their pagination links and a
  * future test runner all call the same code.
@@ -11,7 +11,7 @@
 export const PAGE_SIZE = 30;
 
 /** The address of a list of deals: its first page, and the base of the rest. */
-export type DealListPath = "/" | "/my-deals";
+export type DealListPath = "/" | "/my-deals" | `/games/${number}`;
 
 const POSITIVE_INTEGER = /^[1-9]\d*$/;
 

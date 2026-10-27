@@ -1,9 +1,10 @@
 /**
- * The reads behind `/` and `/my-deals`: a page of listed deals — every one, or
- * the signed-in user's matches — and when the last successful run finished.
- * The client is passed in, so the caller decides whose session reads — a
- * client from src/utils/supabase/server.ts, created for the request, holding
- * the publishable key, and on `/my-deals` the user's session.
+ * The reads behind `/`, `/my-deals` and `/games/<id>`: a page of listed deals
+ * — every one, the signed-in user's matches, or one game's — and when the
+ * last successful run finished. The client is passed in, so the caller
+ * decides whose session reads — a client from src/utils/supabase/server.ts,
+ * created for the request, holding the publishable key, and on `/my-deals`
+ * the user's session.
  *
  * A failed read comes back as a value, `{ ok: false }`: never a throw, and
  * never the error itself. The page answers every failure with the same inline
@@ -11,9 +12,10 @@
  * resolves most failures as `{ error }` rather than throwing, and retries a
  * failed GET up to three times first, so a failure takes about seven seconds
  * to arrive; a throw from the call is caught and treated the same. The server
- * log gets the relation read (a table, or the view behind `/my-deals`) and
- * PostgREST's code, or the column a row failed on — never the error's
- * message — so a failure can be told apart afterwards.
+ * log gets the relation read (a table, the view behind `/my-deals`, or the
+ * function behind a game's page) and PostgREST's code, or the column a row
+ * failed on — never the error's message — so a failure can be told apart
+ * afterwards.
  *
  * Server-only, as the reads of a Server Component; like the auth helper in
  * src/lib/auth/current-user.ts, the import needs no package.
@@ -124,22 +126,50 @@ export type DealsPageResult =
   { ok: true; deals: ListedDeal[]; hasOlder: boolean } | { ok: false };
 
 /**
- * Where a page of listed deals is read from: public.deals for every one, and
- * public.matched_deals, the view of public.deals that keeps the deals matching
- * the caller's active watchlist entries.
+ * The part of a PostgREST query that the read of listed deals builds, from
+ * its columns on: the calls loadListedDealsPage makes, and nothing else.
+ * postgrest-js types a table's query and a function's differently, so neither
+ * is assignable to the other; both are assignable to this.
+ *
+ * It has `match` and no `eq`: checking postgrest-js's generic `eq` against any
+ * signature here exceeds the compiler's instantiation limit (TS2589).
+ * `match({ a: x, b: y })` sends the same `a=eq.x&b=eq.y` as two `eq` calls.
  */
-type ListedDealsRelation = "deals" | "matched_deals";
+interface ListedDealsQuery {
+  match(query: Record<string, string>): ListedDealsQuery;
+  not(column: string, operator: "is", value: null): ListedDealsQuery;
+  or(filters: string): ListedDealsQuery;
+  order(column: string, options: { ascending: boolean }): ListedDealsQuery;
+  range(
+    from: number,
+    to: number,
+  ): PromiseLike<{ data: unknown; error: unknown }>;
+}
 
 /**
- * One page of the listed deals in `relation`, newest first by the post's
+ * Where a page of listed deals is read from, before its columns are chosen:
+ * - public.deals, for every one;
+ * - public.matched_deals, the view of public.deals that keeps the deals
+ *   matching the caller's active watchlist entries;
+ * - public.deals_for_game, the function returning the rows of public.deals
+ *   that one game matches.
+ * `name`, the relation or the function, is what the server log names.
+ */
+type ListedDealsSource = {
+  name: string;
+  rows: { select(columns: string): ListedDealsQuery };
+};
+
+/**
+ * One page of the listed deals in `source`, newest first by the post's
  * publication time, with the id breaking ties, so that pages neither overlap
- * nor skip a row. Both relations are read the same way.
+ * nor skip a row. Every source is read the same way.
  *
  * - The select policy on public.deals admits only listed rows: a game, a
- *   physical copy, a price, not expired. The view runs as the caller, so the
- *   policy holds under it too, and the view states the same predicate. The
- *   query states it anyway, so a policy widened for some other reader cannot
- *   widen this page.
+ *   physical copy, a price, not expired. The view and the function run as the
+ *   caller, so the policy holds under them too, and the view states the same
+ *   predicate. The query states it anyway, so a policy widened for some other
+ *   reader cannot widen this page.
  * - A deal is hidden from its `expires_at` on: the column holds the
  *   exclusive end of the offer, so `expires_at > now` keeps exactly the
  *   offers still running. One without a date stays.
@@ -147,19 +177,16 @@ type ListedDealsRelation = "deals" | "matched_deals";
  *   older page does, without a count query.
  */
 async function loadListedDealsPage(
-  client: SupabaseClient,
-  relation: ListedDealsRelation,
+  source: ListedDealsSource,
   page: number,
   now: Date,
 ): Promise<DealsPageResult> {
   const from = (page - 1) * PAGE_SIZE;
   const rows = await readRows(
-    relation,
-    client
-      .from(relation)
+    source.name,
+    source.rows
       .select(LISTED_DEAL_COLUMNS)
-      .eq("kind", "game")
-      .eq("edition", "physical")
+      .match({ kind: "game", edition: "physical" })
       .not("price_amount", "is", null)
       // Inside or=(…) a value holding ":" or "." must be quoted, because
       // those characters are PostgREST's own syntax there.
@@ -184,7 +211,11 @@ export function loadDealsPage(
   page: number,
   now: Date,
 ): Promise<DealsPageResult> {
-  return loadListedDealsPage(client, "deals", page, now);
+  return loadListedDealsPage(
+    { name: "deals", rows: client.from("deals") },
+    page,
+    now,
+  );
 }
 
 /**
@@ -198,7 +229,38 @@ export function loadMatchedDealsPage(
   page: number,
   now: Date,
 ): Promise<DealsPageResult> {
-  return loadListedDealsPage(client, "matched_deals", page, now);
+  return loadListedDealsPage(
+    { name: "matched_deals", rows: client.from("matched_deals") },
+    page,
+    now,
+  );
+}
+
+/**
+ * One page of the listed deals that a watchlist entry for the game named
+ * `name`, with no platform, would match, for the game's page, `/games/<id>`.
+ * `name` is the catalogue's name of the game, as an entry stores it.
+ *
+ * Read through public.deals_for_game, which keys the name as matching does
+ * and runs as the caller, so a visitor reads it as anon, and a user as
+ * themselves. The call is a GET (`get: true`): postgrest-js sends an RPC as a
+ * POST otherwise, and retries a failed GET only, as the comment at the top
+ * relies on. The name travels as a query parameter.
+ */
+export function loadGameDealsPage(
+  client: SupabaseClient,
+  name: string,
+  page: number,
+  now: Date,
+): Promise<DealsPageResult> {
+  return loadListedDealsPage(
+    {
+      name: "deals_for_game",
+      rows: client.rpc("deals_for_game", { name }, { get: true }),
+    },
+    page,
+    now,
+  );
 }
 
 export type LastRefreshResult =

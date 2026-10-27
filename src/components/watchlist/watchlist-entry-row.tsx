@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { GameLink } from "@/components/games/game-link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { EntryActionButton } from "@/components/watchlist/entry-action-button";
@@ -11,8 +12,9 @@ import type { WatchlistAction, WatchlistEntry } from "@/lib/watchlist/types";
 
 /**
  * One entry on the list: a game, by its name and release year as they were
- * when it was added, or a phrase, in quotes with a "Fraza" badge. Under it,
- * the pin: the platform's badge, or "Dowolna platforma".
+ * when it was added, the name linking to the game's page; or a phrase, in
+ * quotes with a "Fraza" badge, as plain text. Under it, the pin: the
+ * platform's badge, or "Dowolna platforma".
  *
  * "Usuń" is a ghost button: the outline and destructive variants' focus
  * indicator is below 3:1 (context/archive/2026-09-24-ui-init/change.md). It is described
@@ -40,7 +42,9 @@ export function WatchlistEntryRow({
         <div className="flex flex-col items-start gap-1.5">
           {entry.kind === "game" ? (
             <p className="font-medium">
-              <span id={nameId}>{entry.game_name}</span>
+              <span id={nameId}>
+                <GameLink id={entry.game_id}>{entry.game_name}</GameLink>
+              </span>
               {year !== null && (
                 <span className="font-normal text-muted-foreground">
                   {` · ${year}`}

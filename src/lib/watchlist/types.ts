@@ -52,6 +52,12 @@ export type PhraseEntry = {
 export type WatchlistEntry = GameEntry | PhraseEntry;
 
 /**
+ * What a game's watch control offers, as watchState in rules.ts decides it: a
+ * sign-in link for a visitor, a disabled "Na liście", or "Obserwuj".
+ */
+export type WatchState = "guest" | "on_list" | "can_watch";
+
+/**
  * What a watchlist action answers, for useActionState: a null message when
  * the change was made, or the one line the button shows under itself.
  */

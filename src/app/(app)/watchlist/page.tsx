@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CatalogSearchForm } from "@/components/watchlist/catalog-search-form";
-import { RawgAttribution } from "@/components/watchlist/rawg-attribution";
 import {
   SearchResultsSection,
   SearchResultsSkeleton,
@@ -12,7 +11,11 @@ import {
 } from "@/components/watchlist/watchlist-entries";
 import { WatchlistPage } from "@/components/watchlist/watchlist-page";
 import { parseSearchState } from "@/lib/watchlist/rules";
-import { addGameEntry, addPhraseEntry, removeEntry } from "./actions";
+import {
+  addGameEntry,
+  addPhraseEntry,
+  removeEntry,
+} from "../_watchlist/actions";
 
 export const metadata: Metadata = {
   title: "Lista obserwowanych",
@@ -29,8 +32,9 @@ export const metadata: Metadata = {
  * - The results stream in a boundary keyed by the search, so each new search
  *   brings the skeleton back. The boundary mounts only for a query; without
  *   one, its skeleton would announce a search that is not running.
- * - The list streams in a boundary of its own, below the RAWG credit that
- *   every page showing RAWG data carries.
+ * - The list streams in a boundary of its own. The RAWG credit that every
+ *   page showing RAWG data carries is in the shared footer
+ *   (src/app/(app)/layout.tsx).
  * - A `?q=` or `?platform=` that cannot be read is clamped, never a 404 —
  *   parseSearchState says why.
  */
@@ -55,7 +59,6 @@ export default async function WatchlistRoute({
           />
         </Suspense>
       )}
-      <RawgAttribution />
       <Suspense fallback={<WatchlistSkeleton />}>
         <WatchlistSection removeAction={removeEntry} />
       </Suspense>

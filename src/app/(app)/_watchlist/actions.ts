@@ -2,7 +2,11 @@
 
 /**
  * The watchlist's three changes — adding a game, adding a phrase, removing an
- * entry — which EntryActionButton posts through useActionState.
+ * entry — which EntryActionButton posts through useActionState, from
+ * `/watchlist` and from a game's page, `/games/<id>`.
+ *
+ * They live in a private folder (`_watchlist`, which is no route), so they
+ * outlive any one page that posts them.
  *
  * Each action is a public POST endpoint, whatever page renders its button
  * (node_modules/next/dist/docs/01-app/02-guides/server-actions.md, Security),
@@ -14,7 +18,7 @@
  * 3. writes with a client created for this request, acting as the user, so
  *    RLS confines the write to the user's own rows;
  * 4. answers with the line its button shows, or with none after refresh(),
- *    which re-renders /watchlist in the same response.
+ *    which re-renders whichever page posted, in the same response.
  *
  * A change that was not made is an answer, not a throw
  * (node_modules/next/dist/docs/01-app/01-getting-started/10-error-handling.md).
@@ -61,7 +65,10 @@ function answer(
   return { message: null };
 }
 
-/** Adds a catalogue game to the list, from a search result's "Obserwuj". */
+/**
+ * Adds a catalogue game to the list, from a search result's or a game page's
+ * "Obserwuj".
+ */
 export async function addGameEntry(
   _state: WatchlistActionState,
   formData: FormData,

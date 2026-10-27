@@ -1,9 +1,10 @@
 /**
  * The watchlist's rules: how the search reads the URL, when a query can
- * become a phrase, how matching folds text, what is already on the list, and
- * what the three Server Actions accept. The platforms an entry can be pinned
- * to, and how long a query may be, live in ./vocabulary.ts, which the browser
- * loads without zod; they are re-exported here.
+ * become a phrase, how matching folds text, what is already on the list, what
+ * a game's watch control offers, and what the three Server Actions accept.
+ * The platforms an entry can be pinned to, and how long a query may be, live
+ * in ./vocabulary.ts, which the browser loads without zod; they are
+ * re-exported here.
  *
  * Pure — no framework import and no I/O — so the view, the actions and a
  * future test runner all call the same code (context/foundation/lessons.md).
@@ -16,7 +17,13 @@
  */
 import { z } from "zod";
 import type { CatalogGame } from "@/lib/catalog/types";
-import type { PinnablePlatform, SearchState, WatchlistEntry } from "./types";
+import { MAX_GAME_ID } from "@/lib/games/rules";
+import type {
+  PinnablePlatform,
+  SearchState,
+  WatchlistEntry,
+  WatchState,
+} from "./types";
 import { characterCount, MAX_QUERY_LENGTH, parsePlatform } from "./vocabulary";
 
 export {
@@ -190,6 +197,27 @@ export function isGameOnList(
 }
 
 /**
+ * What a game's watch control offers for one platform:
+ * - "guest" for a visitor, who is led to sign in instead. A visitor has no
+ *   list, so `entries` is not read;
+ * - "on_list" when the user's list holds the game on exactly this platform,
+ *   as isGameOnList decides it, so the control reads "Na liście";
+ * - "can_watch" otherwise, the "Obserwuj" that adds it.
+ */
+export function watchState(input: {
+  signedIn: boolean;
+  entries: readonly WatchlistEntry[];
+  gameId: number;
+  /** The platform chosen in the control; null means any platform. */
+  platform: PinnablePlatform | null;
+}): WatchState {
+  if (!input.signedIn) return "guest";
+  return isGameOnList(input.entries, input.gameId, input.platform)
+    ? "on_list"
+    : "can_watch";
+}
+
+/**
  * Whether the list already holds this phrase on this platform: true in every
  * case where the database would refuse it as a duplicate. Either of two
  * unique indexes on public.watchlist_entries refuses a phrase:
@@ -249,9 +277,6 @@ function positiveInteger(max: number) {
     .refine((value) => value <= max);
 }
 
-// The largest value of a Postgres integer, game_id's type.
-const MAX_GAME_ID = 2_147_483_647;
-
 /** Trimmed text of `min` to `max` characters. */
 function textOfLength(min: number, max: number) {
   return z
@@ -270,6 +295,7 @@ const platformField = z.unknown().optional().transform(parsePlatform);
 
 /** The form data of adding a game: what gameEntryFields writes. */
 export const addGameEntrySchema = z.object({
+  // game_id's type, a Postgres integer, as the game page checks it.
   gameId: positiveInteger(MAX_GAME_ID),
   gameSlug: textOfLength(1, 200),
   gameName: textOfLength(1, 200),

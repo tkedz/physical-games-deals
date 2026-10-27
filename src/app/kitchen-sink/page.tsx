@@ -9,6 +9,16 @@ import {
   MyDealsResults,
   MyDealsSkeleton,
 } from "@/components/deals/my-deals-section";
+import {
+  GameDealsResults,
+  GameDealsSkeleton,
+} from "@/components/games/game-deals-section";
+import { GameHeader } from "@/components/games/game-header";
+import { GameUnavailable } from "@/components/games/game-unavailable";
+import {
+  GameWatchSkeleton,
+  GameWatchView,
+} from "@/components/games/game-watch-control";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -284,11 +294,22 @@ const sampleEntries: WatchlistEntry[] = [
   { id: 1, kind: "phrase", platform: "switch-2", phrase: "Wiedźmin" },
 ];
 
+// "Strona gry" shows one game, Fire Emblem Engage, which the sample list
+// holds for any platform: with that list its watch control reads "Na liście",
+// and with an empty one it offers "Obserwuj". Every control is described by
+// the one header's name. Its deals take ids of their own, for the reason
+// myDealsSamples gives.
+const gamePageSample: CatalogGame = fireEmblemResults[1];
+
+const gameDealsSamples: ListedDeal[] = sampleDeals
+  .slice(0, 2)
+  .map((deal) => ({ ...deal, id: deal.id + 200 }));
+
 /**
- * Every named state of src/components/ui and of the deals and watchlist views'
- * components in src/components/deals and src/components/watchlist, with
- * Polish sample copy: the visual check for theme changes and a reference for
- * new views.
+ * Every named state of src/components/ui and of the deals, watchlist and game
+ * views' components in src/components/deals, src/components/watchlist and
+ * src/components/games, with Polish sample copy: the visual check for theme
+ * changes and a reference for new views.
  *
  * The guard stays first, outside any Suspense boundary: notFound() thrown after
  * streaming starts is a soft 404 served as 200
@@ -690,6 +711,117 @@ export default function KitchenSinkPage() {
         <div className="flex flex-col gap-3">
           <h3 className="font-heading text-base font-medium">Atrybucja RAWG</h3>
           <RawgAttribution />
+        </div>
+      </section>
+
+      {/* A game's page, `/games/<id>`, in every state it can be in, from the
+          sample data above: the visual gate before the page depends on them.
+          No action is passed, so "Obserwuj" renders inert, and nothing here
+          reaches Supabase or the catalogue. The header and the unavailable
+          state each hold the page's h1. */}
+      <section className="flex flex-col gap-6">
+        <h2 className="font-heading text-xl font-semibold tracking-tight">
+          Strona gry
+        </h2>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">Nagłówek</h3>
+          <GameHeader game={gamePageSample} />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Obserwowanie: do dodania
+          </h3>
+          <GameWatchView game={gamePageSample} signedIn entries={[]} />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Obserwowanie: już na liście
+          </h3>
+          <GameWatchView
+            game={gamePageSample}
+            signedIn
+            entries={sampleEntries}
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Obserwowanie: nieudane dodanie
+          </h3>
+          <GameWatchView
+            game={gamePageSample}
+            signedIn
+            entries={[]}
+            initialMessage="Nie udało się zapisać zmiany. Spróbuj ponownie."
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Obserwowanie: gość
+          </h3>
+          <GameWatchView game={gamePageSample} signedIn={false} entries={[]} />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Obserwowanie: wczytywanie
+          </h3>
+          <GameWatchSkeleton />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Okazje ze stronami
+          </h3>
+          <GameDealsResults
+            gameId={gamePageSample.id}
+            page={1}
+            freshness={freshSample}
+            deals={gameDealsSamples}
+            hasOlder
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">Brak okazji</h3>
+          <GameDealsResults
+            gameId={gamePageSample.id}
+            page={1}
+            freshness={freshSample}
+            deals={[]}
+            hasOlder={false}
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Strona za końcem listy
+          </h3>
+          <GameDealsResults
+            gameId={gamePageSample.id}
+            page={3}
+            freshness={freshSample}
+            deals={[]}
+            hasOlder={false}
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Wczytywanie okazji
+          </h3>
+          <GameDealsSkeleton />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Katalog niedostępny
+          </h3>
+          <GameUnavailable />
         </div>
       </section>
     </main>

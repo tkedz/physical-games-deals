@@ -3,12 +3,16 @@ import { Suspense } from "react";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RawgAttribution } from "@/components/watchlist/rawg-attribution";
 import { getCurrentUser } from "@/lib/auth/current-user";
 
 /**
- * The header every product view shares: a way in for visitors; for users,
- * links to their matched deals and to their watchlist, who is signed in, and a
- * way out.
+ * The header and footer every product view shares. The header holds a way in
+ * for visitors; for users, links to their matched deals and to their
+ * watchlist, who is signed in, and a way out. The footer holds the RAWG credit
+ * that every page showing RAWG data carries (CLAUDE.md, Game catalogue): one
+ * credit for `/`, `/games/<id>`, `/my-deals` and `/watchlist`, so no page
+ * showing the catalogue's data can leave it out.
  *
  * Reading the session makes every view under this layout dynamic. It happens
  * inside a Suspense boundary, so the rest of the page streams without waiting
@@ -32,6 +36,11 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
         </div>
       </header>
       {children}
+      <footer className="border-t">
+        <div className="mx-auto flex w-full max-w-2xl px-4 py-3">
+          <RawgAttribution />
+        </div>
+      </footer>
     </>
   );
 }

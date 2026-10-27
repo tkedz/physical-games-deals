@@ -849,9 +849,9 @@ Result rows and the game page show RAWG's image, served by RAWG in a reduced siz
 
 #### Automated
 
-- [x] 2.1 The db project passes, including both truth tables and the harness test: `npm test -- --project db`
-- [x] 2.2 The whole suite passes: `npm test`
-- [x] 2.3 The migration applies to the local stack: `npm run local:up`
+- [x] 2.1 The db project passes, including both truth tables and the harness test: `npm test -- --project db` — a85713e
+- [x] 2.2 The whole suite passes: `npm test` — a85713e
+- [x] 2.3 The migration applies to the local stack: `npm run local:up` — a85713e
 
 #### Manual
 
@@ -862,18 +862,18 @@ Result rows and the game page show RAWG's image, served by RAWG in a reduced siz
 
 #### Automated
 
-- [ ] 3.1 Unit tests for `parseGameId` and `watchState` pass: `npm test -- --project unit`
-- [ ] 3.2 The whole suite passes: `npm test`
-- [ ] 3.3 Lint, formatting and types pass: `npm run lint`, `npm run format:check`, `npx next typegen && npx tsc --noEmit`
-- [ ] 3.4 The new game-page E2E spec passes locally, along with the existing specs: `npx playwright test`
-- [ ] 3.5 Against `npm run build && npm run start`, `curl -sI http://localhost:3000/games/abc` answers 404, and the HTML of `/games/3498` carries `noindex`
+- [x] 3.1 Unit tests for `parseGameId` and `watchState` pass: `npm test -- --project unit`
+- [x] 3.2 The whole suite passes: `npm test`
+- [x] 3.3 Lint, formatting and types pass: `npm run lint`, `npm run format:check`, `npx next typegen && npx tsc --noEmit`
+- [x] 3.4 The new game-page E2E spec passes locally, along with the existing specs: `npx playwright test`
+- [x] 3.5 Against `npm run build && npm run start`, `curl -sI http://localhost:3000/games/abc` answers 404, and the HTML of `/games/3498` carries `noindex`
 
 #### Manual
 
-- [ ] 3.6 With a RAWG key and the local stack, the game page for Elden Ring (reached from a `/watchlist` result) shows its header and seed deal D1
-- [ ] 3.7 Signed in, choosing PS5 and „Obserwuj” on that page turns the button into „Na liście” for PS5 only, and `/my-deals` then lists D1
-- [ ] 3.8 As a guest, the game page shows „Zaloguj się, aby obserwować” and the deals
-- [ ] 3.9 The page reads well at 375 px and 1280 px, and its footer carries the RAWG credit
+- [x] 3.6 With a RAWG key and the local stack, the game page for Elden Ring (reached from a `/watchlist` result) shows its header and seed deal D1
+- [x] 3.7 Signed in, choosing PS5 and „Obserwuj” on that page turns the button into „Na liście” for PS5 only, and `/my-deals` then lists D1
+- [x] 3.8 As a guest, the game page shows „Zaloguj się, aby obserwować” and the deals
+- [x] 3.9 The page reads well at 375 px and 1280 px, and its footer carries the RAWG credit
 
 ### Phase 4: Search on `/` with an overlay
 
