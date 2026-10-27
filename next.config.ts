@@ -31,7 +31,7 @@ export default function nextConfig(phase: string): NextConfig {
     experimental: {
       // Off because the RAWG request URL carries the key: under `next dev`
       // this cache clones every fetch body, and a clone that fails to read is
-      // logged with its URL (src/lib/watchlist/catalog.ts).
+      // logged with its URL (src/lib/games/catalog.ts).
       serverComponentsHmrCache: false,
     },
   };

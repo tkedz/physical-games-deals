@@ -23,7 +23,7 @@ import { PhraseOffer } from "@/components/watchlist/phrase-offer";
 import { SearchResultRow } from "@/components/watchlist/search-result-row";
 import { getCurrentUser } from "@/lib/auth/current-user";
 import type { CatalogGame } from "@/lib/catalog/types";
-import { searchCatalog } from "@/lib/watchlist/catalog";
+import { searchCatalog } from "@/lib/games/catalog";
 import { getActiveEntries } from "@/lib/watchlist/current-entries";
 import { isGameOnList } from "@/lib/watchlist/rules";
 import type {

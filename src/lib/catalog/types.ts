@@ -42,9 +42,21 @@ export type SearchOptions = {
   timeoutMs?: number;
 };
 
+export type LookupOptions = {
+  timeoutMs?: number;
+};
+
 export interface GameCatalog {
   searchGames(
     query: string,
     options?: SearchOptions,
   ): Promise<CatalogResult<CatalogGame[]>>;
+  /**
+   * One game by the provider's id. `null` means the provider has no such
+   * game: an answer, kept like a game, not a failure.
+   */
+  getGame(
+    id: number,
+    options?: LookupOptions,
+  ): Promise<CatalogResult<CatalogGame | null>>;
 }

@@ -833,17 +833,17 @@ Result rows and the game page show RAWG's image, served by RAWG in a reduced siz
 
 #### Automated
 
-- [ ] 1.1 Unit tests for the RAWG lookup and the cache wrapper pass: `npm test -- --project unit`
-- [ ] 1.2 The whole suite passes: `npm test`
-- [ ] 1.3 Lint passes: `npm run lint`
-- [ ] 1.4 Formatting passes: `npm run format:check`
-- [ ] 1.5 Types check: `npx next typegen && npx tsc --noEmit`
-- [ ] 1.6 No caching or Next import under `src/lib/catalog/`, and no fetch-level `next:` cache option anywhere in `src/lib/games/` (grep)
+- [x] 1.1 Unit tests for the RAWG lookup and the cache wrapper pass: `npm test -- --project unit`
+- [x] 1.2 The whole suite passes: `npm test`
+- [x] 1.3 Lint passes: `npm run lint`
+- [x] 1.4 Formatting passes: `npm run format:check`
+- [x] 1.5 Types check: `npx next typegen && npx tsc --noEmit`
+- [x] 1.6 No caching or Next import under `src/lib/catalog/`, and no fetch-level `next:` cache option anywhere in `src/lib/games/` (grep)
 
 #### Manual
 
-- [ ] 1.7 With a RAWG key in `.env.local` and `npm run dev`, a `/watchlist` search for „elden ring” still lists results and can add a game
-- [ ] 1.8 With `RAWG_API_KEY= npm run dev` and a query not searched before, `/watchlist` shows „Katalog gier jest chwilowo niedostępny” and still offers the phrase
+- [x] 1.7 With a RAWG key in `.env.local` and `npm run dev`, a `/watchlist` search for „elden ring” still lists results and can add a game
+- [x] 1.8 With `RAWG_API_KEY= npm run dev` and a query not searched before, `/watchlist` shows „Katalog gier jest chwilowo niedostępny” and still offers the phrase
 
 ### Phase 2: Public match path
 

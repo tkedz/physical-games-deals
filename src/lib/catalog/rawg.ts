@@ -7,7 +7,7 @@
  * be called with data, as context/foundation/lessons.md asks.
  *
  * The key travels as the `?key=` query parameter, so the request URL is itself
- * a secret. It is built inside searchGames and goes nowhere else — not into a
+ * a secret. It is built inside getJson and goes nowhere else — not into a
  * thrown message, not into a result, not into a log.
  */
 import { z } from "zod";
@@ -19,10 +19,11 @@ import type {
   CatalogGame,
   CatalogResult,
   GameCatalog,
+  LookupOptions,
   SearchOptions,
 } from "./types";
 
-const SEARCH_URL = "https://api.rawg.io/api/games";
+const API_URL = "https://api.rawg.io/api";
 const DEFAULT_LIMIT = 10;
 const DEFAULT_TIMEOUT_MS = 5_000;
 const USER_AGENT =
@@ -77,15 +78,12 @@ const rawgSearchResponseSchema = z.object({
 });
 
 /**
- * Validates a `GET /games` body and maps it to the contract. Returns null when
- * the shape does not match. `platforms: null` becomes an empty list, and an
- * absent or null `released` or `background_image` becomes null.
+ * One RAWG game in the contract's shape, the same for a search result and a
+ * lookup. `platforms: null` becomes an empty list, and an absent or null
+ * `released` or `background_image` becomes null.
  */
-export function parseRawgSearchResponse(body: unknown): CatalogGame[] | null {
-  const parsed = rawgSearchResponseSchema.safeParse(body);
-  if (!parsed.success) return null;
-
-  return parsed.data.results.map((game) => ({
+function toCatalogGame(game: z.infer<typeof rawgGameSchema>): CatalogGame {
+  return {
     id: game.id,
     slug: game.slug,
     name: game.name,
@@ -96,7 +94,27 @@ export function parseRawgSearchResponse(body: unknown): CatalogGame[] | null {
       name: platform.name,
     })),
     imageUrl: game.background_image ?? null,
-  }));
+  };
+}
+
+/**
+ * Validates a `GET /games` body and maps it to the contract. Returns null when
+ * the shape does not match.
+ */
+export function parseRawgSearchResponse(body: unknown): CatalogGame[] | null {
+  const parsed = rawgSearchResponseSchema.safeParse(body);
+  if (!parsed.success) return null;
+  return parsed.data.results.map(toCatalogGame);
+}
+
+/**
+ * Validates a `GET /games/{id}` body and maps it to the contract, as a search
+ * result is mapped. Returns null when the shape does not match.
+ */
+export function parseRawgGameResponse(body: unknown): CatalogGame | null {
+  const parsed = rawgGameSchema.safeParse(body);
+  if (!parsed.success) return null;
+  return toCatalogGame(parsed.data);
 }
 
 export function createRawgCatalog(deps: {
@@ -107,74 +125,113 @@ export function createRawgCatalog(deps: {
   // "Illegal invocation".
   const { apiKey, fetch: fetchImpl } = deps;
 
+  /**
+   * One GET to RAWG, read as far as a JSON body: the request, the timeout,
+   * the read and the parse both methods share. A non-2xx status becomes a
+   * failure classified by classifyRawgStatus, carrying that status. No other
+   * failure carries a non-2xx status, so a method that takes a status as an
+   * answer (getGame's 404) can tell it from the failure alone.
+   */
+  async function getJson(
+    path: string,
+    query: Record<string, string>,
+    timeoutMs: number = DEFAULT_TIMEOUT_MS,
+  ): Promise<CatalogResult<{ status: number; body: unknown }>> {
+    // URLSearchParams percent-encodes every value, Polish characters included.
+    const params = new URLSearchParams({ key: apiKey, ...query });
+    const signal = AbortSignal.timeout(timeoutMs);
+
+    // Every catch below drops the error object: its message or `cause` may
+    // name the request, and with it the key.
+    let response: Response;
+    try {
+      response = await fetchImpl(`${API_URL}${path}?${params}`, {
+        headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+        signal,
+      });
+    } catch {
+      return { ok: false, reason: "unavailable", status: null };
+    }
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        reason: classifyRawgStatus(response.status),
+        status: response.status,
+      };
+    }
+
+    // Read and parse apart: the timeout can still fire, or the connection
+    // drop, while the body streams in — that is an unavailable catalogue,
+    // not a malformed answer.
+    let text: string;
+    try {
+      text = await response.text();
+    } catch {
+      return { ok: false, reason: "unavailable", status: response.status };
+    }
+
+    try {
+      return {
+        ok: true,
+        value: { status: response.status, body: JSON.parse(text) },
+      };
+    } catch {
+      return {
+        ok: false,
+        reason: "invalid_response",
+        status: response.status,
+      };
+    }
+  }
+
   return {
     async searchGames(
       query: string,
       options: SearchOptions = {},
     ): Promise<CatalogResult<CatalogGame[]>> {
-      // URLSearchParams percent-encodes the query, Polish characters included.
-      const params = new URLSearchParams({
-        key: apiKey,
+      const params: Record<string, string> = {
         search: query,
         page_size: String(options.limit ?? DEFAULT_LIMIT),
-      });
-      if (options.excludeAdditions) params.set("exclude_additions", "true");
+      };
+      if (options.excludeAdditions) params.exclude_additions = "true";
 
-      const signal = AbortSignal.timeout(
-        options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
-      );
+      const reply = await getJson("/games", params, options.timeoutMs);
+      if (!reply.ok) return reply;
 
-      // Every catch below drops the error object: its message or `cause` may
-      // name the request, and with it the key.
-      let response: Response;
-      try {
-        response = await fetchImpl(`${SEARCH_URL}?${params}`, {
-          headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
-          signal,
-        });
-      } catch {
-        return { ok: false, reason: "unavailable", status: null };
-      }
-
-      if (!response.ok) {
-        return {
-          ok: false,
-          reason: classifyRawgStatus(response.status),
-          status: response.status,
-        };
-      }
-
-      // Read and parse apart: the timeout can still fire, or the connection
-      // drop, while the body streams in — that is an unavailable catalogue,
-      // not a malformed answer.
-      let text: string;
-      try {
-        text = await response.text();
-      } catch {
-        return { ok: false, reason: "unavailable", status: response.status };
-      }
-
-      let body: unknown;
-      try {
-        body = JSON.parse(text);
-      } catch {
-        return {
-          ok: false,
-          reason: "invalid_response",
-          status: response.status,
-        };
-      }
-
-      const games = parseRawgSearchResponse(body);
+      const games = parseRawgSearchResponse(reply.value.body);
       if (games === null) {
         return {
           ok: false,
           reason: "invalid_response",
-          status: response.status,
+          status: reply.value.status,
         };
       }
-
       return { ok: true, value: games };
+    },
+
+    async getGame(
+      id: number,
+      options: LookupOptions = {},
+    ): Promise<CatalogResult<CatalogGame | null>> {
+      // The id arrives validated (a positive integer), so it goes into the
+      // path as it is.
+      const reply = await getJson(`/games/${id}`, {}, options.timeoutMs);
+      if (!reply.ok) {
+        // RAWG answers an id it does not know with 404: that is the answer
+        // "no such game", not a failure.
+        return reply.status === 404 ? { ok: true, value: null } : reply;
+      }
+
+      const game = parseRawgGameResponse(reply.value.body);
+      if (game === null) {
+        return {
+          ok: false,
+          reason: "invalid_response",
+          status: reply.value.status,
+        };
+      }
+      return { ok: true, value: game };
     },
   };
 }

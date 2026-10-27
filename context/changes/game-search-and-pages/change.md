@@ -1,7 +1,7 @@
 ---
 change_id: game-search-and-pages
 title: Catalogue search on the front page, game pages with matched deals, game images
-status: planned
+status: implementing
 created: 2026-10-26
 updated: 2026-10-27
 archived_at: null
@@ -29,3 +29,11 @@ archived_at: null
   - A guest who wants to watch gets a sign-in link and lands on `/` afterwards; no return parameter.
   - The game page also gets the watch control, as in the search results (Tomasz chose this over the recommendation).
 - **2026-10-27 — planned.** `plan.md` (six phases; Phases 1–3 are the minimal mergeable set) and `plan-brief.md` (Key Decisions). Tomasz skipped `/10x-plan-review` and went straight to `/10x-implement`.
+- **2026-10-27 — Phase 1 departures from the plan.**
+  - `src/lib/games/catalog.ts` wraps its two exports in React `cache` itself, rather than passing `cache` into `cached-catalog.ts`. React `cache` stays outermost. `cached-catalog.ts` takes the provider name, a `connect()` that builds the provider's catalogue, an `unstable_cache`-shaped function and a log function.
+  - `CATALOG_PROVIDER` lives in `catalog.ts`, next to the `createRawgCatalog` call, so a provider switch touches one file. `CATALOG_SHAPE_VERSION` lives in `cached-catalog.ts`, where Phase 6 bumps it. Key parts are strings, as `unstable_cache` requires, so the version enters the key as `String(CATALOG_SHAPE_VERSION)`.
+  - The RAWG key is read inside the cache callback, on a miss only. A missing key fails only what is not stored yet, so stored answers are still served without a key.
+  - `rawg.ts` shares one request skeleton (`getJson`) and one mapping (`toCatalogGame`) between search and lookup; `SEARCH_URL` became `API_URL`. Three extra `searchGames` tests pin that search still treats a 404 as `unavailable` and sends the same query parameters.
+  - Only a `CatalogFailureError` becomes `{ ok: false }` outside the cache. Any other error is rethrown, so Next's control-flow errors and real bugs do not read as "catalogue unavailable". A unit test pins it.
+  - `tests/hooks/agent-hooks.test.ts` is unchanged: it does not pin the `SUITE_PATHS.unit` list.
+- **2026-10-27 — Phase 1 verified in dev.** The agent ran 1.7 and 1.8 through Chrome DevTools against the local stack, signed in as a local test account it created, `agent-check@przyklad22.pl` (it goes with `npm run local:reset`). 1.7: „elden ring” listed results and „Obserwuj” added Elden Ring. 1.8: under `RAWG_API_KEY=`, „hollow knight silksong” showed the catalogue message and the phrase offer. Beyond the plan, „Elden  Ring” under the blank key was served from the cache (case and spacing normalised), and the server log held one line, `Searching the game catalogue failed: misconfigured, status none`, with no URL or key.
