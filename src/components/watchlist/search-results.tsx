@@ -1,12 +1,13 @@
 /**
- * Every outcome of a search, shown below the form: results, none, or a
- * catalogue that failed, and the wait for one of them.
+ * Every outcome of a search: results, none, or a catalogue that failed, and
+ * the wait for one of them. `/` shows them in the overlay over the deals list
+ * (src/components/search/search-overlay.tsx), and `/watchlist` below its form.
  *
  * SearchResultsSection fetches and picks one. What each outcome looks like is
  * in the sync views after it, which the kitchen sink renders from sample data.
- * Each takes the search and the user's list, and the actions when there are
- * any; without them the buttons render inert. Without a query there is no
- * outcome, and page.tsx renders none.
+ * Each takes the search, whether a user is signed in, the user's list, and the
+ * actions when there are any; without them the buttons render inert. Without a
+ * query there is no outcome, and the route renders none.
  */
 import { CircleAlert } from "lucide-react";
 import type { ReactNode } from "react";
@@ -25,7 +26,7 @@ import { getCurrentUser } from "@/lib/auth/current-user";
 import type { CatalogGame } from "@/lib/catalog/types";
 import { searchCatalog } from "@/lib/games/catalog";
 import { getActiveEntries } from "@/lib/watchlist/current-entries";
-import { isGameOnList } from "@/lib/watchlist/rules";
+import { watchState } from "@/lib/watchlist/rules";
 import type {
   PinnablePlatform,
   WatchlistAction,
@@ -33,17 +34,20 @@ import type {
 } from "@/lib/watchlist/types";
 
 /**
- * The outcome of the search in the URL, which page.tsx wraps in a Suspense
- * boundary keyed by the search. It asks the catalogue and reads the user's
- * list in parallel, then shows the results, none, or the catalogue's failure,
- * with the real actions on the buttons.
+ * The outcome of the search in the URL, which the route wraps in a Suspense
+ * boundary keyed by the search. It asks for the user and the catalogue in
+ * parallel, then reads the user's list, and shows the results, none, or the
+ * catalogue's failure, with the real actions on the buttons.
  *
- * - Without a user it renders nothing, before it reaches the catalogue or the
- *   database. The proxy's redirect is a first filter only, and this section
- *   renders on its own.
+ * - Anyone may search: the catalogue's answers are cached for everyone
+ *   (src/lib/games/catalog.ts). Without a user the list is not read — read as
+ *   `anon`, which holds no privilege on the table, it would fail and log an
+ *   error — and every button is the sign-in link instead.
  * - A list that could not be read counts as empty here: every result offers
- *   "Obserwuj", and the database still refuses a duplicate. The list below
- *   the search shows the failure, with its retry.
+ *   "Obserwuj", and the database still refuses a duplicate. The list itself
+ *   shows the failure, with its retry.
+ * - The actions check the user themselves, as every Server Action does
+ *   (src/app/(app)/_watchlist/actions.ts).
  */
 export async function SearchResultsSection({
   query,
@@ -58,19 +62,20 @@ export async function SearchResultsSection({
   addGameAction: WatchlistAction;
   addPhraseAction: WatchlistAction;
 }) {
-  if ((await getCurrentUser()) === null) return null;
-
-  const [catalog, list] = await Promise.all([
+  const [user, catalog] = await Promise.all([
+    getCurrentUser(),
     searchCatalog(query),
-    getActiveEntries(),
   ]);
-  const entries = list.ok ? list.entries : [];
+  const signedIn = user !== null;
+  const list = signedIn ? await getActiveEntries() : null;
+  const entries = list?.ok ? list.entries : [];
 
   if (!catalog.ok) {
     return (
       <CatalogUnavailable
         query={query}
         platform={platform}
+        signedIn={signedIn}
         entries={entries}
         addPhraseAction={addPhraseAction}
       />
@@ -81,6 +86,7 @@ export async function SearchResultsSection({
       <SearchNoResults
         query={query}
         platform={platform}
+        signedIn={signedIn}
         entries={entries}
         addPhraseAction={addPhraseAction}
       />
@@ -90,6 +96,7 @@ export async function SearchResultsSection({
     <SearchResultsList
       query={query}
       platform={platform}
+      signedIn={signedIn}
       games={catalog.value}
       entries={entries}
       addGameAction={addGameAction}
@@ -98,12 +105,18 @@ export async function SearchResultsSection({
   );
 }
 
-/** What every outcome knows: the search, the list, and how to add a phrase. */
+/**
+ * What every outcome knows: the search, who is asking, the list, and how to
+ * add a phrase.
+ */
 type SearchOutcomeProps = {
   /** The query as parseSearchState reads it, never empty. */
   query: string;
   /** The platform chosen in the form; null means any platform. */
   platform: PinnablePlatform | null;
+  /** Without a user every button is the sign-in link. */
+  signedIn: boolean;
+  /** The user's active entries; empty for a visitor. */
   entries: readonly WatchlistEntry[];
   addPhraseAction?: WatchlistAction;
 };
@@ -127,12 +140,14 @@ function SearchOutcome({
 }
 
 /**
- * Games the catalogue found, then the phrase offer. A game the list already
- * holds for the chosen platform shows as such (isGameOnList).
+ * Games the catalogue found, then the phrase offer. Each row shows what
+ * watchState decides for the chosen platform: "Obserwuj", "Na liście" when the
+ * list already holds the game on it, or the sign-in link for a visitor.
  */
 export function SearchResultsList({
   query,
   platform,
+  signedIn,
   games,
   entries,
   addGameAction,
@@ -149,7 +164,12 @@ export function SearchResultsList({
             <SearchResultRow
               game={game}
               platform={platform}
-              onList={isGameOnList(entries, game.id, platform)}
+              state={watchState({
+                signedIn,
+                entries,
+                gameId: game.id,
+                platform,
+              })}
               action={addGameAction}
             />
           </li>
@@ -158,6 +178,7 @@ export function SearchResultsList({
       <PhraseOffer
         query={query}
         platform={platform}
+        signedIn={signedIn}
         entries={entries}
         action={addPhraseAction}
       />
@@ -174,6 +195,7 @@ export function SearchResultsList({
 export function SearchNoResults({
   query,
   platform,
+  signedIn,
   entries,
   addPhraseAction,
 }: SearchOutcomeProps) {
@@ -191,6 +213,7 @@ export function SearchNoResults({
       <PhraseOffer
         query={query}
         platform={platform}
+        signedIn={signedIn}
         entries={entries}
         action={addPhraseAction}
       />
@@ -206,6 +229,7 @@ export function SearchNoResults({
 export function CatalogUnavailable({
   query,
   platform,
+  signedIn,
   entries,
   addPhraseAction,
 }: SearchOutcomeProps) {
@@ -219,6 +243,7 @@ export function CatalogUnavailable({
       <PhraseOffer
         query={query}
         platform={platform}
+        signedIn={signedIn}
         entries={entries}
         action={addPhraseAction}
       />

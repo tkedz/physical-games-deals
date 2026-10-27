@@ -48,13 +48,21 @@ const LIVE_SEARCH_MIN_LENGTH = 3;
  * user is typing.
  * `maxLength` counts UTF-16 units, so the field holds at most the 100
  * characters parseSearchState keeps, and nothing typed here is cut.
+ *
+ * On `/` the form sits above the paged list of deals and shares its URL: a
+ * `page` past the first goes with every search as a hidden field, so a search
+ * from page 2 of the list stays on page 2. The field follows the prop, which
+ * the URL drives, so paging with the search open moves it along.
  */
 export function CatalogSearchForm({
   defaultQuery,
   defaultPlatform,
+  page = 1,
 }: {
   defaultQuery: string | null;
   defaultPlatform: PinnablePlatform | null;
+  /** The page of the list beside the form; 1, the default, sends none. */
+  page?: number;
 }) {
   const queryId = useId();
   const platformId = useId();
@@ -105,6 +113,8 @@ export function CatalogSearchForm({
       role="search"
       className="flex flex-col gap-3 sm:flex-row sm:items-end"
     >
+      {/* First, so the address reads as pageHref writes it: ?page=2&q=… */}
+      {page > 1 && <input type="hidden" name="page" value={page} />}
       <Field className="sm:flex-1">
         <FieldLabel htmlFor={queryId}>Tytuł gry</FieldLabel>
         <Input

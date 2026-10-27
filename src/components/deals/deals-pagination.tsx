@@ -5,6 +5,7 @@ import Link, { useLinkStatus } from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { pageHref, type DealListPath } from "@/lib/deals/page";
 import { cn } from "@/lib/utils";
+import type { SearchState } from "@/lib/watchlist/types";
 
 /**
  * The arrow of a pagination link, which turns into a spinner while the link's
@@ -50,21 +51,26 @@ function PendingArrow({ direction }: { direction: "newer" | "older" }) {
  * shows no pending state of its own until the server answers
  * (node_modules/next/dist/docs/01-app/02-guides/interactive-apps.md), hence
  * the arrows above. A Client Component for that hook alone: it takes a number,
- * a boolean and the list's path. The path is a string rather than a function
+ * a boolean, the list's path and the search. The path is a string rather than a function
  * that builds the links, because props passed to a Client Component must be
  * serializable
  * (node_modules/next/dist/docs/01-app/01-getting-started/05-server-and-client-components.md).
- * The first page links as the bare path, its only address.
+ * The first page links as the bare path, its only address. On `/` the links
+ * also carry the search open beside the list, as data for pageHref, so moving
+ * between pages keeps the results open.
  */
 export function DealsPagination({
   page,
   hasOlder,
   basePath,
+  search,
 }: {
   page: number;
   hasOlder: boolean;
   /** The list's own address, whose pages the links step through. */
   basePath: DealListPath;
+  /** The search in the URL beside the list; without it the links carry none. */
+  search?: SearchState;
 }) {
   if (page === 1 && !hasOlder) return null;
 
@@ -75,7 +81,7 @@ export function DealsPagination({
     >
       {page > 1 && (
         <Link
-          href={pageHref(page - 1, basePath)}
+          href={pageHref(page - 1, basePath, search)}
           className={cn(
             buttonVariants({ variant: "secondary" }),
             "col-start-1 justify-self-start",
@@ -90,7 +96,7 @@ export function DealsPagination({
       </p>
       {hasOlder && (
         <Link
-          href={pageHref(page + 1, basePath)}
+          href={pageHref(page + 1, basePath, search)}
           className={cn(
             buttonVariants({ variant: "secondary" }),
             "col-start-3 justify-self-end",

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { DealList } from "@/components/deals/deal-list";
 import { DealListSkeleton } from "@/components/deals/deal-list-skeleton";
 import { DealsError, DealsResults } from "@/components/deals/deals-section";
 import { FreshnessNote } from "@/components/deals/freshness-note";
@@ -19,6 +20,7 @@ import {
   GameWatchSkeleton,
   GameWatchView,
 } from "@/components/games/game-watch-control";
+import { SearchOverlay } from "@/components/search/search-overlay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -306,10 +308,22 @@ const gameDealsSamples: ListedDeal[] = sampleDeals
   .map((deal) => ({ ...deal, id: deal.id + 200 }));
 
 /**
- * Every named state of src/components/ui and of the deals, watchlist and game
- * views' components in src/components/deals, src/components/watchlist and
- * src/components/games, with Polish sample copy: the visual check for theme
- * changes and a reference for new views.
+ * The short list of deals "Wyszukiwarka nad okazjami" opens one overlay over,
+ * the first three sample deals. Each overlay's list takes ids of its own, for
+ * the reason myDealsSamples gives: `offset` 300 gives 401–403, 310 gives
+ * 411–413, and so on.
+ */
+function overlayDealSamples(offset: number): ListedDeal[] {
+  return sampleDeals
+    .slice(0, 3)
+    .map((deal) => ({ ...deal, id: deal.id + offset }));
+}
+
+/**
+ * Every named state of src/components/ui and of the deals, search, watchlist
+ * and game views' components in src/components/deals, src/components/search,
+ * src/components/watchlist and src/components/games, with Polish sample copy:
+ * the visual check for theme changes and a reference for new views.
  *
  * The guard stays first, outside any Suspense boundary: notFound() thrown after
  * streaming starts is a soft 404 served as 200
@@ -518,6 +532,120 @@ export default function KitchenSinkPage() {
         </div>
       </section>
 
+      {/* The search on `/`, its overlay open over a list of deals, in each
+          state of its outcome, from the sample data above: the visual gate
+          before the search on `/` depends on them. No action is passed, so
+          every button renders inert, and no close address either, so the
+          overlays stay open: Esc, a press outside and × do nothing here.
+          Nothing reaches Supabase or the catalogue. Each overlay hangs from
+          its own form and covers the list under it. */}
+      <section className="flex flex-col gap-6">
+        <h2 className="font-heading text-xl font-semibold tracking-tight">
+          Wyszukiwarka nad okazjami
+        </h2>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Wyniki dla zalogowanego
+          </h3>
+          <div className="flex flex-col gap-6">
+            <SearchOverlay
+              form={
+                <CatalogSearchForm
+                  defaultQuery="fire emblem"
+                  defaultPlatform={null}
+                />
+              }
+              open
+              closeHref={null}
+            >
+              <SearchResultsList
+                query="fire emblem"
+                platform={null}
+                signedIn
+                games={fireEmblemResults}
+                entries={sampleEntries}
+              />
+            </SearchOverlay>
+            <DealList deals={overlayDealSamples(300)} />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Wyniki dla gościa
+          </h3>
+          <div className="flex flex-col gap-6">
+            <SearchOverlay
+              form={
+                <CatalogSearchForm defaultQuery="ys x" defaultPlatform="ps5" />
+              }
+              open
+              closeHref={null}
+            >
+              <SearchResultsList
+                query="ys x"
+                platform="ps5"
+                signedIn={false}
+                games={ysResults}
+                entries={[]}
+              />
+            </SearchOverlay>
+            <DealList deals={overlayDealSamples(310)} />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">Brak wyników</h3>
+          <div className="flex flex-col gap-6">
+            <SearchOverlay
+              form={
+                <CatalogSearchForm
+                  defaultQuery="fortune's weave"
+                  defaultPlatform="switch-2"
+                />
+              }
+              open
+              closeHref={null}
+            >
+              <SearchNoResults
+                query="fortune's weave"
+                platform="switch-2"
+                signedIn
+                entries={sampleEntries}
+              />
+            </SearchOverlay>
+            <DealList deals={overlayDealSamples(320)} />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Katalog niedostępny, gość
+          </h3>
+          <div className="flex flex-col gap-6">
+            <SearchOverlay
+              form={
+                <CatalogSearchForm
+                  defaultQuery="silent hill"
+                  defaultPlatform={null}
+                />
+              }
+              open
+              closeHref={null}
+            >
+              <CatalogUnavailable
+                query="silent hill"
+                platform={null}
+                signedIn={false}
+                entries={[]}
+              />
+            </SearchOverlay>
+            <DealList deals={overlayDealSamples(330)} />
+          </div>
+        </div>
+      </section>
+
       {/* The `/my-deals` view's components in every state they can be in,
           from the sample data above: the visual gate before `/my-deals`
           depends on them. Nothing here reaches Supabase. */}
@@ -630,6 +758,7 @@ export default function KitchenSinkPage() {
           <SearchResultsList
             query="fire emblem"
             platform={null}
+            signedIn
             games={fireEmblemResults}
             entries={sampleEntries}
           />
@@ -642,7 +771,7 @@ export default function KitchenSinkPage() {
           <SearchResultRow
             game={fireEmblemResults[0]}
             platform={null}
-            onList={false}
+            state="can_watch"
             initialMessage="Nie udało się zapisać zmiany. Spróbuj ponownie."
           />
         </div>
@@ -652,6 +781,7 @@ export default function KitchenSinkPage() {
           <SearchNoResults
             query="fortune's weave"
             platform="switch-2"
+            signedIn
             entries={sampleEntries}
           />
         </div>
@@ -663,6 +793,7 @@ export default function KitchenSinkPage() {
           <CatalogUnavailable
             query="silent hill"
             platform="ps5"
+            signedIn
             entries={sampleEntries}
           />
         </div>
@@ -674,6 +805,7 @@ export default function KitchenSinkPage() {
           <SearchResultsList
             query="ys"
             platform={null}
+            signedIn
             games={ysResults}
             entries={sampleEntries}
           />

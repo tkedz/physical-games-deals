@@ -12,9 +12,12 @@
  * Logic (a platform is a separate optional value; no pin is any platform) and
  * the database's unique index on (user, game, platform), where null is a value
  * of its own (isGameOnList).
+ *
+ * phraseWatchState, its twin for the search's phrase offer, follows at the
+ * end.
  */
 import { describe, expect, it } from "vitest";
-import { watchState } from "@/lib/watchlist/rules";
+import { phraseWatchState, watchState } from "@/lib/watchlist/rules";
 import type {
   GameEntry,
   PinnablePlatform,
@@ -152,4 +155,98 @@ describe("watchState", () => {
       watchState({ signedIn, entries, gameId: ELDEN_RING, platform }),
     ).toBe(state);
   });
+});
+
+/** A phrase on the list, as its row holds it. The id is never compared. */
+function phraseEntry(
+  phrase: string,
+  platform: PinnablePlatform | null,
+): WatchlistEntry {
+  lastId += 1;
+  return { id: lastId, kind: "phrase", platform, phrase };
+}
+
+type PhraseRow = {
+  /** The scenario, citing where its answer was settled. */
+  name: string;
+  signedIn: boolean;
+  entries: WatchlistEntry[];
+  phrase: string;
+  platform: PinnablePlatform | null;
+  state: WatchState;
+};
+
+// phraseWatchState, the phrase offer's twin of watchState (plan, Phase 4:
+// "Rows and the phrase offer take their state from watchState. The guest
+// state is the link „Zaloguj się, aby obserwować”"). Which phrases count as
+// on the list is isPhraseOnList's, pinned in phrase-on-list.test.ts; these
+// rows check only that the twin keeps the three states apart.
+const PHRASE_ROWS: PhraseRow[] = [
+  {
+    name: "plan: a visitor is a guest",
+    signedIn: false,
+    entries: [],
+    phrase: "Silksong",
+    platform: null,
+    state: "guest",
+  },
+  {
+    name: "plan: a visitor is a guest whatever entries are passed, since a visitor has no list",
+    signedIn: false,
+    entries: [phraseEntry("Silksong", null)],
+    phrase: "Silksong",
+    platform: null,
+    state: "guest",
+  },
+  {
+    name: "an empty list can watch the phrase",
+    signedIn: true,
+    entries: [],
+    phrase: "Silksong",
+    platform: null,
+    state: "can_watch",
+  },
+  {
+    name: "the same phrase on the same platform is on the list",
+    signedIn: true,
+    entries: [phraseEntry("Silksong", "switch-2")],
+    phrase: "Silksong",
+    platform: "switch-2",
+    state: "on_list",
+  },
+  {
+    name: "a phrase the folded unique index refuses is on the list („wiedzmin” against „Wiedźmin”)",
+    signedIn: true,
+    entries: [phraseEntry("Wiedźmin", null)],
+    phrase: "wiedzmin",
+    platform: null,
+    state: "on_list",
+  },
+  {
+    name: "the same phrase on another platform can still be watched",
+    signedIn: true,
+    entries: [phraseEntry("Silksong", "switch-2")],
+    phrase: "Silksong",
+    platform: null,
+    state: "can_watch",
+  },
+  {
+    name: "a game with the phrase as its name is not the phrase: entries are told apart by kind",
+    signedIn: true,
+    entries: [gameEntry(SILKSONG, null)],
+    phrase: "Game 9767",
+    platform: null,
+    state: "can_watch",
+  },
+];
+
+describe("phraseWatchState", () => {
+  it.each(PHRASE_ROWS)(
+    "$name",
+    ({ signedIn, entries, phrase, platform, state }) => {
+      expect(phraseWatchState({ signedIn, entries, phrase, platform })).toBe(
+        state,
+      );
+    },
+  );
 });

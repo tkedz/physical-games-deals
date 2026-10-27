@@ -3,9 +3,14 @@ import { GameLink } from "@/components/games/game-link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EntryActionButton } from "@/components/watchlist/entry-action-button";
+import { SignInToWatch } from "@/components/watchlist/sign-in-to-watch";
 import type { CatalogGame } from "@/lib/catalog/types";
 import { gameEntryFields, releaseYear } from "@/lib/watchlist/rules";
-import type { PinnablePlatform, WatchlistAction } from "@/lib/watchlist/types";
+import type {
+  PinnablePlatform,
+  WatchlistAction,
+  WatchState,
+} from "@/lib/watchlist/types";
 
 /**
  * One game the catalogue found: its name, which links to the game's page,
@@ -13,22 +18,27 @@ import type { PinnablePlatform, WatchlistAction } from "@/lib/watchlist/types";
  * names are information only; the pin is the platform chosen in the form, one
  * of the fixed seven.
  *
- * "Obserwuj" adds the game with that platform. When the list already holds it
- * for that platform (isGameOnList, worked out by the caller), the button reads
- * "Na liście" and is disabled. Each button is described by the game's name, so
- * a screen reader can tell one row's "Obserwuj" from the next.
+ * Beside it, what watchState decides for that platform, worked out by the
+ * caller:
+ * - "can_watch": "Obserwuj", which adds the game with that platform;
+ * - "on_list": a disabled "Na liście";
+ * - "guest": the link "Zaloguj się, aby obserwować". It wraps onto two lines
+ *   on a phone, so the name keeps room beside it.
+ *
+ * Each button and link is described by the game's name, so a screen reader can
+ * tell one row's "Obserwuj" from the next.
  */
 export function SearchResultRow({
   game,
   platform,
-  onList,
+  state,
   action,
   initialMessage,
 }: {
   game: CatalogGame;
   /** The platform chosen in the form; null means any platform. */
   platform: PinnablePlatform | null;
-  onList: boolean;
+  state: WatchState;
   action?: WatchlistAction;
   initialMessage?: string | null;
 }) {
@@ -51,7 +61,12 @@ export function SearchResultRow({
           </p>
           {details !== "" && <p className="text-muted-foreground">{details}</p>}
         </div>
-        {onList ? (
+        {state === "guest" ? (
+          <SignInToWatch
+            describedBy={nameId}
+            className="h-auto min-h-8 max-w-36 py-1.5 text-center whitespace-normal sm:max-w-none sm:whitespace-nowrap"
+          />
+        ) : state === "on_list" ? (
           <Button variant="secondary" disabled aria-describedby={nameId}>
             Na liście
           </Button>

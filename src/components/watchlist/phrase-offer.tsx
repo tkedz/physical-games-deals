@@ -1,9 +1,10 @@
 import { useId } from "react";
 import { Button } from "@/components/ui/button";
 import { EntryActionButton } from "@/components/watchlist/entry-action-button";
+import { SignInToWatch } from "@/components/watchlist/sign-in-to-watch";
 import {
-  isPhraseOnList,
   phraseEntryFields,
+  phraseWatchState,
   toPhrase,
 } from "@/lib/watchlist/rules";
 import type {
@@ -19,12 +20,15 @@ import type {
  *
  * It shows only when the query can be a phrase (toPhrase: 3 to 100
  * characters). One line states what a phrase matches, as the PRD defines it,
- * and describes the button. When the list already holds the phrase for this
- * platform, the button reads "Ta fraza jest już na liście" and is disabled.
+ * and describes the button. Under it, what phraseWatchState decides:
+ * - "can_watch": "Obserwuj frazę „…”", which adds the phrase;
+ * - "on_list": a disabled "Ta fraza jest już na liście";
+ * - "guest": the link "Zaloguj się, aby obserwować".
  */
 export function PhraseOffer({
   query,
   platform,
+  signedIn,
   entries,
   action,
   initialMessage,
@@ -32,6 +36,7 @@ export function PhraseOffer({
   query: string;
   /** The platform chosen in the form; null means any platform. */
   platform: PinnablePlatform | null;
+  signedIn: boolean;
   entries: readonly WatchlistEntry[];
   action?: WatchlistAction;
   initialMessage?: string | null;
@@ -40,13 +45,17 @@ export function PhraseOffer({
   const phrase = toPhrase(query);
   if (phrase === null) return null;
 
+  const state = phraseWatchState({ signedIn, entries, phrase, platform });
+
   return (
     <div className="flex flex-col items-start gap-2 border-t pt-4">
       <p id={ruleId} className="text-sm text-muted-foreground">
         Fraza pasuje do okazji, których tytuł ją zawiera, bez względu na
         wielkość liter, znaki diakrytyczne i interpunkcję.
       </p>
-      {isPhraseOnList(entries, phrase, platform) ? (
+      {state === "guest" ? (
+        <SignInToWatch describedBy={ruleId} />
+      ) : state === "on_list" ? (
         <Button variant="secondary" disabled aria-describedby={ruleId}>
           Ta fraza jest już na liście
         </Button>

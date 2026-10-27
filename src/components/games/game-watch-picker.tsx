@@ -1,14 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useId, useState, type ChangeEvent } from "react";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import {
   NativeSelect,
   NativeSelectOption,
 } from "@/components/ui/native-select";
 import { EntryActionButton } from "@/components/watchlist/entry-action-button";
+import { SignInToWatch } from "@/components/watchlist/sign-in-to-watch";
 import type {
   PinnablePlatform,
   WatchlistAction,
@@ -71,15 +71,7 @@ export function GameWatchPicker({
   if (option === undefined) return null;
 
   if (option.state === "guest") {
-    return (
-      <Link
-        href="/login"
-        aria-describedby={describedBy}
-        className={buttonVariants({ variant: "secondary" })}
-      >
-        Zaloguj się, aby obserwować
-      </Link>
-    );
+    return <SignInToWatch describedBy={describedBy} />;
   }
 
   function handlePlatformChange(event: ChangeEvent<HTMLSelectElement>) {

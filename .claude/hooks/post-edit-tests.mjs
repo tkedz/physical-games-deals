@@ -56,6 +56,7 @@ const SUITE_PATHS = {
     "src/lib/deals/",
     "src/lib/env/",
     "src/lib/games/",
+    "src/lib/search/",
     "src/lib/watchlist/",
     "tests/unit/",
   ],

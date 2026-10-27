@@ -244,6 +244,29 @@ export function isPhraseOnList(
   );
 }
 
+/**
+ * What the offer to watch a phrase shows, the twin of watchState for the
+ * typed text:
+ * - "guest" for a visitor, who is led to sign in instead. `entries` is not
+ *   read;
+ * - "on_list" when the database would refuse the phrase as a duplicate on
+ *   this platform, as isPhraseOnList decides it;
+ * - "can_watch" otherwise.
+ */
+export function phraseWatchState(input: {
+  signedIn: boolean;
+  entries: readonly WatchlistEntry[];
+  /** The phrase as toPhrase gives it. */
+  phrase: string;
+  /** The platform chosen in the search; null means any platform. */
+  platform: PinnablePlatform | null;
+}): WatchState {
+  if (!input.signedIn) return "guest";
+  return isPhraseOnList(input.entries, input.phrase, input.platform)
+    ? "on_list"
+    : "can_watch";
+}
+
 // `YYYY-MM-DD` and a real calendar day: z.iso.date checks each month's days
 // and leap years.
 const releaseDate = z.iso.date();

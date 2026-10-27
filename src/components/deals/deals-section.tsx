@@ -20,19 +20,27 @@ import {
   loadLastRefresh,
   type ListedDeal,
 } from "@/lib/deals/queries";
+import type { SearchState } from "@/lib/watchlist/types";
 import { createClient } from "@/utils/supabase/server";
 
 /**
- * Everything on `/` below the heading, which page.tsx wraps in Suspense. It
- * reads the page of deals and the last refresh in parallel, then shows the
- * results, or an inline error when either read failed.
+ * Everything on `/` below the heading and the search, which page.tsx wraps in
+ * Suspense. It reads the page of deals and the last refresh in parallel, then
+ * shows the results, or an inline error when either read failed. The search in
+ * the URL rides along on the links to other pages, so paging keeps it open.
  *
  * It only fetches and picks one. What each outcome looks like is in the sync
  * components below, which the kitchen sink renders from sample data, and
  * every decision is in src/lib/deals. An unexpected throw goes to
  * src/app/(app)/(deals)/error.tsx.
  */
-export async function DealsSection({ page }: { page: number }) {
+export async function DealsSection({
+  page,
+  search,
+}: {
+  page: number;
+  search: SearchState;
+}) {
   // Created for this request: the client carries the request's cookies.
   const client = await createClient();
   const now = new Date();
@@ -48,24 +56,29 @@ export async function DealsSection({ page }: { page: number }) {
       freshness={decideFreshness(lastRefresh.finishedAt, now)}
       deals={dealsPage.deals}
       hasOlder={dealsPage.hasOlder}
+      search={search}
     />
   );
 }
 
 /**
  * Reads that succeeded: the freshness line, then the page's deals with the
- * links to the other pages, or the empty state.
+ * links to the other pages, or the empty state. The links carry the search
+ * open beside the list, when there is one.
  */
 export function DealsResults({
   page,
   freshness,
   deals,
   hasOlder,
+  search,
 }: {
   page: number;
   freshness: Freshness;
   deals: ListedDeal[];
   hasOlder: boolean;
+  /** The search in the URL; without it the links carry none. */
+  search?: SearchState;
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -73,10 +86,15 @@ export function DealsResults({
       {deals.length > 0 ? (
         <>
           <DealList deals={deals} />
-          <DealsPagination page={page} hasOlder={hasOlder} basePath="/" />
+          <DealsPagination
+            page={page}
+            hasOlder={hasOlder}
+            basePath="/"
+            search={search}
+          />
         </>
       ) : (
-        <DealsEmpty page={page} />
+        <DealsEmpty page={page} search={search} />
       )}
     </div>
   );
@@ -86,9 +104,15 @@ export function DealsResults({
  * No deals to show. On the first page there are none at all, and the
  * freshness line above it says whether that is the news or a stopped
  * pipeline (US-01). Past the last page — an old link, or a number typed by
- * hand — it leads back to the newest deals.
+ * hand — it leads back to the newest deals, keeping the search open.
  */
-export function DealsEmpty({ page }: { page: number }) {
+export function DealsEmpty({
+  page,
+  search,
+}: {
+  page: number;
+  search?: SearchState;
+}) {
   if (page === 1) {
     return (
       <Empty className="border">
@@ -113,7 +137,7 @@ export function DealsEmpty({ page }: { page: number }) {
       </EmptyHeader>
       <EmptyContent>
         <Link
-          href={pageHref(1, "/")}
+          href={pageHref(1, "/", search)}
           className={buttonVariants({ variant: "secondary" })}
         >
           Wróć do najnowszych okazji

@@ -27,8 +27,9 @@ import type { WatchlistAction, WatchlistEntry } from "@/lib/watchlist/types";
 /**
  * The user's list, which page.tsx wraps in Suspense: the active entries,
  * newest first, the empty state, or the failed read. Without a user it renders
- * nothing, before it reaches the database, for the reason
- * SearchResultsSection gives.
+ * nothing, before it reaches the database: the proxy's redirect is a first
+ * filter only (src/lib/auth/access.ts), and this section renders on its own.
+ * Read as `anon`, which holds no privilege on the table, the list would fail.
  */
 export async function WatchlistSection({
   removeAction,
