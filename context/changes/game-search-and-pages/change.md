@@ -1,9 +1,9 @@
 ---
 change_id: game-search-and-pages
 title: Catalogue search on the front page, game pages with matched deals, game images
-status: preparing
+status: planned
 created: 2026-10-26
-updated: 2026-10-26
+updated: 2026-10-27
 archived_at: null
 ---
 
@@ -28,3 +28,4 @@ archived_at: null
   - Images: RAWG's own resized files (`/media/resize/420/-/…`) through `next/image` `unoptimized`; the resize knowledge stays in `rawg.ts`.
   - A guest who wants to watch gets a sign-in link and lands on `/` afterwards; no return parameter.
   - The game page also gets the watch control, as in the search results (Tomasz chose this over the recommendation).
+- **2026-10-27 — planned.** `plan.md` (six phases; Phases 1–3 are the minimal mergeable set) and `plan-brief.md` (Key Decisions). Tomasz skipped `/10x-plan-review` and went straight to `/10x-implement`.

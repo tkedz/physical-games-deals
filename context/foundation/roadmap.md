@@ -3,7 +3,7 @@ project: physical-games-deals
 version: 2
 status: draft
 created: 2026-09-21
-updated: 2026-10-26
+updated: 2026-10-27
 prd_version: 2
 main_goal: speed
 top_blocker: time
@@ -72,7 +72,7 @@ M-1's north star was `S-01`, the automatic reading of freehand posts; it is `don
 | S-02 | `email-password-accounts`            | create an account with e-mail and password, sign in and sign out             | —                | FR-001, Access Control          | done |
 | S-03 | `watchlist-from-catalog`             | search the catalogue, add a game or a phrase to a watchlist, remove one      | F-01, F-03, S-02 | FR-003, FR-004, FR-010, US-01   | done |
 | S-04 | `deals-matched-to-watchlist`         | see only deals for the games and phrases they watch, platform rule applied   | S-01, S-03       | US-01, FR-005, FR-010, Guardrails | done |
-| S-05 | `game-search-and-pages`              | open any catalogue game's page and see its matching deals, found from a search on `/`; watch from there, manage the list in `/my-deals` | S-01, S-03, S-04 | FR-009, FR-003, FR-004, FR-010, MS-01–MS-05 | ready |
+| S-05 | `game-search-and-pages`              | open any catalogue game's page and see its matching deals, found from a search on `/`; watch from there, manage the list in `/my-deals` | S-01, S-03, S-04 | FR-009, FR-003, FR-004, FR-010, MS-01–MS-05 | planning |
 
 ## Baseline
 
@@ -201,7 +201,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Should search engines index game pages? Indexing invites crawler traffic, which spends the catalogue quota on every crawl unless something caches it. Owner: user. Block: no — `/10x-plan` puts it to him (`context/changes/game-search-and-pages/research.md`, Open Questions).
   - What does a game page show when the catalogue fails or the month's quota is spent? If the game's name comes only from the catalogue, the page cannot list its matches. PRD Open Question 6 settles this for the search only. Owner: user. Block: no — same route.
 - **Risk:** Larger than this roadmap's rule of one main user action per slice: it covers four — open a game page, search and watch from `/`, keep the list in `/my-deals`, see images. Kept as one item by the user's decision of 2026-10-26: one change folder, one plan and one branch, merged into `main` only if it is done before the 2026-11-04 deadline; the plan's phases carry the split, game page first. The load-bearing risk is the public audience. It opens two things that were signed-in only: a way to read matched deals that the anonymous role can use — new database surface, under the rule that every function ships locked and is granted deliberately, with the matching truth table updated to match — and the shared catalogue quota of 20,000 requests a month, which visitors and crawlers can now spend. The register's accepted catalogue risk assumed one signed-in account (`infrastructure.md`, Risk Register). The merge's own cost is breadth, not depth: access rules, navigation, and the end-to-end test that gates deploy, which pins the search and the list to `/watchlist`.
-- **Status:** ready
+- **Status:** planning
 
 ## Backlog Handoff
 
