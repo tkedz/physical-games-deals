@@ -1,6 +1,6 @@
 /**
  * The watchlist's reads and writes on public.watchlist_entries. The client is
- * passed in, so the caller decides whose session acts — on /watchlist, a
+ * passed in, so the caller decides whose session acts — in the app, a
  * client from src/utils/supabase/server.ts, created for the request, holding
  * the publishable key and the user's session. Every call therefore runs as
  * `authenticated`, and RLS confines it to the user's own rows.

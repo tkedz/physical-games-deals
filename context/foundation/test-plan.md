@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-10-15
+> Last updated: 2026-10-27
 
 ## 1. Strategy
 
@@ -85,7 +85,7 @@ folders under `context/changes/`; F-numbers are findings in their reviews.
 | 4 | Another signed-in user or a guest reads or changes someone's watchlist entries or matched deals — through the Data API, a Server Action, or a database object shipped without explicit grants. (Abuse: authorization.) | High | Medium | PRD Guardrails and NFR (isolation, including by editing the address), Access Control; roadmap F-01 Risk ("the one guardrail whose failure is silent"); `deals-matched-to-watchlist` review F1, F3; `physical-deals-from-real-posts` Phase 2 grant finding and review F6; CLAUDE.md (Supabase default grants change on 2026-10-30; functions stay executable by `PUBLIC` unless revoked); `local-supabase-stack` research (sequences carry no explicit grants; the local CLI grants new objects automatically); hot-spot on 2026-10-12 `supabase/migrations/` — 8 commits/30d; on 2026-10-15 — 12 commits/30d |
 | 5 | A deal's link leads somewhere other than the deal's origin — a URL the post never contained, a non-web scheme planted in a stranger's post, another aggregator or a lookalike site the post links to, or a different offer from the same post. (Abuse: untrusted input.) | High | Medium | PRD Guardrails (link), Business Logic (shop link, else the aggregator post); shape-notes (link worry); `physical-deals-from-real-posts` plan (the link rule's cases ran only in a scratch script outside the repo); `testing-extraction-and-listing-guard` plan (decision 2026-10-13: no shop allow-list and no lookalike detection); untrusted input (aggregator posts are written by strangers); interview Q3 (Q3 eased on 2026-10-15); hot-spot on 2026-10-12 `scripts/extract/` — 6 commits/14d, none of them to the link rule, so likelihood rests on the untrusted input and the scratch-only testing, not on churn; on 2026-10-15 — 10 commits/14d, one of them to the link rule (Phase 2's fix) |
 | 6 | A session or access change logs users out, leaves a signed-out session alive on the server, opens a private view or action to guests, or lets a cache serve one user's page to another. | High | Medium | PRD Access Control; roadmap S-02 Risk; `email-password-accounts` review F1, F2, F5; `watchlist-from-catalog` change log (a guest's Server Action POST answered 200 and showed the error screen); `infrastructure.md` risk register #6, #8, #12 (#6, the switch of the session check, still open on 2026-10-15); `testing-main-flow-end-to-end` (the browser round trip shipped: the guest redirect and server-side sign-out revocation gate deploy); hot-spot on 2026-10-12 `src/lib/auth/` — 5 commits/30d, `src/utils/supabase/` — 4 commits/30d; unchanged on 2026-10-15 |
-| 7 | A catalogue failure — outage, timeout, rate limit — shows a raw error or breaks the watchlist instead of the one generic message, or the RAWG key, which rides in the request URL, leaks into a log, an error body or the browser bundle. (Abuse: secret leakage.) | Medium | Medium | PRD Open Question 6; `game-catalog-provider-proven` coverage (no non-2xx response ever observed); `watchlist-from-catalog` review F1 (dev logging printed the key) and change log (3 of ~15 searches timed out); `infrastructure.md` risk register #14; CLAUDE.md (key in the request URL); `testing-main-flow-end-to-end` (the server under the e2e test runs with a blank RAWG key) |
+| 7 | A catalogue failure — outage, timeout, rate limit — shows a raw error or breaks the search on `/`, a game page or the watchlist instead of the one generic message, or the RAWG key, which rides in the request URL, leaks into a log, an error body or the browser bundle. (Abuse: secret leakage.) | Medium | Medium | PRD Open Question 6; `game-catalog-provider-proven` coverage (no non-2xx response ever observed); `watchlist-from-catalog` review F1 (dev logging printed the key) and change log (3 of ~15 searches timed out); `infrastructure.md` risk register #14; CLAUDE.md (key in the request URL); `testing-main-flow-end-to-end` (the server under the e2e test runs with a blank RAWG key) |
 
 No High-impact × Low-likelihood row was padded in: alerting on a stopped
 pipeline is observability, not a test (§7).
@@ -99,8 +99,8 @@ pipeline is observability, not a test (§7).
 | #3 | A post is extracted once and never billed again on re-runs or re-sightings; one failing post or feed does not block the rest; a misconfigured run (bad cut-off, missing model, exhausted credit) fails loudly instead of recording an ok run; the deals view reports stale data once no ok run has landed for over 6 hours. | "A green run means a healthy pipeline" — 14 of 15 feeds failing stays green (`collector-into-repo-and-database` review F6). "An ok run means new deals arrived" (`physical-deals-from-real-posts` review F4). "A red `verify` stops a bad pipeline change": it stops the deploy only; the cron runs whatever is on `main`. | The post state machine (attempts, processed marker, run records) and its write order; what makes a run red or ok; how freshness is computed and shown; which pipeline decisions are already pure with injected I/O (lessons.md); the extract step's refusal path, which stops before it reads a credential and writes no run record, so the scheduled run turns red in Actions while the app shows only the freshness line; which pipeline writes depend on explicit grants once Supabase's default privileges end on 2026-10-30. | Unit on the pure pipeline decisions with injected I/O + integration against a disposable database for idempotency and write order. | Mocking the database client and asserting call order (implementation mirror). Live feeds or a live model in a test. |
 | #4 | Acting as user B and as a guest, every API-reachable table, view and function returns none of user A's watchlist entries or matched deals and refuses writes to them; an object shipped without explicit grants is unreachable by `anon` and `authenticated`; the pipeline role keeps exactly the writes it needs. | "RLS on means isolated" — execute grants on functions, security-invoker views and column grants are separate gates (review F3). "The proxy guards private pages, so the data is safe" — Server Actions and the Data API bypass it. "The harness's cut-off is production's" — the PGlite harness grants Supabase's default privileges by the migration's version, before 2026-10-30, while the hosted project grants them by when the table is created, so a migration dated before 2026-10-30 and pushed after it gets the default grants in the harness and none in production. | Supabase's role model and default privileges; how the user's identity reaches the policies; which objects the Data API exposes, and to whom; the hand-run isolation and grants checks kept in `watchlist-from-catalog`. Functions stay executable by `PUBLIC` unless revoked, and sequences carry no explicit grants; the local stack grants new objects automatically under CLI 2.117.0, so it is no grants oracle. | Database integration as `anon`, user A, user B and the pipeline role, against the repo's migrations; the security advisors check stays on every push. | Testing with the secret key, which bypasses RLS. Happy path only (A sees own rows) without cross-user and guest negatives. |
 | #5 | For posts with and without an off-site link, and for adversarial ones carrying `javascript:` or `data:` links in any spelling, aggregator self-links, relative links or URLs absent from the post, the stored link is one of the post's own off-site http(s) links, copied exactly, or the aggregator post itself, and nothing else. On the page, a stored link with any other scheme falls back to the post, or to no link. A link to a collected aggregator's site is not a shop; a lookalike or an uncollected aggregator stays a kept off-site link, by decision (2026-10-13): there is no shop allow-list and no lookalike detection. | "The model copies links faithfully." "A URL-shaped string is a safe link." "Rendering neutralises unsafe schemes": React blocks `javascript:` but passes `data:`, so the app's own render check is the only barrier for `data:`, and the post's own link is stored from the feed unchecked. "The check picks the right offer": it proves the link is the post's, not the item's; pairing links with items in a multi-offer post is the model's job and is unmeasured. | Where the link is chosen (model output versus a deterministic check); what is stored versus rendered; the existing scratch cases, as inputs only. Grounded on 2026-10-13 in the Phase 2 research. | Unit, table-driven over adversarial inputs, from post HTML through to the rendered link choice. | Only well-formed links. Expected values computed by the helper under test. |
-| #6 | The access decision is right for every path and state (guest or signed in × `/`, `/login`, `/signup`, `/watchlist`, `/my-deals`, a Server Action POST); a redirect keeps the refreshed cookies; private responses are never cacheable; a failed sign-out leaves the browser and the server agreeing. | "The decision table passes, so the proxy enforces it" — the matcher and Server Actions sit outside the table. "Sign-out returned OK, so the server session is gone" (review F1). "A fresh login works, so sessions survive" — the refresh happens only after an hour idle. | The proxy matcher and the access decision; the session refresh flow with its cookie and cache-header handling; the planned switch of the session check (`infrastructure.md` register #6), still pending on 2026-10-15, which would touch the session path; the manual idle-session test. | Unit for the decision table + integration on the session refresh with a fake request; the browser round trip shipped with §3 Phase 5: the guest redirect and server-side sign-out revocation gate deploy. | Mocking Supabase auth so that no refresh ever happens. One e2e test per access combination. |
-| #7 | For a timeout, a network error, 401, 403, 429 and 5xx from the catalogue, the user sees the one generic "temporarily unavailable" message, the watchlist keeps working and the typed text can still be watched as a phrase; no thrown error, log line or response carries the request URL or the key; the browser bundle carries no server-only key. | "We never log the URL" — dev logging printed it (review F1). "Only a 200 matters" — no non-2xx response was ever observed live. "Server-only means not in the bundle." | Error translation at the catalogue boundary; logging configuration; the build output; how PRD Open Question 6 was resolved. | Unit with a stubbed fetch per failure + a build-output scan for server-only key names on the deploy build. The e2e server runs with a blank key: the browser passes through the catalogue-unavailable path, but no test asserts the message, so the unit layer is still Phase 3's job. | Asserting only the message text while the error object still carries the URL. Live calls to RAWG in a test (shared quota). |
+| #6 | The access decision is right for every path and state (guest or signed in × `/`, `/login`, `/signup`, `/my-deals`, `/watchlist` — the list's old address, which redirects to `/my-deals` or `/login` — a Server Action POST); a redirect keeps the refreshed cookies; private responses are never cacheable; a failed sign-out leaves the browser and the server agreeing. | "The decision table passes, so the proxy enforces it" — the matcher and Server Actions sit outside the table. "Sign-out returned OK, so the server session is gone" (review F1). "A fresh login works, so sessions survive" — the refresh happens only after an hour idle. | The proxy matcher and the access decision; the session refresh flow with its cookie and cache-header handling; the planned switch of the session check (`infrastructure.md` register #6), still pending on 2026-10-15, which would touch the session path; the manual idle-session test. | Unit for the decision table (shipped 2026-10-27 with `game-search-and-pages`: `tests/unit/auth/access.test.ts`) + integration on the session refresh with a fake request; the browser round trip shipped with §3 Phase 5: the guest redirect and server-side sign-out revocation gate deploy. | Mocking Supabase auth so that no refresh ever happens. One e2e test per access combination. |
+| #7 | For a timeout, a network error, 401, 403, 429 and 5xx from the catalogue, the user sees the one generic "temporarily unavailable" message, the watchlist keeps working and the typed text can still be watched as a phrase; no thrown error, log line or response carries the request URL or the key; the browser bundle carries no server-only key. | "We never log the URL" — dev logging printed it (review F1). "Only a 200 matters" — no non-2xx response was ever observed live. "Server-only means not in the bundle." | Error translation at the catalogue boundary; logging configuration; the build output; how PRD Open Question 6 was resolved. | Unit with a stubbed fetch per failure + a build-output scan for server-only key names on the deploy build. The e2e server runs with a blank key: since `game-search-and-pages` (2026-10-27), `tests/e2e/search.spec.ts` and `tests/e2e/game-page.spec.ts` assert the message on `/` and on a game page, and unit tests stub the RAWG lookup per failure and check the cache's error text for the URL and the key (`tests/unit/catalog/rawg-game.test.ts`, `tests/unit/games/cached-catalog.test.ts`); the logs and the build output are still Phase 3's job. | Asserting only the message text while the error object still carries the URL. Live calls to RAWG in a test (shared quota). |
 
 ## 3. Phased Rollout
 
@@ -151,6 +151,12 @@ Test base at refresh (2026-10-15): **meaningful**. Vitest and Playwright
 are configured, with 25 test files: unit 14, db 7, hooks 1, e2e 3. No unit
 test covers auth, the collector or the catalogue.
 
+Since `game-search-and-pages` (2026-10-27): e2e 5, with
+`tests/e2e/game-page.spec.ts` and `tests/e2e/search.spec.ts`; unit tests
+cover the catalogue (`tests/unit/catalog/`, `tests/unit/games/`) and the
+access decision (`tests/unit/auth/access.test.ts`). The collector still has
+none.
+
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
 | unit + integration | Vitest — checked: 2026-10-15 | `^5.0.4` (5.0.4 installed) — Phase 1 | Covered by the bundled Next 16 testing guide. Use the `node` environment for rules and scripts. Async Server Components are not supported: keep logic in pure functions (lessons.md) and leave pages to e2e. |
@@ -158,7 +164,7 @@ test covers auth, the collector or the catalogue.
 | boundary stubs | Stubbed `fetch` at the feed, OpenRouter and RAWG edges (MSW or a hand-written stub) — checked: 2026-10-15 | none yet — see Phase 3 | No automated test calls live feeds, the model or RAWG. The only stub is a `fetch` tripwire in the e2e account tests, which proves that a refused target sends nothing; the e2e server's RAWG key is blank. |
 | LLM regression (AI-native) | `npm run extract:eval` over 55 real and 8 synthetic labelled posts, each candidate model twice — checked: 2026-10-15 | in repo, wired (§5) | When NOT to use: changes that touch neither the prompt, the model list nor the extraction schema — the unit suite covers post-processing. Never per commit: it is paid and nondeterministic. Its post texts are not committed, but `scripts/extract/eval/export-posts.sql` re-exports them (§6.3). |
 | post-edit hook (AI-native) | Claude Code hooks: lint and the fast suites for the edited area after each Edit or Write; lint, `npm test` and `tsc` at the end of the turn — checked: 2026-10-15 | three scripts, wired 2026-10-13 — Phase 2 | When NOT to use: as a CI substitute, or to run the paid eval. The per-edit hooks see only Edit and Write. The end-of-turn hook sees whatever is uncommitted when the agent stops, Bash and hand edits included, but not changes committed during the turn. Nothing runs outside an agent session. |
-| e2e | Playwright, plus the `playwright-cli` skill for exploration — checked: 2026-10-15 | `^1.64.1` (1.64.1 installed) — Phase 5 | Covered by the bundled Next 16 testing guide. Three tests (the auth setup, the seed, the main flow), run by the CI `e2e` job (§6.5). One flow only; it asserts behaviour, not layout (§7). |
+| e2e | Playwright, plus the `playwright-cli` skill for exploration — checked: 2026-10-15 | `^1.64.1` (1.64.1 installed) — Phase 5 | Covered by the bundled Next 16 testing guide. Five tests, run by the CI `e2e` job (§6.5): the auth setup, the seed, the main flow, and since `game-search-and-pages` (2026-10-27) the guest paths of a game page (`tests/e2e/game-page.spec.ts`) and of the search on `/` (`tests/e2e/search.spec.ts`) that hold with a blank RAWG key. One flow; the tests assert behaviour, not layout (§7), save that the search's overlay leaves the deals list where it was. |
 | (optional) agent browser | Chrome DevTools MCP — checked: 2026-10-15 | n/a | When NOT to use: anything a deterministic test covers; never as a gate. Fits exploratory checks on production in a signed-in browser. |
 | accessibility | none | — | UI is out of scope (§7). |
 
@@ -193,7 +199,7 @@ phase lands; before that, the gate is planned.
 | extraction eval on the labelled set | local, human-run (needs the OpenRouter key and the uncommitted post texts) | required (wired): `npm test` fails on a fingerprint mismatch, and the extract step refuses a prompt mismatch | digital leaks and wrong entries after a prompt or model change |
 | post-edit hook | local (agent loop) | wired; not a gate | regressions in the matching rule and the listing rules at edit time |
 | build-output secret scan | CI, on the `deploy` job's build | required after §3 Phase 3 | server-only keys in the browser bundle |
-| e2e on the main flow | CI `e2e` job, on a local stack with seed data, beside `verify`; `deploy` needs it | required (wired, proven red 2026-10-15); not a required status check in branch protection | a broken sign-in → watchlist → `/my-deals` → sign-out path |
+| e2e on the main flow | CI `e2e` job, on a local stack with seed data, beside `verify`; `deploy` needs it | required (wired, proven red 2026-10-15); not a required status check in branch protection | a broken sign-in → search on `/` → `/my-deals` with its list → sign-out path |
 | security advisors (`npm run db:check`) | local, human-run, on every migration push | required (wired) | tables without RLS and other exposed objects |
 
 ## 6. Cookbook Patterns
@@ -251,7 +257,9 @@ the relevant rollout phase ships; before that, the sub-section reads
   - References: `tests/unit/extract/expiry.test.ts`,
     `tests/unit/extract/deal-rows.test.ts`,
     `tests/unit/extract/shop-url.test.ts`, `tests/unit/deals/links.test.ts`.
-- Rollout Phase 4 (access decision table) extends this section.
+- Rollout Phase 4 (access decision table) extends this section. The table's
+  first rows shipped with `game-search-and-pages`:
+  `tests/unit/auth/access.test.ts`.
 
 ### 6.2 Adding a database test against the migrations
 
@@ -405,8 +413,12 @@ Two patterns. Both run in PGlite, built fresh from `supabase/migrations/` by
   browser and that no cheaper layer covers (§1), and never one per access
   combination (§2 #6). References: `tests/e2e/main-flow.spec.ts` (risks #1,
   #4 and #6) and `tests/e2e/seed.spec.ts` (the smallest shape: a guest, no
-  data). The config and its commands are recorded in
-  `context/foundation/test-stack.md`.
+  data). `tests/e2e/game-page.spec.ts` and `tests/e2e/search.spec.ts` cover
+  a guest's game page and search on `/` with a blank RAWG key; each asks the
+  catalogue for an id or a query fresh per run, because `next start` keeps
+  the catalogue's answers under `.next/cache`, and one stored by a run with
+  the real key would be served instead of the failure. The config and its
+  commands are recorded in `context/foundation/test-stack.md`.
 - **The pattern,** as `tests/e2e/main-flow.spec.ts` follows it:
   - **A fresh account per attempt.** A fixture creates it through
     `scripts/e2e/accounts.mts` (`uniqueTestEmail`, `testAccountPassword`,
@@ -443,12 +455,16 @@ Two patterns. Both run in PGlite, built fresh from `supabase/migrations/` by
     layout or screenshot assertion (§7).
   - **The phrase path, because the server under test has no RAWG key.**
     `playwright.config.ts` starts it with `webServer.env` setting
-    `RAWG_API_KEY` to `""`, so a `/watchlist` search shows „Katalog gier
-    jest chwilowo niedostępny” and the phrase offer. The test presses the
-    phrase button by its full name, `Obserwuj frazę „<title>”`, so the step
-    holds whatever the catalogue answers; a reused server may hold a key.
-    Auth, PostgREST, RLS and the proxy stay real, and there is no
-    `page.route` mock. Catalogue failures are risk #7's, below the browser.
+    `RAWG_API_KEY` to `""`, so a search on `/` shows „Katalog gier jest
+    chwilowo niedostępny” and the phrase offer, in the overlay (the dialog
+    „Wyniki wyszukiwania”). The test presses the phrase button by its full
+    name, `Obserwuj frazę „<title>”`, so the step holds whatever the
+    catalogue answers; a reused server may hold a key. It then waits for the
+    offer to read „Ta fraza jest już na liście”, so the write has landed
+    before it opens `/my-deals`, where the entry and its „Usuń” sit in the
+    list below the matched deals. Auth, PostgREST, RLS and the proxy stay
+    real, and there is no `page.route` mock. Catalogue failures are risk
+    #7's, below the browser.
   - **Deliberate breaks, and no residue.** A new assertion counts once a
     break of the code it guards turns it red; revert the break at once.
     The main flow's two: `/my-deals` reading no rows
@@ -460,7 +476,8 @@ Two patterns. Both run in PGlite, built fresh from `supabase/migrations/` by
     annotated address must report "nothing to delete" through
     `E2E_USERNAME=<address> npm run e2e:account -- delete`.
 - **Run:**
-  - `npx playwright test` runs setup, seed and the main flow;
+  - `npx playwright test` runs setup, then the seed, the main flow, the
+    game page and the search;
     `npx playwright test tests/e2e/main-flow.spec.ts` runs one spec, and
     `--repeat-each=3` shows that parallel attempts do not collide. It
     builds and starts the app on the local stack's values from `.env.local`

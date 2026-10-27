@@ -14,5 +14,6 @@
 - auth setup project: setup (tests/e2e/auth.setup.ts), credentials from E2E_USERNAME / E2E_PASSWORD in .env.local — a user in the local Supabase stack, which npm run local:reset deletes
 - storageState: playwright/.auth/user.json (gitignored)
 - seed: tests/e2e/seed.spec.ts — protects #6, its browser round trip: an access change opens a private view to guests (a guest on /my-deals must land on /login)
+- specs beside the seed: tests/e2e/main-flow.spec.ts (the PRD's main flow, from the search on / to /my-deals and its list); tests/e2e/game-page.spec.ts and tests/e2e/search.spec.ts (a guest's game page and search on /, with the server's blank RAWG key) — added 2026-10-27 by game-search-and-pages, outside /10x-e2e-setup
 - browser CLI: playwright-cli (global @playwright/cli 0.1.22), command skill at .claude/skills/playwright-cli/SKILL.md
-- updated: 2026-10-14
+- updated: 2026-10-27

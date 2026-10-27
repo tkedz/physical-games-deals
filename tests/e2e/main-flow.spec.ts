@@ -1,9 +1,11 @@
 // Risks #1, #4 and #6 (context/foundation/test-plan.md, §3 Phase 5), in their
 // browser round trip: the PRD's primary flow. A guest is sent to sign in; a
 // signed-in user starts with an empty watchlist, watches a deal's title as a
-// phrase, finds that deal on /my-deals with its price and links, removes the
-// phrase, and signs out, after which the server no longer honours the old
-// session.
+// phrase from the search on /, finds the phrase in the list on /my-deals and
+// that deal among the matched ones with its price and links, removes the
+// phrase there, and signs out, after which the server no longer honours the
+// old session. /watchlist, the list's address before it moved into
+// /my-deals, sends a guest to sign in and a signed-in user to /my-deals.
 // Seed: tests/e2e/seed.spec.ts. The test data seeds itself from the public
 // deals list on /, so it runs on supabase/seed.sql alone (CI) and on a local
 // stack holding the production snapshot.
@@ -113,8 +115,8 @@ test.describe("main flow", () => {
     const links = await linkTargets(listedCard);
     expect(links.length).toBeGreaterThan(0);
 
-    // 2. Guest redirect: a guest who opens /watchlist lands on the sign-in
-    // form.
+    // 2. Guest redirect: a guest who opens /watchlist, the list's old
+    // address, lands on the sign-in form.
     await page.goto("/watchlist");
     await expect(page).toHaveURL("/login");
 
@@ -141,24 +143,33 @@ test.describe("main flow", () => {
       page.getByText("Twoja lista obserwowanych jest pusta"),
     ).toBeVisible();
 
-    // 5. Watch the phrase. The button is targeted by its full name, so the
-    // step holds whatever the catalogue answers: the server under test has
-    // no RAWG key (playwright.config.ts), and a reused one may have.
-    await page.goto("/watchlist");
+    // 5. Watch the phrase, from the search on /, whose outcome opens in an
+    // overlay over the deals list. The button is targeted by its full name,
+    // so the step holds whatever the catalogue answers: the server under
+    // test has no RAWG key (playwright.config.ts), and a reused one may have.
+    // The add re-renders the page with the overlay still open, where the
+    // offer then reads that the phrase is on the list: the write has landed
+    // before the next step leaves the page.
+    await page.goto("/");
     await page.getByRole("searchbox", { name: "Tytuł gry" }).fill(title);
     await page.getByRole("button", { name: "Szukaj" }).click();
-    await page
+    const overlay = page.getByRole("dialog", { name: "Wyniki wyszukiwania" });
+    await overlay
       .getByRole("button", { name: `Obserwuj frazę „${title}”`, exact: true })
       .click();
-    const entry = page.getByRole("listitem").filter({ hasText: `„${title}”` });
-    await expect(entry.getByRole("button", { name: "Usuń" })).toBeVisible();
+    await expect(
+      overlay.getByRole("button", { name: "Ta fraza jest już na liście" }),
+    ).toBeVisible();
 
-    // 6. The deal reaches /my-deals: a card with that title, the same price
+    // 6. On /my-deals the phrase is in the list, with its "Usuń", and the
+    // deal is among the matched ones: a card with that title, the same price
     // and the same links as on /. Its presence, not a count: on snapshot
     // data the phrase may match more deals, and a deal with the same title
     // may sit beyond the first page of /, so one of the cards carrying the
     // title has to match.
     await page.goto("/my-deals");
+    const entry = page.getByRole("listitem").filter({ hasText: `„${title}”` });
+    await expect(entry.getByRole("button", { name: "Usuń" })).toBeVisible();
     const matchedCards = dealCard(page, title);
     await expect(matchedCards.first()).toBeVisible();
     await expect
@@ -172,11 +183,13 @@ test.describe("main flow", () => {
       )
       .toContainEqual({ price, links });
 
-    // 7. Removal: "Usuń" on the entry, and /my-deals is empty again.
-    await page.goto("/watchlist");
+    // 7. Removal: "Usuń" on the entry in /my-deals's list, and /my-deals is
+    // empty again on a fresh load. That load opens /watchlist, the list's old
+    // address, which sends a signed-in user to /my-deals.
     await entry.getByRole("button", { name: "Usuń" }).click();
     await expect(entry).toBeHidden();
-    await page.goto("/my-deals");
+    await page.goto("/watchlist");
+    await expect(page).toHaveURL("/my-deals");
     await expect(
       page.getByText("Twoja lista obserwowanych jest pusta"),
     ).toBeVisible();

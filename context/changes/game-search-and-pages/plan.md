@@ -879,34 +879,34 @@ Result rows and the game page show RAWG's image, served by RAWG in a reduced siz
 
 #### Automated
 
-- [x] 4.1 Unit tests for `pageHref` and `searchClosedHref` pass: `npm test -- --project unit`
-- [x] 4.2 The whole suite passes: `npm test`
-- [x] 4.3 Lint, formatting and types pass: `npm run lint`, `npm run format:check`, `npx next typegen && npx tsc --noEmit`
-- [x] 4.4 The new search spec and every existing spec pass locally: `npx playwright test`
+- [x] 4.1 Unit tests for `pageHref` and `searchClosedHref` pass: `npm test -- --project unit` — 993b20d
+- [x] 4.2 The whole suite passes: `npm test` — 993b20d
+- [x] 4.3 Lint, formatting and types pass: `npm run lint`, `npm run format:check`, `npx next typegen && npx tsc --noEmit` — 993b20d
+- [x] 4.4 The new search spec and every existing spec pass locally: `npx playwright test` — 993b20d
 
 #### Manual
 
-- [x] 4.5 At 1280 px and 375 px the overlay covers the list without moving it, and the list stays usable after closing
-- [x] 4.6 Keyboard: typing keeps focus in the input, Tab reaches the results, Esc closes them
-- [x] 4.7 Signed in, „Obserwuj” in the overlay adds the game, and the overlay stays open showing „Na liście”
-- [x] 4.8 Paging with the overlay open keeps the results, and a search from page 3 stays on page 3
+- [x] 4.5 At 1280 px and 375 px the overlay covers the list without moving it, and the list stays usable after closing — 993b20d
+- [x] 4.6 Keyboard: typing keeps focus in the input, Tab reaches the results, Esc closes them — 993b20d
+- [x] 4.7 Signed in, „Obserwuj” in the overlay adds the game, and the overlay stays open showing „Na liście” — 993b20d
+- [x] 4.8 Paging with the overlay open keeps the results, and a search from page 3 stays on page 3 — 993b20d
 
 ### Phase 5: Watchlist merged into `/my-deals`; `/watchlist` redirects
 
 #### Automated
 
-- [ ] 5.1 The `decideAccess` unit test passes: `npm test -- --project unit`
-- [ ] 5.2 The whole suite passes: `npm test`
-- [ ] 5.3 Lint, formatting and types pass: `npm run lint`, `npm run format:check`, `npx next typegen && npx tsc --noEmit`
-- [ ] 5.4 Every E2E spec passes locally, the reworked main flow included: `npx playwright test`
-- [ ] 5.5 `curl -sI http://localhost:3000/watchlist` answers 307 with `location: /login` for a guest
-- [ ] 5.6 No `/watchlist` link is left under `src/` outside `access.ts` (grep)
+- [x] 5.1 The `decideAccess` unit test passes: `npm test -- --project unit`
+- [x] 5.2 The whole suite passes: `npm test`
+- [x] 5.3 Lint, formatting and types pass: `npm run lint`, `npm run format:check`, `npx next typegen && npx tsc --noEmit`
+- [x] 5.4 Every E2E spec passes locally, the reworked main flow included: `npx playwright test`
+- [x] 5.5 `curl -sI http://localhost:3000/watchlist` answers 307 with `location: /login` for a guest
+- [x] 5.6 No `/watchlist` link is left under `src/` outside `access.ts` (grep)
 
 #### Manual
 
-- [ ] 5.7 Signed in, the header shows „Moje okazje” and no „Obserwowane”, and an old `/watchlist` bookmark opens `/my-deals`
-- [ ] 5.8 The list sits below the matched deals with working „Usuń”; its game rows open the game page
-- [ ] 5.9 With an empty list, the empty state points to the search on `/`
+- [x] 5.7 Signed in, the header shows „Moje okazje” and no „Obserwowane”, and an old `/watchlist` bookmark opens `/my-deals`
+- [x] 5.8 The list sits below the matched deals with working „Usuń”; its game rows open the game page
+- [x] 5.9 With an empty list, the empty state points to the search on `/`
 
 ### Phase 6: Images
 

@@ -73,8 +73,9 @@ export default defineConfig({
     stdout: process.env.CI ? "pipe" : "ignore",
     // The server under test never calls the live game catalogue (test-plan
     // §4): readRawgApiKey (src/lib/catalog/rawg.ts) treats an empty key as
-    // unset, so a /watchlist search reports the catalogue unavailable and
-    // still offers the phrase. It has to be the empty string, not undefined.
+    // unset, so a search on / reports the catalogue unavailable and still
+    // offers the phrase, and a game page not seen before shows the catalogue
+    // message. It has to be the empty string, not undefined.
     // Playwright starts the command with {...process.env, ...env}, and
     // process.env already holds the key, loaded from .env.local above.
     // undefined would drop the variable from the server's environment, and

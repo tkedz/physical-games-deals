@@ -192,8 +192,9 @@ const freshnessSamples: Freshness[] = [
   { state: "never" },
 ];
 
-// Sample catalogue answers and list entries for "Lista obserwowanych", in the
-// shapes the catalogue and the list's read return. The platforms carry RAWG's
+// Sample catalogue answers and list entries for the search's sections and the
+// list on "Moje okazje", in the shapes the catalogue and the list's read
+// return. The platforms carry RAWG's
 // names; the game and entry ids are made up. Between them they hold every
 // variant of a row:
 // - a result the list holds for the chosen platform (Fire Emblem Engage, on
@@ -647,8 +648,10 @@ export default function KitchenSinkPage() {
       </section>
 
       {/* The `/my-deals` view's components in every state they can be in,
-          from the sample data above: the visual gate before `/my-deals`
-          depends on them. Nothing here reaches Supabase. */}
+          from the sample data above: the matched deals, then the watchlist
+          that sits below them on the page. The visual gate before
+          `/my-deals` depends on them. No action is passed, so every "Usuń"
+          renders inert, and nothing here reaches Supabase. */}
       <section className="flex flex-col gap-6">
         <h2 className="font-heading text-xl font-semibold tracking-tight">
           Moje okazje
@@ -730,15 +733,40 @@ export default function KitchenSinkPage() {
           <h3 className="font-heading text-base font-medium">Wczytywanie</h3>
           <MyDealsSkeleton />
         </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Lista obserwowanych
+          </h3>
+          <WatchlistEntries entries={sampleEntries} />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">Pusta lista</h3>
+          <WatchlistEmpty />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">Błąd listy</h3>
+          <WatchlistError />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Wczytywanie listy
+          </h3>
+          <WatchlistSkeleton />
+        </div>
       </section>
 
-      {/* The watchlist view's components in every state they can be in, from
-          the sample data above: the visual gate before /watchlist depends on
-          them. No action is passed, so every add and remove button renders
-          inert, and nothing here reaches Supabase or the catalogue. */}
+      {/* The search's components outside the overlay, in every state they
+          can be in, from the sample data above: the form, and each outcome
+          that the overlay on `/` holds, at full width. No action is passed,
+          so every add button renders inert, and nothing here reaches
+          Supabase or the catalogue. */}
       <section className="flex flex-col gap-6">
         <h2 className="font-heading text-xl font-semibold tracking-tight">
-          Lista obserwowanych
+          Wyszukiwarka katalogu
         </h2>
 
         <div className="flex flex-col gap-3">
@@ -816,28 +844,6 @@ export default function KitchenSinkPage() {
             Wczytywanie wyników
           </h3>
           <SearchResultsSkeleton />
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <h3 className="font-heading text-base font-medium">Lista</h3>
-          <WatchlistEntries entries={sampleEntries} />
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <h3 className="font-heading text-base font-medium">Pusta lista</h3>
-          <WatchlistEmpty />
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <h3 className="font-heading text-base font-medium">Błąd listy</h3>
-          <WatchlistError />
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <h3 className="font-heading text-base font-medium">
-            Wczytywanie listy
-          </h3>
-          <WatchlistSkeleton />
         </div>
 
         <div className="flex flex-col gap-3">

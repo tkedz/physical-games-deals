@@ -2,8 +2,9 @@
 
 /**
  * The watchlist's three changes — adding a game, adding a phrase, removing an
- * entry — which EntryActionButton posts through useActionState, from
- * `/watchlist` and from a game's page, `/games/<id>`.
+ * entry — which EntryActionButton posts through useActionState: the adds from
+ * the search on `/` and from a game's page, `/games/<id>`, the removal from
+ * the list on `/my-deals`.
  *
  * They live in a private folder (`_watchlist`, which is no route), so they
  * outlive any one page that posts them.

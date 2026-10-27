@@ -1,6 +1,6 @@
 /**
- * Every state of the user's list: the entries, none, a failed read, and the
- * wait for one of them.
+ * Every state of the user's list, which `/my-deals` shows below the matched
+ * deals: the entries, none, a failed read, and the wait for one of them.
  *
  * WatchlistSection reads the list and picks one. What each state looks like is
  * in the sync views after it, which the kitchen sink renders from sample data.
@@ -8,6 +8,7 @@
  * while the list loads.
  */
 import { CircleAlert } from "lucide-react";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { RetryButton } from "@/components/deals/retry-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -25,11 +26,12 @@ import { getActiveEntries } from "@/lib/watchlist/current-entries";
 import type { WatchlistAction, WatchlistEntry } from "@/lib/watchlist/types";
 
 /**
- * The user's list, which page.tsx wraps in Suspense: the active entries,
- * newest first, the empty state, or the failed read. Without a user it renders
- * nothing, before it reaches the database: the proxy's redirect is a first
- * filter only (src/lib/auth/access.ts), and this section renders on its own.
- * Read as `anon`, which holds no privilege on the table, the list would fail.
+ * The user's list, which `/my-deals`'s page.tsx wraps in Suspense: the active
+ * entries, newest first, the empty state, or the failed read. Without a user
+ * it renders nothing, before it reaches the database: the proxy's redirect is
+ * a first filter only (src/lib/auth/access.ts), and this section renders on
+ * its own. Read as `anon`, which holds no privilege on the table, the list
+ * would fail.
  */
 export async function WatchlistSection({
   removeAction,
@@ -82,7 +84,10 @@ export function WatchlistEntries({
   );
 }
 
-/** No active entries: a pointer back to the search above. */
+/**
+ * No active entries: a pointer to the search on `/`, where games and phrases
+ * are added, as a link in the line's text.
+ */
 export function WatchlistEmpty() {
   return (
     <ListFrame>
@@ -90,8 +95,8 @@ export function WatchlistEmpty() {
         <EmptyHeader>
           <EmptyTitle>Twoja lista jest pusta</EmptyTitle>
           <EmptyDescription>
-            Wyszukaj grę w katalogu powyżej i dodaj ją do listy albo obserwuj
-            wpisany tekst jako frazę.
+            Wyszukaj grę w katalogu na <Link href="/">stronie głównej</Link> i
+            dodaj ją do listy albo obserwuj wpisany tekst jako frazę.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>

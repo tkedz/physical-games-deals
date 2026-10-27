@@ -107,7 +107,7 @@ In the Vercel dashboard: **Add New → Project → import `tkedz/physical-games-
 - Add exactly three variables, to **Production and Preview**, copied by hand from `.env.local` (I will not read that file, and the values must never appear in this conversation):
   - `NEXT_PUBLIC_SUPABASE_URL`
   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-  - `RAWG_API_KEY` — server-only, read at runtime by the `/watchlist` search (since `watchlist-from-catalog`)
+  - `RAWG_API_KEY` — server-only, read at runtime by the catalogue search on `/` and by the game pages, `/games/<id>` (since `game-search-and-pages`; first added for `watchlist-from-catalog`)
 - Do **not** add `SUPABASE_SECRET_KEY`, `DATABASE_URL` or `OPENROUTER_API_KEY`. `SUPABASE_SECRET_KEY` bypasses RLS and belongs only in GitHub Secrets for the future collector; nothing in `src/` reads the other two.
 - After the import, check **Project Settings → General → Node.js Version** shows 24.x. If 24.x is not offered, the build fails fast with an invalid-Node-version error — in that case fall back to `22.x` in both `package.json` and `.nvmrc`.
 

@@ -8,10 +8,10 @@ import { getCurrentUser } from "@/lib/auth/current-user";
 
 /**
  * The header and footer every product view shares. The header holds a way in
- * for visitors; for users, links to their matched deals and to their
- * watchlist, who is signed in, and a way out. The footer holds the RAWG credit
- * that every page showing RAWG data carries (CLAUDE.md, Game catalogue): one
- * credit for `/`, `/games/<id>`, `/my-deals` and `/watchlist`, so no page
+ * for visitors; for users, a link to their matched deals and watchlist, both
+ * on `/my-deals`, who is signed in, and a way out. The footer holds the RAWG
+ * credit that every page showing RAWG data carries (CLAUDE.md, Game
+ * catalogue): one credit for `/`, `/games/<id>` and `/my-deals`, so no page
  * showing the catalogue's data can leave it out.
  *
  * Reading the session makes every view under this layout dynamic. It happens
@@ -53,9 +53,6 @@ async function HeaderAuth() {
     <>
       <Link href="/my-deals" className={buttonVariants({ variant: "ghost" })}>
         Moje okazje
-      </Link>
-      <Link href="/watchlist" className={buttonVariants({ variant: "ghost" })}>
-        Obserwowane
       </Link>
       <span className="min-w-0 text-sm break-all text-muted-foreground">
         {user.email}

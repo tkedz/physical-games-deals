@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 
 /**
  * The safety net for an unexpected throw while `/my-deals` renders. A failed
- * read is not one: MyDealsSection shows that inline, with its own retry.
+ * read is not one: MyDealsSection and the list's WatchlistSection each show
+ * theirs inline, with its own retry.
  *
  * The copy is fixed and error.message is never shown, as in
  * src/app/(app)/(deals)/error.tsx and for its reasons. retry() fetches and

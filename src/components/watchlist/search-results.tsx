@@ -1,7 +1,7 @@
 /**
  * Every outcome of a search: results, none, or a catalogue that failed, and
  * the wait for one of them. `/` shows them in the overlay over the deals list
- * (src/components/search/search-overlay.tsx), and `/watchlist` below its form.
+ * (src/components/search/search-overlay.tsx).
  *
  * SearchResultsSection fetches and picks one. What each outcome looks like is
  * in the sync views after it, which the kitchen sink renders from sample data.

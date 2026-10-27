@@ -1,7 +1,7 @@
 /**
- * Every state of `/my-deals` below its heading: the user's matched deals, no
- * matches, an empty watchlist, a page past the end, a failed read, and the
- * wait for one of them.
+ * Every state of the matched deals on `/my-deals`, between its heading and the
+ * watchlist below them: the user's matched deals, no matches, an empty
+ * watchlist, a page past the end, a failed read, and the wait for one of them.
  *
  * MyDealsSection reads and picks one. What each state looks like is in the
  * sync components after it, which the kitchen sink renders from sample data.
@@ -36,14 +36,20 @@ import { getActiveEntries } from "@/lib/watchlist/current-entries";
 import { createClient } from "@/utils/supabase/server";
 
 /**
- * Everything on `/my-deals` below the heading, which page.tsx wraps in
- * Suspense.
+ * The id of the watchlist's place on `/my-deals`, below the matched deals:
+ * page.tsx puts the list there, and "Zmień listę obserwowanych" jumps to it.
+ */
+export const WATCHLIST_ANCHOR = "lista";
+
+/**
+ * The matched deals on `/my-deals`, below the heading and above the
+ * watchlist, which page.tsx wraps in Suspense.
  *
  * - Without a user it renders nothing, before it reaches the database, as the
- *   `/watchlist` sections do. The proxy's redirect to /login is a first
- *   filter only (src/lib/auth/access.ts), and this section renders on its
- *   own. Without a session the reads would run as anon, which holds no grant
- *   on the view, and fail into the error state.
+ *   list's section below it does (WatchlistSection). The proxy's redirect to
+ *   /login is a first filter only (src/lib/auth/access.ts), and this section
+ *   renders on its own. Without a session the reads would run as anon, which
+ *   holds no grant on the view, and fail into the error state.
  * - With one, it reads the list, the page of matched deals and the last
  *   refresh in parallel, then picks a state: the inline error when any read
  *   failed, the empty list when the list has no active entries, and
@@ -116,8 +122,9 @@ export function MyDealsResults({
  * No matched deals to show, from a list that has entries. On the first page
  * nothing on the list matches a listed deal, and the freshness line above it
  * says whether that is the news or a stopped pipeline (US-01); the links lead
- * to every deal and to the list. Past the last page — an old link, or a number
- * typed by hand — it leads back to the newest matches.
+ * to every deal, with the search above them, and down to the list on this
+ * page. Past the last page — an old link, or a number typed by hand — it leads
+ * back to the newest matches.
  */
 export function MyDealsEmpty({ page }: { page: number }) {
   if (page === 1) {
@@ -135,7 +142,7 @@ export function MyDealsEmpty({ page }: { page: number }) {
             Zobacz wszystkie okazje
           </Link>
           <Link
-            href="/watchlist"
+            href={`#${WATCHLIST_ANCHOR}`}
             className={buttonVariants({ variant: "secondary" })}
           >
             Zmień listę obserwowanych
@@ -164,8 +171,9 @@ export function MyDealsEmpty({ page }: { page: number }) {
 
 /**
  * The list holds no active entries, so nothing can match: a pointer to the
- * list. No freshness line, because with nothing to match, the time of the
- * last refresh changes nothing here.
+ * search on `/`, where games and phrases are added. No freshness line,
+ * because with nothing to match, the time of the last refresh changes nothing
+ * here.
  */
 export function MyDealsNoEntries() {
   return (
@@ -173,16 +181,13 @@ export function MyDealsNoEntries() {
       <EmptyHeader>
         <EmptyTitle>Twoja lista obserwowanych jest pusta</EmptyTitle>
         <EmptyDescription>
-          Dodaj gry albo frazy do listy obserwowanych, a ich okazje pojawią się
-          tutaj.
+          Wyszukaj grę na stronie głównej i obserwuj ją albo wpisany tekst jako
+          frazę, a ich okazje pojawią się tutaj.
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Link
-          href="/watchlist"
-          className={buttonVariants({ variant: "secondary" })}
-        >
-          Przejdź do listy obserwowanych
+        <Link href="/" className={buttonVariants({ variant: "secondary" })}>
+          Przejdź do wyszukiwarki
         </Link>
       </EmptyContent>
     </Empty>
