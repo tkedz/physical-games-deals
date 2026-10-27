@@ -912,15 +912,15 @@ Result rows and the game page show RAWG's image, served by RAWG in a reduced siz
 
 #### Automated
 
-- [x] 6.1 The RAWG image mapping unit test passes: `npm test -- --project unit`
-- [x] 6.2 The whole suite passes: `npm test`
-- [x] 6.3 Lint passes with no `<img>` element: `npm run lint`
-- [x] 6.4 Formatting and types pass: `npm run format:check`, `npx next typegen && npx tsc --noEmit`
-- [x] 6.5 Every E2E spec passes locally: `npx playwright test`
-- [x] 6.6 `next.config.ts` has no `images` key (grep)
+- [x] 6.1 The RAWG image mapping unit test passes: `npm test -- --project unit` — 9dfcd4f
+- [x] 6.2 The whole suite passes: `npm test` — 9dfcd4f
+- [x] 6.3 Lint passes with no `<img>` element: `npm run lint` — 9dfcd4f
+- [x] 6.4 Formatting and types pass: `npm run format:check`, `npx next typegen && npx tsc --noEmit` — 9dfcd4f
+- [x] 6.5 Every E2E spec passes locally: `npx playwright test` — 9dfcd4f
+- [x] 6.6 `next.config.ts` has no `images` key (grep) — 9dfcd4f
 
 #### Manual
 
-- [x] 6.7 With a RAWG key, a search on `/` shows thumbnails, and the game page shows the larger image
-- [x] 6.8 DevTools Network shows image requests to `media.rawg.io/media/resize/…` and none to `/_next/image`
-- [x] 6.9 A game without an image shows the placeholder, and rows stay aligned at 375 px
+- [x] 6.7 With a RAWG key, a search on `/` shows thumbnails, and the game page shows the larger image — 9dfcd4f
+- [x] 6.8 DevTools Network shows image requests to `media.rawg.io/media/resize/…` and none to `/_next/image` — 9dfcd4f
+- [x] 6.9 A game without an image shows the placeholder, and rows stay aligned at 375 px — 9dfcd4f
