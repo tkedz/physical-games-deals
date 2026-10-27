@@ -47,7 +47,7 @@ import {
 } from "./harness/database";
 
 /** Dated after the last real migration and before 20261030000000. */
-const SYNTHETIC = "20261020000000_synthetic_fold_without_l_stroke.sql";
+const SYNTHETIC = "20261029000000_synthetic_fold_without_l_stroke.sql";
 
 /** What a fold change owes the rows it leaves behind, short of the settle. */
 const RECOMPUTE_AND_REINDEX = `update public.deals set title = title;

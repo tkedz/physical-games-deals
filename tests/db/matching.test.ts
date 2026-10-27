@@ -6,9 +6,10 @@
  * The file holds every expected value itself: the fold and key cases, the keys
  * service_role stores, A's and B's views (PRD US-01 AC1 among them: "Silent
  * Hill 2" pinned to PS5 shows only the PS5 deal, unpinned it also shows the
- * Xbox one), anon refused, the EXECUTE matrix and the phrase duplicates. This
- * test only reads its report, so a new case belongs in the file, where the
- * hosted SQL-editor run gains it too.
+ * Xbox one), anon refused, the EXECUTE matrix, the phrase duplicates, and the
+ * game page's deals_for_game, which shows anon what matched_deals shows for an
+ * unpinned game entry. This test only reads its report, so a new case belongs
+ * in the file, where the hosted SQL-editor run gains it too.
  */
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";

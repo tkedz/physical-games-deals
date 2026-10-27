@@ -3,7 +3,9 @@
 -- game_match_key as 20261012130317_bound_game_match_key.sql replaced it and
 -- fold_for_matching as 20261013115104_fold_nfc_first.sql replaced it: the
 -- fold, the game key, the keys stored on deals, the matched_deals view and its
--- grants, and the folded phrase index.
+-- grants, and the folded phrase index. Also the game page's read of
+-- 20261027085911_deals_for_game.sql: public.deals_for_game, the key helper
+-- private.game_key, and their grants.
 --
 -- Run it in the Supabase SQL editor as it is, once the migration is pushed,
 -- and again after every later change to the rule. It works on fixtures of its
@@ -20,8 +22,10 @@
 --
 -- The sections: 1, the fold and the game key, case by case; 2, the keys
 -- stored on the deals service_role inserts; 3, user A's view; 4, user B's
--- view; 5, anon and the grants; 6, phrase duplicates. The views are read over
--- the fixture deals only, so real deals never change a result. Each fixture
+-- view; 5, anon and the grants; 6, phrase duplicates; 7, the game page's
+-- match, as anon. The views and deals_for_game are read over the fixture deals
+-- only, so real deals never change a result; only section 7's empty and
+-- over-long names count every row, since none may come back. Each fixture
 -- deal can be matched by one entry of each user's at most — the Witcher deal
 -- that A's game and A's phrase both match is the one exception, on purpose —
 -- so a broken case cannot hide behind another entry's match.
@@ -55,6 +59,8 @@ declare
   got_keys text[];
   seen text[];
   wanted text[];
+  via_view text[];
+  via_function text[];
   missing text;
   unexpected text;
   repeated text;
@@ -625,6 +631,42 @@ begin
     end;
   end loop;
 
+  -- The game page's read of 20261027085911_deals_for_game.sql, apart from the
+  -- four above, which it leaves as they are: anon and authenticated execute
+  -- public.deals_for_game and the definer helper it calls, private.game_key;
+  -- service_role neither. Naming private.game_key needs USAGE on its schema,
+  -- which anon, the role here, holds.
+  for c in
+    select * from (values
+      (1, 'anon', array['deals_for_game', 'game_key']),
+      (2, 'authenticated', array['deals_for_game', 'game_key']),
+      (3, 'service_role', array[]::text[])
+    ) as t(step, role_name, expected)
+    order by t.step
+  loop
+    begin
+      select coalesce(array_agg(f.name order by f.name), '{}') into held
+      from (values
+        ('deals_for_game', 'public.deals_for_game(text)'),
+        ('game_key', 'private.game_key(text)')
+      ) as f(name, signature)
+      where has_function_privilege(c.role_name, f.signature, 'execute');
+      if held = c.expected then
+        report := array_append(report, format('ok   %s executes %s', c.role_name,
+          coalesce(nullif(array_to_string(held, ', '), ''), 'neither deals_for_game nor game_key')));
+      else
+        failures := failures + 1;
+        report := array_append(report, format('FAIL of deals_for_game and game_key, %s executes %s, expected %s', c.role_name,
+          coalesce(nullif(array_to_string(held, ', '), ''), 'none'),
+          coalesce(nullif(array_to_string(c.expected, ', '), ''), 'none')));
+      end if;
+    exception when others then
+      failures := failures + 1;
+      report := array_append(report, format('FAIL reading %s''s EXECUTE privileges on deals_for_game and game_key: %s %s',
+        c.role_name, sqlstate, sqlerrm));
+    end;
+  end loop;
+
   begin
     if has_table_privilege('authenticated', 'public.matched_deals', 'select')
       and not has_table_privilege('authenticated', 'public.matched_deals',
@@ -686,6 +728,116 @@ begin
         failures := failures + 1;
         report := array_append(report, format('FAIL B adds „%s” on %s: %s %s',
           c.phrase, coalesce(c.platform, 'any platform'), sqlstate, sqlerrm));
+    end;
+  end loop;
+
+  -- 7. The game page's match, as anon ---------------------------------------------
+  -- /games/<id> lists what public.deals_for_game returns for the game's
+  -- catalogue name, and that must be exactly what public.matched_deals shows a
+  -- user whose one active entry is that game, unpinned. In each case A, whose
+  -- view section 3 has read, removes every active entry, adds that one game
+  -- and reads the view; then anon calls the function. Each case also names the
+  -- deals it must show, so that two empty reads cannot pass as equal. The
+  -- digital and the unpriced Silent Hill 2 deal stay hidden from anon because
+  -- the select policy on public.deals holds inside the function.
+  for c in
+    select * from (values
+      (1, 'Silent Hill 2', '„Silent Hill 2”: the ps5 and the xbox-series deal, not the digital or the unpriced one',
+        array['sh2-ps5', 'sh2-xbox']),
+      (2, 'Hollow Knight', '„Hollow Knight”: the deal with no platform and the one with other',
+        array['hollow-knight-no-platform', 'hollow-knight-other']),
+      (3, 'The Witcher 3: Wild Hunt', '„The Witcher 3: Wild Hunt”: both deals that carry it as english_title',
+        array['witcher-english-title', 'witcher-game-and-phrase']),
+      (4, 'Final Fantasy VII (1997)', '„Final Fantasy VII (1997)”: FINAL FANTASY VII, not Rebirth, Remake Intergrade or Crisis Core',
+        array['ff7-switch']),
+      (5, 'Battlefield 6', '„Battlefield 6”: the deal that carries it as an alternative title',
+        array['bf6-alternative-title']),
+      (6, 'Pokémon Legends: Z-A', '„Pokémon Legends: Z-A”: the title typed with a separate accent (NFD)',
+        array['pokemon-nfd-title']),
+      (7, 'Elden Ring', '„Elden Ring”: nothing, not „Elden Ring Nightreign”',
+        array[]::text[])
+    ) as t(step, game_name, name, expected)
+    order by t.step
+  loop
+    via_view := null;
+    via_function := null;
+
+    set local role authenticated;
+    perform set_config('request.jwt.claims',
+      json_build_object('sub', user_a, 'role', 'authenticated')::text, true);
+    begin
+      update public.watchlist_entries set removed_at = now() where removed_at is null;
+      insert into public.watchlist_entries (kind, game_id, game_slug, game_name, platform)
+      values ('game', 990100 + c.step, 'game-page-case-' || c.step, c.game_name, null);
+      select coalesce(array_agg(s.label order by s.label), '{}') into via_view
+      from (
+        select labels[array_position(ids, m.id)] as label
+        from public.matched_deals as m
+        where m.id = any (ids)
+      ) as s;
+    exception when others then
+      failures := failures + 1;
+      report := array_append(report, format('FAIL game page %s — A reads matched_deals for the unpinned entry: %s %s',
+        c.name, sqlstate, sqlerrm));
+    end;
+
+    set local role anon;
+    perform set_config('request.jwt.claims', json_build_object('role', 'anon')::text, true);
+    begin
+      select coalesce(array_agg(s.label order by s.label), '{}') into via_function
+      from (
+        select labels[array_position(ids, f.id)] as label
+        from public.deals_for_game(c.game_name) as f
+        where f.id = any (ids)
+      ) as s;
+    exception when others then
+      failures := failures + 1;
+      report := array_append(report, format('FAIL game page %s — anon calls deals_for_game: %s %s',
+        c.name, sqlstate, sqlerrm));
+    end;
+
+    if via_view is not null and via_function is not null then
+      select coalesce(array_agg(x order by x), '{}') into wanted from unnest(c.expected) as x;
+      if via_function = via_view and via_view = wanted then
+        report := array_append(report, format('ok   game page %s — deals_for_game as anon and matched_deals for the unpinned entry both show %s',
+          c.name, coalesce(nullif(array_to_string(wanted, ', '), ''), 'nothing')));
+      else
+        failures := failures + 1;
+        report := array_append(report, format('FAIL game page %s — deals_for_game as anon shows %s; matched_deals for the unpinned entry shows %s; expected %s',
+          c.name,
+          coalesce(nullif(array_to_string(via_function, ', '), ''), 'nothing'),
+          coalesce(nullif(array_to_string(via_view, ', '), ''), 'nothing'),
+          coalesce(nullif(array_to_string(wanted, ', '), ''), 'nothing')));
+      end if;
+    end if;
+  end loop;
+
+  -- Still as anon. An empty name and a name over 1000 characters key to '',
+  -- which matches nothing. The long one is "Silent Hill 2" padded with spaces,
+  -- which the fold trims away, so only the cap of
+  -- 20261012130317_bound_game_match_key.sql keeps it from showing both listed
+  -- Silent Hill 2 deals. These count every row the function returns, not only
+  -- the fixtures, since none may come back.
+  for c in
+    select * from (values
+      (1, '', 'an empty name'),
+      (2, 'Silent Hill 2' || repeat(' ', 1000), '„Silent Hill 2” padded with spaces to 1013 characters')
+    ) as t(step, game_name, name)
+    order by t.step
+  loop
+    begin
+      select count(*) into counted from public.deals_for_game(c.game_name);
+      if counted = 0 then
+        report := array_append(report, format('ok   game page for %s: deals_for_game as anon returns no rows', c.name));
+      else
+        failures := failures + 1;
+        report := array_append(report, format('FAIL game page for %s: deals_for_game as anon returns %s rows, expected none',
+          c.name, counted));
+      end if;
+    exception when others then
+      failures := failures + 1;
+      report := array_append(report, format('FAIL game page for %s: anon calls deals_for_game: %s %s',
+        c.name, sqlstate, sqlerrm));
     end;
   end loop;
 

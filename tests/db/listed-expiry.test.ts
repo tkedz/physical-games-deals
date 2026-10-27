@@ -5,10 +5,11 @@
  *
  * The file holds every expected value itself: PRD AC3 (a deal is hidden after
  * its stated end, one without an end stays) for anon and authenticated on
- * public.deals and for a signed-in user on public.matched_deals, the exact
- * boundary instant, a digital deal that a future end does not list, and the
- * view's security_invoker option. This test only reads its report, so a new
- * case belongs in the file, where the hosted SQL-editor run gains it too.
+ * public.deals and through public.deals_for_game, and for a signed-in user on
+ * public.matched_deals, the exact boundary instant, a digital deal that a
+ * future end does not list, and the view's security_invoker option. This test
+ * only reads its report, so a new case belongs in the file, where the hosted
+ * SQL-editor run gains it too.
  */
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";

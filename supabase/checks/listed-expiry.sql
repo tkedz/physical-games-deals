@@ -1,11 +1,12 @@
 -- Truth table for the expiry term of
 -- supabase/migrations/20261013145356_hide_expired_deals.sql: a deal is hidden
--- from its expires_at on, for every reader of public.deals and of
--- public.matched_deals, and the view still runs as its caller.
+-- from its expires_at on, for every reader of public.deals, of
+-- public.matched_deals and of public.deals_for_game
+-- (20261027085911_deals_for_game.sql), and the view still runs as its caller.
 --
 -- Run it in the Supabase SQL editor as it is, once the migration is pushed,
--- and again after every later change to the select policy on public.deals or
--- to public.matched_deals. It works on fixtures of its own: one user inserted
+-- and again after every later change to the select policy on public.deals, to
+-- public.matched_deals or to public.deals_for_game. It works on fixtures of its own: one user inserted
 -- into auth.users, so that no real watchlist touches the results; a fixture
 -- post; and fixture deals, which service_role inserts, as the extractor does.
 -- Should auth.users refuse the user, it takes its oldest user instead and
@@ -77,7 +78,9 @@ begin
 
   -- The deals, as service_role -------------------------------------------------
   -- Every title holds the user's phrase, so the view's match never decides
-  -- which of them shows: only the listed predicate does.
+  -- which of them shows: only the listed predicate does. Every deal also
+  -- carries the one english_title "Listed Expiry Check", so the game page's
+  -- function, called with that name, reaches all of them too.
   set local role service_role;
   perform set_config('request.jwt.claims', json_build_object('role', 'service_role')::text, true);
 
@@ -95,7 +98,7 @@ begin
       insert into public.deals (link, item_index, source, published_at, kind, edition, platform,
         title, english_title, price_amount, currency, expires_at)
       values (fixture_link, c.item, 'listed-expiry-check', now(), 'game', c.edition, 'ps5',
-        'Listed Expiry Check ' || c.label, 'Listed Expiry Check ' || c.label, 99.00, 'PLN', c.expires_at)
+        'Listed Expiry Check ' || c.label, 'Listed Expiry Check', 99.00, 'PLN', c.expires_at)
       returning id into new_id;
       labels := array_append(labels, c.label);
       ids := array_append(ids, new_id);
@@ -128,12 +131,17 @@ begin
   -- so for authenticated the policy alone already hides an expired deal there.
   -- The table owner — the editor's role — is not bound by RLS, so its read of
   -- the view, with the user's claims, sees the view's own predicate.
+  -- public.deals_for_game runs as its caller too and does not restate the
+  -- listed predicate, so for anon and authenticated the policy is all that
+  -- hides an expired deal there.
   for c in
     select * from (values
       (1, 'anon', 'public.deals'),
       (2, 'authenticated', 'public.deals'),
       (3, 'authenticated', 'public.matched_deals'),
-      (4, 'the table owner, past RLS,', 'public.matched_deals')
+      (4, 'the table owner, past RLS,', 'public.matched_deals'),
+      (5, 'anon', 'public.deals_for_game(''Listed Expiry Check'')'),
+      (6, 'authenticated', 'public.deals_for_game(''Listed Expiry Check'')')
     ) as t(step, role_name, relation)
     order by t.step
   loop

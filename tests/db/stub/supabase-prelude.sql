@@ -38,6 +38,12 @@ create role migrator nologin nosuperuser;
 grant anon, authenticated, service_role to migrator;
 grant usage, create on schema public to migrator;
 
+-- Hosted postgres may also create schemas, as
+-- 20261027085911_deals_for_game.sql creates private, so migrator gets CREATE
+-- on this database. Its name comes from current_database(), which a GRANT
+-- cannot take, hence the dynamic SQL.
+do $$ begin execute format('grant create on database %I to migrator', current_database()); end $$;
+
 -- 3. The auth schema ---------------------------------------------------------
 -- Only the columns anything here reads. Hosted, supabase_auth_admin owns the
 -- table; here the superuser does, and migrator gets what the migrations and
