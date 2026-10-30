@@ -855,8 +855,8 @@ Result rows and the game page show RAWG's image, served by RAWG in a reduced siz
 
 #### Manual
 
-- [ ] 2.4 Before the first PR or the merge, whichever comes first, Tomasz runs `npm run db:push -- --dry-run` (only this migration listed), `npm run db:push` and `npm run db:check` (exit 0, no new finding)
-- [ ] 2.5 After the push, `supabase/checks/matching.sql` and `supabase/checks/listed-expiry.sql` rerun in the hosted SQL editor end in "Rolled back on purpose. All checks passed."
+- [x] 2.4 Before the first PR or the merge, whichever comes first, Tomasz runs `npm run db:push -- --dry-run` (only this migration listed), `npm run db:push` and `npm run db:check` (exit 0, no new finding) — a85713e
+- [x] 2.5 After the push, `supabase/checks/matching.sql` and `supabase/checks/listed-expiry.sql` rerun in the hosted SQL editor end in "Rolled back on purpose. All checks passed." — a85713e
 
 ### Phase 3: Game page `/games/[id]`
 

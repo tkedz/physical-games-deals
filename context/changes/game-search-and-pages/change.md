@@ -100,3 +100,12 @@ archived_at: null
     - `rule-change.test.ts` now states, beside `SYNTHETIC`, the known limit recorded under Phase 2 above.
   - Skipped in triage (F2): the RAWG-quota row's trigger in `infrastructure.md` stays as written.
   - After triage, gates: lint, format, types, `npm test` 601, all five E2E specs on a fresh build. Still open before the first PR or the merge: Progress 2.4 and 2.5, Tomasz's hosted steps.
+- **2026-10-30 — hosted steps done (Progress 2.4, 2.5).**
+  - Tomasz ran `npm run db:push`. In the hosted SQL editor, `supabase/checks/matching.sql` and `supabase/checks/listed-expiry.sql` both ended in "Rolled back on purpose. All checks passed."; he reported the other steps of Migration Notes ok.
+  - Read back by the agent the same day:
+    - `npm run db:status` lists all 16 migrations on both sides, `20261027085911` included, so there is no drift;
+    - `npx supabase gen types typescript --linked --schema public` shows `deals_for_game` with `Args: { name: string }`.
+  - The 2.4 and 2.5 rows carry `a85713e`, the commit whose migration was pushed. Every Progress row is now done, and the status stays `impl_reviewed`.
+  - Next:
+    1. PR or merge into `main`, then the production checks in the plan's Migration Notes.
+    2. `/10x-archive`, and `/10x-roadmap` to close M-2; the roadmap's Baseline still lists `/watchlist` as a route.
