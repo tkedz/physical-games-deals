@@ -19,9 +19,11 @@ import { z } from "zod";
 import type { CatalogGame } from "@/lib/catalog/types";
 import { MAX_GAME_ID } from "@/lib/games/rules";
 import type {
+  GameEntry,
   PinnablePlatform,
   SearchState,
   WatchlistEntry,
+  WatchOption,
   WatchState,
 } from "./types";
 import { characterCount, MAX_QUERY_LENGTH, parsePlatform } from "./vocabulary";
@@ -178,22 +180,37 @@ export function foldForMatching(value: string): string {
 }
 
 /**
- * Whether the list already holds this game on this platform. "Any platform"
- * (null) is a value of its own, as in the database's unique index: a game on
- * the list for PS5 can still be added for any platform, and the other way
- * round.
+ * The active entry that holds this game on this platform, or null. "Any
+ * platform" (null) is a value of its own, as in the database's unique index:
+ * a game on the list for PS5 is not on it for any platform, and the other way
+ * round. The same index makes it at most one entry.
+ */
+export function findGameEntry(
+  entries: readonly WatchlistEntry[],
+  gameId: number,
+  platform: PinnablePlatform | null,
+): GameEntry | null {
+  return (
+    entries.find(
+      (entry): entry is GameEntry =>
+        entry.kind === "game" &&
+        entry.game_id === gameId &&
+        entry.platform === platform,
+    ) ?? null
+  );
+}
+
+/**
+ * Whether the list already holds this game on this platform, as
+ * findGameEntry finds it: a game on the list for PS5 can still be added for
+ * any platform, and the other way round.
  */
 export function isGameOnList(
   entries: readonly WatchlistEntry[],
   gameId: number,
   platform: PinnablePlatform | null,
 ): boolean {
-  return entries.some(
-    (entry) =>
-      entry.kind === "game" &&
-      entry.game_id === gameId &&
-      entry.platform === platform,
-  );
+  return findGameEntry(entries, gameId, platform) !== null;
 }
 
 /**
@@ -201,7 +218,9 @@ export function isGameOnList(
  * - "guest" for a visitor, who is led to sign in instead. A visitor has no
  *   list, so `entries` is not read;
  * - "on_list" when the user's list holds the game on exactly this platform,
- *   as isGameOnList decides it, so the control reads "Na liście";
+ *   as isGameOnList decides it. The search on `/` shows a disabled "Na
+ *   liście" for it; a game's page offers "Usuń z listy obserwowanych" in its
+ *   place (gameWatchOption);
  * - "can_watch" otherwise, the "Obserwuj" that adds it.
  */
 export function watchState(input: {
@@ -215,6 +234,29 @@ export function watchState(input: {
   return isGameOnList(input.entries, input.gameId, input.platform)
     ? "on_list"
     : "can_watch";
+}
+
+/**
+ * What a game's page offers for one platform, with the hidden fields its
+ * button posts: none for a visitor, gameEntryFields for "Obserwuj", and for
+ * "Usuń z listy obserwowanych" entryRemovalFields of exactly the entry
+ * findGameEntry finds. So the removal never reaches the game on another
+ * platform, its entry on the other side of "any platform", or a phrase
+ * carrying its name. The state is watchState's.
+ */
+export function gameWatchOption(input: {
+  signedIn: boolean;
+  entries: readonly WatchlistEntry[];
+  game: CatalogGame;
+  /** The platform chosen in the control; null means any platform. */
+  platform: PinnablePlatform | null;
+}): WatchOption {
+  const { signedIn, entries, game, platform } = input;
+  if (!signedIn) return { platform, state: "guest" };
+  const entry = findGameEntry(entries, game.id, platform);
+  return entry === null
+    ? { platform, state: "can_watch", fields: gameEntryFields(game, platform) }
+    : { platform, state: "on_list", fields: entryRemovalFields(entry) };
 }
 
 /**

@@ -1,7 +1,6 @@
 "use client";
 
 import { useId, useState, type ChangeEvent } from "react";
-import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import {
   NativeSelect,
@@ -12,23 +11,9 @@ import { SignInToWatch } from "@/components/watchlist/sign-in-to-watch";
 import type {
   PinnablePlatform,
   WatchlistAction,
-  WatchState,
+  WatchOption,
 } from "@/lib/watchlist/types";
 import { parsePlatform, pinLabel } from "@/lib/watchlist/vocabulary";
-
-/**
- * What the control offers for one platform, decided on the server: the state
- * watchState gives, and the hidden fields gameEntryFields writes for "Obserwuj"
- * (src/lib/watchlist/rules.ts). Decided there because rules.ts builds zod
- * schemas when it loads, which the browser bundle is kept free of
- * (src/lib/watchlist/vocabulary.ts).
- */
-export type WatchOption = {
-  /** The pin; null means any platform. */
-  platform: PinnablePlatform | null;
-  state: WatchState;
-  fields: Readonly<Record<string, string>>;
-};
 
 /**
  * The client half of a game's watch control (GameWatchControl): the platform
@@ -38,27 +23,32 @@ export type WatchOption = {
  *   platform choice.
  * - A user picks the platform in a select held in this component's state, not
  *   in the URL: it is the pin the game is watched with, not a filter of the
- *   page's deals. For that platform the control shows "Obserwuj", or a
- *   disabled "Na liście" when the list already holds the game on it.
+ *   page's deals. For that platform the control shows "Obserwuj", which posts
+ *   `addAction`, or "Usuń z listy obserwowanych" when the list already holds
+ *   the game on it, which posts `removeAction` with the id of exactly that
+ *   entry (gameWatchOption in src/lib/watchlist/rules.ts).
  *
- * "Obserwuj" is keyed by the platform, so a message about one platform's
- * attempt goes away with it. After an add, the action's refresh() renders the
- * page again with the new list, and the chosen platform stays, so the control
- * then reads "Na liście". The button is described by the game's name.
+ * The button is keyed by the platform and the state, so a message about one
+ * platform's or one state's attempt goes away with it. After either action,
+ * its refresh() renders the page again with the new list, and the chosen
+ * platform stays, so the control then reads the other button for the same
+ * platform. The button is described by the game's name.
  *
  * `options` holds one entry per choice, in the select's order: any platform
- * first, then PINNABLE_PLATFORMS. Without `action` the button renders inert,
- * and `initialMessage` seeds its line, so the kitchen sink shows every state
- * without posting.
+ * first, then PINNABLE_PLATFORMS. Without an action the button renders inert,
+ * and `initialMessage` seeds the line of whichever button shows, so the
+ * kitchen sink shows every state without posting.
  */
 export function GameWatchPicker({
   options,
-  action,
+  addAction,
+  removeAction,
   initialMessage = null,
   describedBy,
 }: {
   options: readonly WatchOption[];
-  action?: WatchlistAction;
+  addAction?: WatchlistAction;
+  removeAction?: WatchlistAction;
   initialMessage?: string | null;
   /** The id of the game's name. */
   describedBy?: string;
@@ -101,13 +91,19 @@ export function GameWatchPicker({
         </NativeSelect>
       </Field>
       {option.state === "on_list" ? (
-        <Button variant="secondary" disabled aria-describedby={describedBy}>
-          Na liście
-        </Button>
+        <EntryActionButton
+          key={`${option.platform ?? ""}:on_list`}
+          action={removeAction}
+          fields={option.fields}
+          intent="remove"
+          label="Usuń z listy obserwowanych"
+          describedBy={describedBy}
+          initialMessage={initialMessage}
+        />
       ) : (
         <EntryActionButton
-          key={option.platform ?? ""}
-          action={action}
+          key={`${option.platform ?? ""}:can_watch`}
+          action={addAction}
           fields={option.fields}
           intent="add"
           label="Obserwuj"

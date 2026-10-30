@@ -336,8 +336,8 @@ const tooShortEntry: WatchlistEntry = {
 };
 
 // "Strona gry" shows one game, Fire Emblem Engage, which the sample list
-// holds for any platform: with that list its watch control reads "Na liście",
-// and with an empty one it offers "Obserwuj". Every control is described by
+// holds for any platform: with that list its watch control offers "Usuń z
+// listy obserwowanych", and with an empty one "Obserwuj". Every control is described by
 // its header's name. It has art; a second header, for Fire Emblem: Three
 // Houses, shows the empty box. Its deals take ids of their own, for the
 // reason myDealsSamples gives.
@@ -929,7 +929,7 @@ export default function KitchenSinkPage() {
 
       {/* A game's page, `/games/<id>`, in every state it can be in, from the
           sample data above: the visual gate before the page depends on them.
-          No action is passed, so "Obserwuj" renders inert, and nothing here
+          No action is passed, so the watch buttons render inert, and nothing here
           reaches Supabase or the catalogue. Each header and the unavailable
           state hold the page's h1. */}
       <section className="flex flex-col gap-6">
@@ -975,6 +975,18 @@ export default function KitchenSinkPage() {
             game={gamePageSample}
             signedIn
             entries={[]}
+            initialMessage="Nie udało się zapisać zmiany. Spróbuj ponownie."
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Obserwowanie: nieudane usunięcie
+          </h3>
+          <GameWatchView
+            game={gamePageSample}
+            signedIn
+            entries={sampleEntries}
             initialMessage="Nie udało się zapisać zmiany. Spróbuj ponownie."
           />
         </div>

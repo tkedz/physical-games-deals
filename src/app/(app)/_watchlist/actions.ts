@@ -3,8 +3,8 @@
 /**
  * The watchlist's four changes — adding a game, adding a phrase, removing an
  * entry, editing an entry — posted through useActionState: the adds from the
- * search on `/` and from a game's page, `/games/<id>`, the removal and the
- * edit from the list on `/my-deals`.
+ * search on `/` and from a game's page, `/games/<id>`, the removal from the
+ * list on `/my-deals` and from a game's page, and the edit from the list.
  *
  * An edit is a replace, never an update in place: `authenticated` may update
  * removed_at only (supabase/migrations/20261007141021_create_watchlist_entries.sql),
@@ -107,7 +107,10 @@ export async function addPhraseEntry(
   return answer(await insertPhraseEntry(await createClient(), input.data));
 }
 
-/** Removes an entry from the list, from its "Usuń". */
+/**
+ * Removes an entry from the list, from its "Usuń" on `/my-deals` or a game
+ * page's "Usuń z listy obserwowanych".
+ */
 export async function removeEntry(
   _state: WatchlistActionState,
   formData: FormData,

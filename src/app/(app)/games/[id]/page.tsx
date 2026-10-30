@@ -15,7 +15,7 @@ import {
 import { parsePage } from "@/lib/deals/page";
 import { getCatalogGame } from "@/lib/games/catalog";
 import { parseGameId } from "@/lib/games/rules";
-import { addGameEntry } from "../../_watchlist/actions";
+import { addGameEntry, removeEntry } from "../../_watchlist/actions";
 
 // Kept out of search results on every outcome: the pages are public, and each
 // crawl of an unseen id would spend the shared catalogue quota (the planning
@@ -43,7 +43,7 @@ export async function generateMetadata({
 /**
  * `/games/<id>`: one catalogue game, public, with the listed deals that a
  * watchlist entry for it with no platform would match, newest first, a page
- * at a time, and the control to watch it.
+ * at a time, and the control to watch it, or to remove it from the list.
  *
  * The order keeps a real 404. notFound() answers with status 404 only while
  * the response has not started streaming, so both calls come before any
@@ -88,7 +88,11 @@ export default async function GameRoute({
     <GamePage>
       <GameHeader game={game} />
       <Suspense fallback={<GameWatchSkeleton />}>
-        <GameWatchControl game={game} addGameAction={addGameEntry} />
+        <GameWatchControl
+          game={game}
+          addGameAction={addGameEntry}
+          removeAction={removeEntry}
+        />
       </Suspense>
       <Suspense key={page} fallback={<GameDealsSkeleton />}>
         <GameDealsSection game={game} page={page} />

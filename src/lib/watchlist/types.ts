@@ -53,9 +53,36 @@ export type WatchlistEntry = GameEntry | PhraseEntry;
 
 /**
  * What a game's watch control offers, as watchState in rules.ts decides it: a
- * sign-in link for a visitor, a disabled "Na liście", or "Obserwuj".
+ * sign-in link for a visitor, "Na liście" when the list holds the game, or
+ * "Obserwuj". The search on `/` shows "Na liście" disabled; a game's page
+ * offers "Usuń z listy obserwowanych" in its place (WatchOption).
  */
 export type WatchState = "guest" | "on_list" | "can_watch";
+
+/**
+ * What a game's page offers for one platform, as gameWatchOption in rules.ts
+ * decides it, with the hidden fields its button posts:
+ * - "guest": the sign-in link, which posts nothing;
+ * - "can_watch": "Obserwuj", with the fields gameEntryFields writes;
+ * - "on_list": "Usuń z listy obserwowanych", with the field
+ *   entryRemovalFields writes for exactly the entry on this platform.
+ *
+ * Decided on the server, because rules.ts builds zod schemas when it loads,
+ * which the browser bundle is kept free of (./vocabulary.ts); the client half
+ * of the control imports this type only.
+ */
+export type WatchOption =
+  | {
+      /** The pin; null means any platform. */
+      platform: PinnablePlatform | null;
+      state: "guest";
+    }
+  | {
+      /** The pin; null means any platform. */
+      platform: PinnablePlatform | null;
+      state: "can_watch" | "on_list";
+      fields: Readonly<Record<string, string>>;
+    };
 
 /**
  * What any of the four watchlist actions answers, for useActionState: a null

@@ -13,11 +13,18 @@
  * the database's unique index on (user, game, platform), where null is a value
  * of its own (isGameOnList).
  *
- * phraseWatchState, its twin for the search's phrase offer, follows at the
- * end.
+ * phraseWatchState, its twin for the search's phrase offer, follows, and
+ * gameWatchOption, what a game's page offers with the fields its button
+ * posts, comes last.
  */
 import { describe, expect, it } from "vitest";
-import { phraseWatchState, watchState } from "@/lib/watchlist/rules";
+import type { CatalogGame } from "@/lib/catalog/types";
+import {
+  gameEntryFields,
+  gameWatchOption,
+  phraseWatchState,
+  watchState,
+} from "@/lib/watchlist/rules";
 import type {
   GameEntry,
   PinnablePlatform,
@@ -249,4 +256,99 @@ describe("phraseWatchState", () => {
       );
     },
   );
+});
+
+// gameWatchOption, what a game's page offers for one platform with the hidden
+// fields its button posts (plan, context/changes/watchlist-on-top-and-game-remove,
+// Phase 2: „Usuń z listy obserwowanych” removes the game's entry for exactly
+// the chosen platform). Removing the wrong entry is the silent failure — the
+// user sees „Obserwuj” come back while another of their entries is gone — so
+// the rows pin which entry's id the removal posts.
+describe("gameWatchOption", () => {
+  const game: CatalogGame = {
+    id: ELDEN_RING,
+    slug: "elden-ring",
+    name: "Elden Ring",
+    released: "2022-02-25",
+    platforms: [],
+    image: null,
+  };
+
+  it("plan: the game on the list for PS5, PS5 chosen, posts that entry's id for removal", () => {
+    const entry = gameEntry(ELDEN_RING, "ps5");
+    expect(
+      gameWatchOption({
+        signedIn: true,
+        entries: [entry],
+        game,
+        platform: "ps5",
+      }),
+    ).toEqual({
+      platform: "ps5",
+      state: "on_list",
+      fields: { entryId: String(entry.id) },
+    });
+  });
+
+  it("plan: the game on any platform and on PS5 posts the PS5 entry's id for PS5 and the other one's for any platform", () => {
+    const anyPlatform = gameEntry(ELDEN_RING, null);
+    const ps5 = gameEntry(ELDEN_RING, "ps5");
+    const entries = [anyPlatform, ps5];
+
+    expect(
+      gameWatchOption({ signedIn: true, entries, game, platform: "ps5" }),
+    ).toEqual({
+      platform: "ps5",
+      state: "on_list",
+      fields: { entryId: String(ps5.id) },
+    });
+    expect(
+      gameWatchOption({ signedIn: true, entries, game, platform: null }),
+    ).toEqual({
+      platform: null,
+      state: "on_list",
+      fields: { entryId: String(anyPlatform.id) },
+    });
+  });
+
+  it("plan: a phrase equal to the game's name, with no game entry, offers to watch the game with the add fields", () => {
+    expect(
+      gameWatchOption({
+        signedIn: true,
+        entries: [phraseEntry("Elden Ring", "ps5")],
+        game,
+        platform: "ps5",
+      }),
+    ).toEqual({
+      platform: "ps5",
+      state: "can_watch",
+      fields: gameEntryFields(game, "ps5"),
+    });
+  });
+
+  it("plan: a different game on the list offers to watch this one", () => {
+    expect(
+      gameWatchOption({
+        signedIn: true,
+        entries: [gameEntry(SILKSONG, "ps5")],
+        game,
+        platform: "ps5",
+      }),
+    ).toEqual({
+      platform: "ps5",
+      state: "can_watch",
+      fields: gameEntryFields(game, "ps5"),
+    });
+  });
+
+  it("plan: a visitor is a guest with no fields, whatever the entries hold", () => {
+    expect(
+      gameWatchOption({
+        signedIn: false,
+        entries: [gameEntry(ELDEN_RING, "ps5")],
+        game,
+        platform: "ps5",
+      }),
+    ).toEqual({ platform: "ps5", state: "guest" });
+  });
 });
