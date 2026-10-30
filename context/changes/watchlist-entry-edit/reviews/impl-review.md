@@ -65,7 +65,7 @@
   - Tradeoff: a small change to the form's submission path. The form then needs the E2E and manual 2.10 rerun on a pinned entry.
   - Confidence: HIGH. Reproduced in the browser, and the mechanism was read in `react-dom` 19.2.8.
   - Blind spot: whether `requestSubmit`/Enter keeps working identically. It should, since `onSubmit` handles both.
-- **Decision**: PENDING
+- **Decision**: FIXED (2026-10-30). The form posts from `onSubmit` (`preventDefault`, then `startTransition(() => formAction(formData))`) instead of `action={formAction}`, so React no longer resets it; the comment says why. `main-flow.spec.ts` step 6b now saves a two-character phrase on the PC-pinned entry first and asserts the length line, the typed text and `toHaveValue("pc")`. With the old submission restored in the working tree, that assertion failed (`Expected: "pc"`, `Received: ""`, line 246); with the fix, all five specs passed. In the browser, „hades” on PS5 kept `ps5` after the same-match and the length lines, and the next save wrote „hades 2 · PS5”.
 
 ### F2 — After a successful edit, focus falls to the page body
 
@@ -75,7 +75,7 @@
 - **Location**: src/components/watchlist/entry-edit-form.tsx:91-101, 168
 - **Detail**: On a null answer the form returns focus to the old row's „Edytuj”, but `refresh()` then removes that row. Keyboard and screen-reader users are left on `<body>`, while the new version appears at the top of the list unannounced. „Usuń” behaves the same today when its row goes.
 - **Fix**: Accept, since it matches „Usuń”. Alternatively, move focus to the „Twoja lista” heading after a replace.
-- **Decision**: PENDING
+- **Decision**: FIXED (2026-10-30), by moving focus to the list's heading instead of accepting it. `ListFrame`'s „Twoja lista” heading takes `tabIndex={-1}`; a save that changed something (read from the posted form data) focuses it, and a save without changes or „Anuluj” returns focus to „Edytuj”. Checked by keyboard on the dev server: Enter on „Edytuj”, typing „hades 3”, Enter left focus on the heading with `:focus-visible`; an unchanged save left it on „Edytuj”.
 
 ### F3 — Two tabs editing the same entry can leave two new versions
 
@@ -85,7 +85,7 @@
 - **Location**: src/app/(app)/_watchlist/actions.ts:145-168
 - **Detail**: Tabs A and B both read entry X. Each inserts its own version, and each removes X; the second removal changes zero rows and counts as done. The user then has two active entries from one edit. Nothing is lost, and each can be removed. Closing the race needs a database function, which the plan ruled out.
 - **Fix**: Accept for the MVP and note it in `change.md` beside the other accepted limits.
-- **Decision**: PENDING
+- **Decision**: SKIPPED (2026-10-30).
 
 ### F4 — Kitchen-sink sample and one non-retrying E2E read
 
@@ -97,4 +97,11 @@
   - **Kitchen sink:** the "Edycja: fraza za krótka" state shows the valid phrase „Fire Emblem” under the too-short line.
   - **E2E:** step 6a reads the select's label once through `evaluate` (`expect(await selectedLabel(...)).toBe(...)`). The rest of the spec uses retrying locator assertions. It is safe in practice, because it follows a retrying `toHaveValue` on the same form.
 - **Fix**: Give the kitchen-sink state a 2-character sample phrase, and replace the one-shot read with `await expect(platformField).toHaveValue("")`.
-- **Decision**: PENDING
+- **Decision**: FIXED (2026-10-30). The kitchen sink's too-short state uses its own sample entry with the phrase „fe”. Step 6a asserts `await expect(platformField).toHaveValue("")`, and the one-shot `selectedLabel` helper is gone.
+
+## Triage summary (2026-10-30)
+
+| Outcome | Findings |
+|---------|----------|
+| Fixed | F1, F2, F4 |
+| Skipped | F3 |

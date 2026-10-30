@@ -54,11 +54,18 @@ export async function WatchlistSection({
   );
 }
 
-/** The list's heading, above whichever state it is in. */
+/**
+ * The list's heading, above whichever state it is in. It takes focus from
+ * script only: an edit that replaces an entry moves focus here, since the
+ * row it was made from leaves the page (EntryEditForm).
+ */
 function ListFrame({ children }: { children: ReactNode }) {
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="font-heading text-xl font-semibold tracking-tight">
+      <h2
+        tabIndex={-1}
+        className="font-heading text-xl font-semibold tracking-tight"
+      >
         Twoja lista
       </h2>
       {children}

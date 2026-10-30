@@ -81,13 +81,6 @@ function dealCard(page: Page, title: string): Locator {
   });
 }
 
-/** The label of the option a select shows. */
-function selectedLabel(select: Locator): Promise<string | undefined> {
-  return select.evaluate(
-    (element: HTMLSelectElement) => element.selectedOptions[0]?.text,
-  );
-}
-
 /** Where each link on a card leads, in order. */
 function linkTargets(card: Locator): Promise<(string | null)[]> {
   return card
@@ -210,7 +203,8 @@ test.describe("main flow", () => {
     }).toPass();
     await expect(phraseField).toHaveValue(title);
     const platformField = entry.getByLabel("Platforma");
-    expect(await selectedLabel(platformField)).toBe("Dowolna platforma");
+    // "Dowolna platforma" is the empty value.
+    await expect(platformField).toHaveValue("");
     await phraseField.fill(editPhrase);
     await platformField.selectOption({ label: "PC" });
     await entry.getByRole("button", { name: "Zapisz" }).click();
@@ -225,7 +219,10 @@ test.describe("main flow", () => {
 
     // 6b. Edit back: the title again, for any platform. The title's row
     // returns with its pin, the edited one goes, and the deal is among the
-    // matched ones again, with the same price and links as on /.
+    // matched ones again, with the same price and links as on /. A refused
+    // save comes first: a two-character phrase answers with the length line,
+    // and the form keeps both what was typed and the PC pin, so the save that
+    // follows posts only what the user chose.
     const editedButton = editedEntry.getByRole("button", { name: "Edytuj" });
     const editedPhraseField = editedEntry.getByLabel("Fraza");
     await expect(async () => {
@@ -234,6 +231,13 @@ test.describe("main flow", () => {
       }
       await expect(editedPhraseField).toBeVisible({ timeout: 1_000 });
     }).toPass();
+    await editedPhraseField.fill("ab");
+    await editedEntry.getByRole("button", { name: "Zapisz" }).click();
+    await expect(
+      editedEntry.getByText("Fraza musi mieć od 3 do 100 znaków."),
+    ).toBeVisible();
+    await expect(editedPhraseField).toHaveValue("ab");
+    await expect(editedEntry.getByLabel("Platforma")).toHaveValue("pc");
     await editedPhraseField.fill(title);
     await editedEntry
       .getByLabel("Platforma")

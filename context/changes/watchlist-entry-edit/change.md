@@ -57,3 +57,8 @@ archived_at: null
   - FR-011's note adds one sentence the plan did not ask for: an edited entry moves to the top of the list, as a newly added one does (accepted by Tomasz on 2026-10-30, above).
   - `test-plan.md` §6.5 gains its own sub-bullet for the edit round trip, and its deliberate-breaks sub-bullet names a third break (`markEntryRemoved` skipped fails step 6a), the one Phase 2 ran. Both sit inside §6.5's description of `main-flow.spec.ts`; no other row changes.
 - **2026-10-30 — Tomasz accepted FR-011's wording (Progress 3.3); plan closed.** Every Progress row is done; status `implemented`. Next: push, PR, merge into `main`, then `/10x-archive` for this change and `game-search-and-pages`, and `/10x-roadmap`.
+- **2026-10-30 — implementation review triage.** `reviews/impl-review.md` holds the findings and decisions. Departures from the plan made in triage:
+  - F1: the edit form posts from `onSubmit` with `startTransition`, not through its `action` prop, because React's automatic reset after a form action put a controlled select back on „Dowolna platforma”. `main-flow.spec.ts` step 6b gains a refused save (a two-character phrase) on the PC-pinned entry and asserts that the select keeps `pc`.
+  - F2: a save that replaces the entry moves focus to the list's „Twoja lista” heading (`tabIndex={-1}` in `ListFrame`), not to „Edytuj”, whose row leaves the page; an unchanged save and „Anuluj” still return focus to „Edytuj”.
+  - F4: the kitchen sink's too-short state shows the phrase „fe”; step 6a asserts the select with `toHaveValue("")`, replacing the `selectedLabel` helper named in the Phase 2 note.
+  - F3 (two tabs editing one entry can leave two new versions) was skipped.

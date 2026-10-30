@@ -317,6 +317,15 @@ const sampleEntries: WatchlistEntry[] = [
   { id: 1, kind: "phrase", platform: "switch-2", phrase: "Wiedźmin" },
 ];
 
+// The too-short state shows a phrase the length line refuses, as a user
+// would have typed it; the entry itself is sampleEntries[2]'s.
+const tooShortEntry: WatchlistEntry = {
+  id: 2,
+  kind: "phrase",
+  platform: null,
+  phrase: "fe",
+};
+
 // "Strona gry" shows one game, Fire Emblem Engage, which the sample list
 // holds for any platform: with that list its watch control reads "Na liście",
 // and with an empty one it offers "Obserwuj". Every control is described by
@@ -787,7 +796,7 @@ export default function KitchenSinkPage() {
             Edycja: fraza za krótka
           </h3>
           <WatchlistEntryRow
-            entry={sampleEntries[2]}
+            entry={tooShortEntry}
             editView="open"
             editMessage="Fraza musi mieć od 3 do 100 znaków."
           />

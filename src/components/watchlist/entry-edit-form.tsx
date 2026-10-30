@@ -1,6 +1,14 @@
 "use client";
 
-import { useActionState, useEffect, useId, useRef, useState } from "react";
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -48,9 +56,12 @@ type EditView = "closed" | "open" | "saving";
  * - Without an action, `initialView` and `initialMessage` seed the state and
  *   "Zapisz" is inert, so the kitchen sink shows every state without posting.
  *
- * The fields are controlled: React resets a form's uncontrolled fields once
- * its action completes, which would wipe what the user typed under the line
- * that asks them to correct it.
+ * The form posts from onSubmit, not through its `action` prop: React resets a
+ * form whose action completes (form.reset()), and a controlled select does not
+ * survive that reset. It falls back to its first option, "Dowolna platforma",
+ * while its state keeps the old value, so the next "Zapisz" would post a
+ * platform the user never chose. The fields are controlled as well, so what
+ * the user typed stays under the line that asks them to correct it.
  *
  * Imports only vocabulary.ts and types.ts from src/lib/watchlist, never
  * rules.ts, which would bring zod into the browser bundle; the hidden field
@@ -86,17 +97,20 @@ export function EntryEditForm({
     sample && initialView !== "closed" ? { focus: false } : null,
   );
   const editButton = useRef<HTMLButtonElement>(null);
-  const returnFocus = useRef(false);
+  // Where focus goes once the form closes: "Edytuj", or the list's heading
+  // after a replace, when this row is about to leave the page.
+  const focusAfterClose = useRef<HTMLElement | "edit" | null>(null);
 
   useEffect(() => {
-    if (form === null && returnFocus.current) {
-      returnFocus.current = false;
-      editButton.current?.focus();
-    }
+    if (form !== null) return;
+    const target = focusAfterClose.current;
+    focusAfterClose.current = null;
+    if (target === "edit") editButton.current?.focus();
+    else target?.focus();
   }, [form]);
 
-  function close() {
-    returnFocus.current = true;
+  function close(target: HTMLElement | "edit" = "edit") {
+    focusAfterClose.current = target;
     setForm(null);
   }
 
@@ -145,7 +159,8 @@ function EditForm({
   fields: Readonly<Record<string, string>>;
   action?: WatchlistAction;
   focusOnOpen: boolean;
-  onClose: () => void;
+  /** Closes the form, then focuses `target`, or "Edytuj" by default. */
+  onClose: (target?: HTMLElement | "edit") => void;
   /** Kitchen sink only: show the form as if its action were running. */
   saving: boolean;
   initialMessage: string | null;
@@ -154,6 +169,7 @@ function EditForm({
   const platformId = useId();
   const phraseField = useRef<HTMLInputElement>(null);
   const platformField = useRef<HTMLSelectElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const [phrase, setPhrase] = useState(
     entry.kind === "phrase" ? entry.phrase : "",
   );
@@ -165,12 +181,33 @@ function EditForm({
   >(
     async (previous, formData) => {
       const next = await (action ?? noAction)(previous, formData);
-      if (next.message === null) onClose();
+      if (next.message === null) {
+        // A save that changed something replaced the entry: the page
+        // re-renders without this row, so focus goes to the list's heading
+        // rather than to an "Edytuj" about to leave. What decideEntryEdit
+        // calls unchanged (the same trimmed phrase on the same platform)
+        // keeps the row, and focus returns to its "Edytuj".
+        const replaced =
+          String(formData.get("platform") ?? "") !== (entry.platform ?? "") ||
+          (entry.kind === "phrase" &&
+            String(formData.get("phrase") ?? "").trim() !== entry.phrase);
+        const heading = formRef.current
+          ?.closest("section")
+          ?.querySelector<HTMLElement>("h2");
+        onClose(replaced ? (heading ?? "edit") : "edit");
+      }
       return next;
     },
     { message: initialMessage },
   );
   const pending = isPending || saving;
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (action === undefined) return;
+    const formData = new FormData(event.currentTarget);
+    startTransition(() => formAction(formData));
+  }
 
   useEffect(() => {
     // The first field: "Fraza" on a phrase entry, "Platforma" on a game.
@@ -179,7 +216,8 @@ function EditForm({
 
   return (
     <form
-      action={action === undefined ? undefined : formAction}
+      ref={formRef}
+      onSubmit={submit}
       className="col-span-full flex flex-col gap-2"
     >
       {Object.entries(fields).map(([name, value]) => (
@@ -232,7 +270,7 @@ function EditForm({
             type="button"
             variant="ghost"
             disabled={pending}
-            onClick={onClose}
+            onClick={() => onClose()}
           >
             Anuluj
           </Button>
