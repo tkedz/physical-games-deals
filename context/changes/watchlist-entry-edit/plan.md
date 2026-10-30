@@ -373,4 +373,4 @@ None. No schema change, no data change, no hosted step. Rollback is `vercel roll
 
 #### Manual
 
-- [ ] 3.3 Tomasz reads FR-011's wording in `prd.md` and accepts it or rewrites it
+- [x] 3.3 Tomasz reads FR-011's wording in `prd.md` and accepts it or rewrites it — 83300d5

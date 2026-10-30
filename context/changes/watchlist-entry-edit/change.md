@@ -1,7 +1,7 @@
 ---
 change_id: watchlist-entry-edit
 title: "Edit a watchlist entry: phrase text and platform"
-status: implementing
+status: implemented
 created: 2026-10-30
 updated: 2026-10-30
 archived_at: null
@@ -56,3 +56,4 @@ archived_at: null
 - **2026-10-30 — Phase 3 implemented** (by a subagent of the orchestrating session; the manual check 3.3, Tomasz reading FR-011, is left to him). FR-011 in `prd.md` under „Lista obserwowanych”, after FR-010; the edit round trip in `test-plan.md` (the §3 Phase 5 row and §6.5); one `CLAUDE.md` bullet in the Supabase section that an entry is never updated in place. Gates: `npm test` 31 files / 638 tests, lint, format, `next typegen` + `tsc --noEmit`. Departures from the plan, all minor:
   - FR-011's note adds one sentence the plan did not ask for: an edited entry moves to the top of the list, as a newly added one does (accepted by Tomasz on 2026-10-30, above).
   - `test-plan.md` §6.5 gains its own sub-bullet for the edit round trip, and its deliberate-breaks sub-bullet names a third break (`markEntryRemoved` skipped fails step 6a), the one Phase 2 ran. Both sit inside §6.5's description of `main-flow.spec.ts`; no other row changes.
+- **2026-10-30 — Tomasz accepted FR-011's wording (Progress 3.3); plan closed.** Every Progress row is done; status `implemented`. Next: push, PR, merge into `main`, then `/10x-archive` for this change and `game-search-and-pages`, and `/10x-roadmap`.
