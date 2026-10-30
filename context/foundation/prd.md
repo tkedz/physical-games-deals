@@ -74,6 +74,8 @@ Zakres persony: nisza kolekcjonerów z otwartą rejestracją — dowolny kolekcj
   > Socrates: Kontrargument przyjęty (zgłoszony przez samego użytkownika): "przy wpisie tekstowym »zakupione« nie jest informacją o żadnej rzeczywistej grze". Rozstrzygnięcie po rewizji z 2026-09-16: blokada zniesiona — pozycja wskazuje teraz grę z katalogu, więc oznaczenie niesie realną informację. Priorytet pozostaje nice-to-have, bo samo w sobie nie jest potrzebne do przejścia głównego przepływu.
 - FR-010: Użytkownik może dodać do listy obserwowanych frazę, opcjonalnie wskazując platformę; fraza pasuje do okazji, której którykolwiek tytuł ją zawiera, bez względu na wielkość liter, znaki diakrytyczne i interpunkcję. Priority: must-have
   > Rozstrzygnięte 2026-10-06 (pytanie 9 w `context/foundation/roadmap.md`): katalog nie zna części gier z wpisów, zwłaszcza nowych premier, więc obok gier z katalogu lista obserwowanych przyjmuje frazy. Przyjęty koszt opisuje Business Logic.
+- FR-011: Użytkownik może zmienić pozycję na swojej liście obserwowanych: frazie tekst i platformę, grze platformę. Priority: must-have
+  > Dodane 2026-10-30 z wymagania kursu, by lista obserwowanych obsługiwała pełny CRUD w sposób sensowny dla domeny. Zmiana jest zapisywana jako usunięcie poprzedniej wersji i nowa pozycja, więc ślad tego, co użytkownik śledził (FR-004), pozostaje w danych. Zmieniona pozycja trafia na początek listy, jak każda nowo dodana.
 
 ### Okazje
 - FR-005: Użytkownik może zobaczyć okazje dopasowane do gier i fraz ze swojej listy obserwowanych, ograniczone do wersji fizycznych, z ceną oraz procentową zniżką, jeśli wpis źródłowy ją podaje. Priority: must-have

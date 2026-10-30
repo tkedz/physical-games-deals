@@ -114,7 +114,7 @@ orchestrator updates Status as artifacts appear on disk.
 | 2 | Extraction and listing guard | Prove a prompt or model change cannot raise digital leaks or wrong entries unnoticed, that listing and link rules hold on expiry, DST and adversarial posts, and that edits to the rule or the prompt run the fast suites | #2, #5 | unit + AI-native eval gate + post-edit hook | complete | `context/archive/2026-10-13-testing-extraction-and-listing-guard/` |
 | 3 | Pipeline delivery and catalogue boundary | Prove one bad post or feed cannot stall delivery, no post is billed twice, stale data never reads as fresh, and catalogue failures degrade to the generic message without leaking the key into a log, an error or the deploy build | #3, #7 | unit + integration with stubbed boundaries + build-output scan | not started | — |
 | 4 | Isolation and access | Prove no other user or guest can reach a user's watchlist or matched deals through the Data API or a Server Action, per role, and that the access decision, session refresh and private-page caching hold below the browser | #4, #6 | database integration per role + unit + integration | not started | — |
-| 5 | Main flow end to end | Prove the PRD's primary flow works in a real browser: guest redirect, sign-in, empty state, a watched phrase reaching `/my-deals` with price and link, removal, sign-out | #1, #4, #6 | e2e (one Playwright test) | complete | `context/archive/2026-10-14-testing-main-flow-end-to-end/` |
+| 5 | Main flow end to end | Prove the PRD's primary flow works in a real browser: guest redirect, sign-in, empty state, a watched phrase reaching `/my-deals` with price and link, an edit of the phrase and back with the matched deals following, removal, sign-out | #1, #4, #6 | e2e (one Playwright test) | complete | `context/archive/2026-10-14-testing-main-flow-end-to-end/` |
 
 Status vocabulary (parser literals): `not started` → `change opened` →
 `researched` → `planned` → `implementing` → `complete`.
@@ -465,12 +465,27 @@ Two patterns. Both run in PGlite, built fresh from `supabase/migrations/` by
     list below the matched deals. Auth, PostgREST, RLS and the proxy stay
     real, and there is no `page.route` mock. Catalogue failures are risk
     #7's, below the browser.
+  - **The edit round trip, since `watchlist-entry-edit` (2026-10-30).**
+    On `/my-deals` the test edits the watched phrase (steps 6a and 6b).
+    „Edytuj” does nothing before hydration and is gone once its form is
+    open, so it is pressed inside `toPass` until `Fraza` shows, and only
+    while it is still there. Step 6a turns the title into a text unique to
+    the run (`e2e-edit-<timestamp>`) pinned to „PC”: the title's row goes,
+    a row with the new text and the „PC” badge comes, and the matched deals
+    read „Brak okazji na gry z Twojej listy”. Step 6b edits it back to the
+    title for „Dowolna platforma”, and the deal returns with the price and
+    links from `/`. An edit replaces the entry, and `refresh()` renders the
+    list and the matched deals in one response, so the row assertions come
+    first. Step 7 removes the restored entry.
   - **Deliberate breaks, and no residue.** A new assertion counts once a
     break of the code it guards turns it red; revert the break at once.
-    The main flow's two: `/my-deals` reading no rows
-    (`loadMatchedDealsPage` in `src/lib/deals/queries.ts`) fails step 6,
-    and a sign-out that clears only the browser's cookies fails step 9,
-    where a new context replays the cookies from before sign-out. An
+    The main flow's three: `/my-deals` reading no rows
+    (`loadMatchedDealsPage` in `src/lib/deals/queries.ts`) fails step 6;
+    an edit that skips `markEntryRemoved` (`editEntry` in
+    `src/app/(app)/_watchlist/actions.ts`) fails step 6a, where the
+    title's row must be hidden; and a sign-out that clears only the
+    browser's cookies fails step 9, where a new context replays the
+    cookies from before sign-out. An
     assertion that fails on unbroken code is a finding: report it, and
     never weaken it. After every run, green or red, each attempt's
     annotated address must report "nothing to delete" through
