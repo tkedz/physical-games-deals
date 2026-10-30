@@ -1,7 +1,7 @@
 ---
 change_id: watchlist-entry-edit
 title: "Edit a watchlist entry: phrase text and platform"
-status: implemented
+status: impl_reviewed
 created: 2026-10-30
 updated: 2026-10-30
 archived_at: null
