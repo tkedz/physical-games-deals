@@ -358,11 +358,11 @@ None. No schema change, no data change, no hosted step. Rollback is `vercel roll
 
 #### Manual
 
-- [ ] 2.8 On `npm run dev`, signed in with a list holding a phrase and a game: „Edytuj” opens the form with focus in its first field, „Anuluj” closes it with focus back on „Edytuj”, and no request is sent
-- [ ] 2.9 A game row offers only `Platforma`; changing it moves the game to the top of the list with the new badge, and the game's link still opens its page
-- [ ] 2.10 A phrase edit to an entry already on the list shows „Ta pozycja jest już na liście.” and leaves both entries as they were; a 2-character phrase shows the length line; „hades” → „Hades” on the same platform shows the same-matches line; saving with nothing changed closes the form
-- [ ] 2.11 At 375 px a row with the form open has no horizontal overflow
-- [ ] 2.12 The kitchen sink shows the open, saving and error states of the form
+- [x] 2.8 On `npm run dev`, signed in with a list holding a phrase and a game: „Edytuj” opens the form with focus in its first field, „Anuluj” closes it with focus back on „Edytuj”, and no request is sent — 6620831
+- [x] 2.9 A game row offers only `Platforma`; changing it moves the game to the top of the list with the new badge, and the game's link still opens its page — 6620831
+- [x] 2.10 A phrase edit to an entry already on the list shows „Ta pozycja jest już na liście.” and leaves both entries as they were; a 2-character phrase shows the length line; „hades” → „Hades” on the same platform shows the same-matches line; saving with nothing changed closes the form — 6620831
+- [x] 2.11 At 375 px a row with the form open has no horizontal overflow — 6620831
+- [x] 2.12 The kitchen sink shows the open, saving and error states of the form — 6620831
 
 ### Phase 3: Documents
 
