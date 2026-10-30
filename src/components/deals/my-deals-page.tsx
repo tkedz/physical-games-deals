@@ -2,10 +2,10 @@ import type { ReactNode } from "react";
 
 /**
  * The frame of `/my-deals`: its heading and one-line intro, above the user's
- * matched deals and watchlist, or whatever stands in for them. The route's
- * page, loading.tsx and error.tsx all render it, so the heading is the same
- * whether they are loading, shown or failed, and it paints at once, outside
- * every Suspense boundary.
+ * watchlist and the matched deals below it, or whatever stands in for them.
+ * The route's page, loading.tsx and error.tsx all render it, so the heading
+ * is the same whether they are loading, shown or failed, and it paints at
+ * once, outside every Suspense boundary.
  *
  * It sits on the header's column (src/app/(app)/layout.tsx), like DealsPage.
  * No hooks and no server-only imports, because error.tsx, a Client Component,
@@ -19,8 +19,8 @@ export function MyDealsPage({ children }: { children: ReactNode }) {
           Moje okazje
         </h1>
         <p className="text-muted-foreground">
-          Okazje na gry i frazy z Twojej listy obserwowanych, od najnowszych, a
-          pod nimi sama lista.
+          Twoja lista obserwowanych, a pod nią okazje na gry i frazy z niej, od
+          najnowszych.
         </p>
       </div>
       {children}

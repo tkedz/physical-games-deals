@@ -6,7 +6,6 @@ import { DealsError, DealsResults } from "@/components/deals/deals-section";
 import { FreshnessNote } from "@/components/deals/freshness-note";
 import {
   MyDealsError,
-  MyDealsNoEntries,
   MyDealsResults,
   MyDealsSkeleton,
 } from "@/components/deals/my-deals-section";
@@ -315,6 +314,16 @@ const sampleEntries: WatchlistEntry[] = [
   },
   { id: 2, kind: "phrase", platform: null, phrase: "Fire Emblem" },
   { id: 1, kind: "phrase", platform: "switch-2", phrase: "Wiedźmin" },
+];
+
+// "Lista obserwowanych" shows a list longer than the five entries its scroll
+// container holds, so the scroll shows: two newer phrases on top of the
+// sample list. The other samples keep sampleEntries, which their watch
+// states are read from.
+const longSampleEntries: WatchlistEntry[] = [
+  { id: 6, kind: "phrase", platform: "ps4", phrase: "Persona" },
+  { id: 5, kind: "phrase", platform: null, phrase: "Final Fantasy" },
+  ...sampleEntries,
 ];
 
 // The too-short state shows a phrase the length line refuses, as a user
@@ -680,9 +689,10 @@ export default function KitchenSinkPage() {
       </section>
 
       {/* The `/my-deals` view's components in every state they can be in,
-          from the sample data above: the matched deals, then the watchlist
-          that sits below them on the page. The visual gate before
-          `/my-deals` depends on them. No action is passed, so every "Usuń"
+          from the sample data above: the matched deals, each state under
+          its own heading, then the watchlist that sits above them on the
+          page. The visual gate before `/my-deals` depends on them. No
+          action is passed, so every "Usuń"
           and every edit form renders inert, and nothing here reaches
           Supabase. The edit form's states are single rows of the list. */}
       <section className="flex flex-col gap-6">
@@ -740,13 +750,6 @@ export default function KitchenSinkPage() {
 
         <div className="flex flex-col gap-3">
           <h3 className="font-heading text-base font-medium">
-            Pusta lista obserwowanych
-          </h3>
-          <MyDealsNoEntries />
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <h3 className="font-heading text-base font-medium">
             Strona za końcem listy
           </h3>
           <MyDealsResults
@@ -771,7 +774,7 @@ export default function KitchenSinkPage() {
           <h3 className="font-heading text-base font-medium">
             Lista obserwowanych
           </h3>
-          <WatchlistEntries entries={sampleEntries} />
+          <WatchlistEntries entries={longSampleEntries} />
         </div>
 
         <div className="flex flex-col gap-3">

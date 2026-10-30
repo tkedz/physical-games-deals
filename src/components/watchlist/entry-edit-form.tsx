@@ -51,8 +51,10 @@ type EditView = "closed" | "open" | "saving";
  *   both buttons are disabled.
  * - An answer without a message closes the form. After a replace the page
  *   re-renders and this row goes, the new version arriving at the top of the
- *   list; an unchanged edit writes nothing and only closes it. A message
- *   keeps the form open under a role="alert" line.
+ *   list, so the list's scroll container goes back to its top and focus
+ *   moves to the list's heading; an unchanged edit writes nothing and only
+ *   closes it, and neither it nor "Anuluj" scrolls anything. A message keeps
+ *   the form open under a role="alert" line.
  * - Without an action, `initialView` and `initialMessage` seed the state and
  *   "Zapisz" is inert, so the kitchen sink shows every state without posting.
  *
@@ -194,6 +196,14 @@ function EditForm({
         const heading = formRef.current
           ?.closest("section")
           ?.querySelector<HTMLElement>("h2");
+        // The new version arrives first, so the list's scroll container
+        // goes back to its top before focus moves to the heading above it
+        // (WatchlistEntries). A row outside the list has no container.
+        if (replaced) {
+          formRef.current
+            ?.closest<HTMLElement>("[data-list-scroller]")
+            ?.scrollTo({ top: 0 });
+        }
         onClose(replaced ? (heading ?? "edit") : "edit");
       }
       return next;

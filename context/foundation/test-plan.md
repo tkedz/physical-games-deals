@@ -462,9 +462,15 @@ Two patterns. Both run in PGlite, built fresh from `supabase/migrations/` by
     catalogue answers; a reused server may hold a key. It then waits for the
     offer to read „Ta fraza jest już na liście”, so the write has landed
     before it opens `/my-deals`, where the entry and its „Usuń” sit in the
-    list below the matched deals. Auth, PostgREST, RLS and the proxy stay
+    list above the matched deals. Auth, PostgREST, RLS and the proxy stay
     real, and there is no `page.route` mock. Catalogue failures are risk
     #7's, below the browser.
+  - **The list on top, since `watchlist-on-top-and-game-remove`
+    (2026-10-30).** The empty state that steps 4 and 7 expect is the list's
+    own, „Twoja lista jest pusta”; with no entries the matched deals render
+    nothing. Step 6 checks the order: among the level-2 headings in `main`,
+    which also title the deal cards, the two sections' headings read
+    „Twoja lista”, then „Okazje z Twojej listy”.
   - **The edit round trip, since `watchlist-entry-edit` (2026-10-30).**
     On `/my-deals` the test edits the watched phrase (steps 6a and 6b).
     „Edytuj” does nothing before hydration and is gone once its form is

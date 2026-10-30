@@ -1,5 +1,5 @@
 /**
- * Every state of the user's list, which `/my-deals` shows below the matched
+ * Every state of the user's list, which `/my-deals` shows above the matched
  * deals: the entries, none, a failed read, and the wait for one of them.
  *
  * WatchlistSection reads the list and picks one. What each state looks like is
@@ -9,7 +9,7 @@
  */
 import { CircleAlert } from "lucide-react";
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { RetryButton } from "@/components/deals/retry-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,12 +57,20 @@ export async function WatchlistSection({
 /**
  * The list's heading, above whichever state it is in. It takes focus from
  * script only: an edit that replaces an entry moves focus here, since the
- * row it was made from leaves the page (EntryEditForm).
+ * row it was made from leaves the page (EntryEditForm). `headingId` lets the
+ * entries' scroll container take its name from the heading.
  */
-function ListFrame({ children }: { children: ReactNode }) {
+function ListFrame({
+  headingId,
+  children,
+}: {
+  headingId?: string;
+  children: ReactNode;
+}) {
   return (
     <section className="flex flex-col gap-3">
       <h2
+        id={headingId}
         tabIndex={-1}
         className="font-heading text-xl font-semibold tracking-tight"
       >
@@ -78,6 +86,21 @@ function ListFrame({ children }: { children: ReactNode }) {
  * them, so an edited entry, which is a new one, comes first. Without
  * `removeAction` the "Usuń" buttons render inert, and without `editAction`
  * the edit forms.
+ *
+ * The entries scroll inside a container about five entries tall, so a long
+ * list does not push the matched deals below it off the screen.
+ * - Its max-height is five one-line entry rows, the four gaps between them
+ *   and its own padding: a row is the card's 0.75rem padding twice plus the
+ *   text column (a 1.25rem line, a 0.375rem gap and the 1.25rem badge), so
+ *   4.375rem; 5 × 4.375 + 4 × 0.5 + 2 × 0.25 = 24.375rem. Up to five such
+ *   entries the container is as tall as its content. A wrapped phrase or an
+ *   open edit form makes a row taller, so fewer show at once.
+ * - Its padding keeps what overflow clips inside the box: the cards' ring
+ *   and the focus indicators at its edges.
+ * - It takes focus, so the keyboard can scroll it, and is a region named by
+ *   the list's heading, so a screen reader announces what it holds.
+ * - EntryEditForm finds it by `data-list-scroller`, to scroll it back to the
+ *   top after an edit puts the new version first.
  */
 export function WatchlistEntries({
   entries,
@@ -88,19 +111,29 @@ export function WatchlistEntries({
   removeAction?: WatchlistAction;
   editAction?: WatchlistAction;
 }) {
+  const headingId = useId();
+
   return (
-    <ListFrame>
-      <ul className="flex flex-col gap-2">
-        {entries.map((entry) => (
-          <li key={entry.id}>
-            <WatchlistEntryRow
-              entry={entry}
-              action={removeAction}
-              editAction={editAction}
-            />
-          </li>
-        ))}
-      </ul>
+    <ListFrame headingId={headingId}>
+      <div
+        role="region"
+        aria-labelledby={headingId}
+        tabIndex={0}
+        data-list-scroller
+        className="max-h-[24.375rem] overflow-y-auto p-1"
+      >
+        <ul className="flex flex-col gap-2">
+          {entries.map((entry) => (
+            <li key={entry.id}>
+              <WatchlistEntryRow
+                entry={entry}
+                action={removeAction}
+                editAction={editAction}
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
     </ListFrame>
   );
 }

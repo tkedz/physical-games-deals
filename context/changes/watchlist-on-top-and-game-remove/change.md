@@ -1,7 +1,7 @@
 ---
 change_id: watchlist-on-top-and-game-remove
 title: Watchlist above the matched deals, and „Usuń” on a game's page
-status: planned
+status: implementing
 created: 2026-10-30
 updated: 2026-10-30
 archived_at: null
@@ -18,3 +18,8 @@ archived_at: null
   - What happens to „Zmień listę obserwowanych” once the list is on top. It shows only in the matched deals' empty state, „Brak okazji na gry z Twojej listy” (`MyDealsEmpty` in `src/components/deals/my-deals-section.tsx`), beside „Zobacz wszystkie okazje”, and jumps down to the list (`#lista`, `WATCHLIST_ANCHOR`). With the list above, it would jump up to something already in view; dropping it is the likely answer.
   - Whether a long list pushes the matched deals too far down.
   - Which entry „Usuń” on a game's page removes. The proposal is the game entry for exactly the platform chosen in the page's select, the one „Na liście” shows today. A phrase entry with the game's name is not a game entry and stays out of it.
+- **2026-10-30 — Phase 1, departures from the plan.**
+  - E2E step 6 (`tests/e2e/main-flow.spec.ts`): the deal cards' titles are level-2 headings too (`DealCard`), so `getByRole("heading", { level: 2 })` in `main` holds every matched card's title as well, and an exact two-item `toHaveText` would fail. The assertion filters the level-2 headings to the two section names (`hasText: /^(Twoja lista|Okazje z Twojej listy)$/`) before `toHaveText(["Twoja lista", "Okazje z Twojej listy"])`. The cards' heading level is unchanged.
+  - Scroll container (`WatchlistEntries` in `src/components/watchlist/watchlist-entries.tsx`): `max-height` is computed from the row's classes, not measured in a browser — 5 × 4.375rem rows + 4 × 0.5rem gaps + 2 × 0.25rem padding = 24.375rem. It has `role="region"`, because `aria-labelledby` does not name a plain `div`. `EntryEditForm` finds it by a `data-list-scroller` attribute.
+  - Kitchen sink (`src/app/kitchen-sink/page.tsx`): the sample list had four entries, so one more would still not scroll. „Lista obserwowanych” renders a separate six-entry sample (`longSampleEntries`, two phrases on top of `sampleEntries`); `sampleEntries` stays as it was for the search and game-page samples, whose watch states read it.
+- **2026-10-30 — Phase 1, verified.** `npm test` (638 passed), `npm run lint`, `npm run format:check`, `npx tsc --noEmit`, no `WATCHLIST_ANCHOR` / `MyDealsNoEntries` / „Zmień listę obserwowanych” under `src/` or `tests/`, and `npx playwright test` 5/5 on a fresh server (`E2E_PORT=3100`; on :3000 Playwright reused a running server that holds the live RAWG key, which fails the two blank-key guest tests). Break check: with the two Suspense boundaries swapped back in `page.tsx`, the main flow's heading-order assertion went red. Manual checks 1.7–1.13 run by the agent in the DevTools browser on `npm run dev`, on a local test account, at Tomasz's request: rows measure 70 px and the container 390 px, so five one-line entries fill it exactly; the „Edytuj” ring is whole; arrow keys scroll the focused container; an edit while scrolled returns it to the top with focus on „Twoja lista”; page 2 keeps the same list node and its scroll; at 375 px nothing scrolls sideways.

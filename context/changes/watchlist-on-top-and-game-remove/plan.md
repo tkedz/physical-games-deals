@@ -339,22 +339,22 @@ No schema change. Rollback is a plain `vercel rollback`: both phases are UI-only
 
 #### Automated
 
-- [ ] 1.1 Unit, db and hooks suites pass: `npm test`
-- [ ] 1.2 Lint passes with zero warnings: `npm run lint`
-- [ ] 1.3 Formatting passes: `npm run format:check`
-- [ ] 1.4 Types check: `npx tsc --noEmit`
-- [ ] 1.5 No reference to `WATCHLIST_ANCHOR`, `MyDealsNoEntries` or „Zmień listę obserwowanych” remains under `src/` or `tests/`
-- [ ] 1.6 The E2E suite passes against the local stack, main flow included: `npx playwright test`
+- [x] 1.1 Unit, db and hooks suites pass: `npm test`
+- [x] 1.2 Lint passes with zero warnings: `npm run lint`
+- [x] 1.3 Formatting passes: `npm run format:check`
+- [x] 1.4 Types check: `npx tsc --noEmit`
+- [x] 1.5 No reference to `WATCHLIST_ANCHOR`, `MyDealsNoEntries` or „Zmień listę obserwowanych” remains under `src/` or `tests/`
+- [x] 1.6 The E2E suite passes against the local stack, main flow included: `npx playwright test`
 
 #### Manual
 
-- [ ] 1.7 On `/my-deals` with six or more entries, „Twoja lista” is above „Okazje z Twojej listy”, and the list scrolls inside its container at about five entries
-- [ ] 1.8 With five or fewer entries, the container has no scrollbar and no empty space below the last entry
-- [ ] 1.9 Tab reaches the container and its buttons, focus rings are not clipped, and arrow keys scroll the focused container
-- [ ] 1.10 Editing an entry while the container is scrolled down brings the new version into view at the top, with focus on „Twoja lista”
-- [ ] 1.11 Going to page 2 of the deals leaves the list in place
-- [ ] 1.12 With an empty list only „Twoja lista jest pusta” shows; with entries but no matches, „Brak okazji na gry z Twojej listy” shows with „Zobacz wszystkie okazje” only
-- [ ] 1.13 At 375 px width, the list and the deals fit without horizontal scrolling
+- [x] 1.7 On `/my-deals` with six or more entries, „Twoja lista” is above „Okazje z Twojej listy”, and the list scrolls inside its container at about five entries
+- [x] 1.8 With five or fewer entries, the container has no scrollbar and no empty space below the last entry
+- [x] 1.9 Tab reaches the container and its buttons, focus rings are not clipped, and arrow keys scroll the focused container
+- [x] 1.10 Editing an entry while the container is scrolled down brings the new version into view at the top, with focus on „Twoja lista”
+- [x] 1.11 Going to page 2 of the deals leaves the list in place
+- [x] 1.12 With an empty list only „Twoja lista jest pusta” shows; with entries but no matches, „Brak okazji na gry z Twojej listy” shows with „Zobacz wszystkie okazje” only
+- [x] 1.13 At 375 px width, the list and the deals fit without horizontal scrolling
 
 ### Phase 2: „Usuń z listy obserwowanych” on a game's page
 

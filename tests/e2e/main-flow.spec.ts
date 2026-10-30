@@ -139,11 +139,9 @@ test.describe("main flow", () => {
     const signOut = page.getByRole("button", { name: "Wyloguj się" });
     await expect(signOut).toBeVisible();
 
-    // 4. Empty state: a new account watches nothing.
+    // 4. Empty state: a new account watches nothing, as the list says.
     await page.goto("/my-deals");
-    await expect(
-      page.getByText("Twoja lista obserwowanych jest pusta"),
-    ).toBeVisible();
+    await expect(page.getByText("Twoja lista jest pusta")).toBeVisible();
 
     // 5. Watch the phrase, from the search on /, whose outcome opens in an
     // overlay over the deals list. The button is targeted by its full name,
@@ -163,13 +161,22 @@ test.describe("main flow", () => {
       overlay.getByRole("button", { name: "Ta fraza jest już na liście" }),
     ).toBeVisible();
 
-    // 6. On /my-deals the phrase is in the list, with its "Usuń", and the
-    // deal is among the matched ones: a card with that title, the same price
-    // and the same links as on /. Its presence, not a count: on snapshot
-    // data the phrase may match more deals, and a deal with the same title
-    // may sit beyond the first page of /, so one of the cards carrying the
-    // title has to match.
+    // 6. On /my-deals the list comes first and the matched deals under it:
+    // the two sections' headings read in that order. The deal cards' titles
+    // are level-2 headings too, so only the sections' two are kept. The
+    // phrase is in the list, with its "Usuń", and the deal is among the
+    // matched ones: a card with that title, the same price and the same
+    // links as on /. Its presence, not a count: on snapshot data the phrase
+    // may match more deals, and a deal with the same title may sit beyond
+    // the first page of /, so one of the cards carrying the title has to
+    // match.
     await page.goto("/my-deals");
+    await expect(
+      page
+        .getByRole("main")
+        .getByRole("heading", { level: 2 })
+        .filter({ hasText: /^(Twoja lista|Okazje z Twojej listy)$/ }),
+    ).toHaveText(["Twoja lista", "Okazje z Twojej listy"]);
     const entry = page.getByRole("listitem").filter({ hasText: `„${title}”` });
     await expect(entry.getByRole("button", { name: "Usuń" })).toBeVisible();
     const matchedCards = dealCard(page, title);
@@ -266,9 +273,7 @@ test.describe("main flow", () => {
     await expect(entry).toBeHidden();
     await page.goto("/watchlist");
     await expect(page).toHaveURL("/my-deals");
-    await expect(
-      page.getByText("Twoja lista obserwowanych jest pusta"),
-    ).toBeVisible();
+    await expect(page.getByText("Twoja lista jest pusta")).toBeVisible();
 
     // 8. Sign-out. The cookies are recorded first, for step 9. The button
     // does nothing until the page hydrates, so it is pressed until the

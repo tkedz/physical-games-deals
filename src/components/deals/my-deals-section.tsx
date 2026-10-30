@@ -1,7 +1,8 @@
 /**
- * Every state of the matched deals on `/my-deals`, between its heading and the
- * watchlist below them: the user's matched deals, no matches, an empty
- * watchlist, a page past the end, a failed read, and the wait for one of them.
+ * Every state of the matched deals on `/my-deals`, below the watchlist: the
+ * user's matched deals, no matches, a page past the end, a failed read, and
+ * the wait for one of them. Each sits under the same "Okazje z Twojej listy"
+ * heading, so the heading stays put while the deals load.
  *
  * MyDealsSection reads and picks one. What each state looks like is in the
  * sync components after it, which the kitchen sink renders from sample data.
@@ -10,6 +11,7 @@
  */
 import { CircleAlert } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { DealList } from "@/components/deals/deal-list";
 import { DealListSkeleton } from "@/components/deals/deal-list-skeleton";
 import { DealsPagination } from "@/components/deals/deals-pagination";
@@ -36,24 +38,19 @@ import { getActiveEntries } from "@/lib/watchlist/current-entries";
 import { createClient } from "@/utils/supabase/server";
 
 /**
- * The id of the watchlist's place on `/my-deals`, below the matched deals:
- * page.tsx puts the list there, and "Zmień listę obserwowanych" jumps to it.
- */
-export const WATCHLIST_ANCHOR = "lista";
-
-/**
- * The matched deals on `/my-deals`, below the heading and above the
- * watchlist, which page.tsx wraps in Suspense.
+ * The matched deals on `/my-deals`, below the heading and the watchlist,
+ * which page.tsx wraps in Suspense.
  *
  * - Without a user it renders nothing, before it reaches the database, as the
- *   list's section below it does (WatchlistSection). The proxy's redirect to
+ *   list's section above it does (WatchlistSection). The proxy's redirect to
  *   /login is a first filter only (src/lib/auth/access.ts), and this section
  *   renders on its own. Without a session the reads would run as anon, which
  *   holds no grant on the view, and fail into the error state.
  * - With one, it reads the list, the page of matched deals and the last
  *   refresh in parallel, then picks a state: the inline error when any read
- *   failed, the empty list when the list has no active entries, and
- *   otherwise the matched deals under the freshness line.
+ *   failed, nothing when the list has no active entries, since the list's own
+ *   empty state above says so, and otherwise the matched deals under the
+ *   freshness line.
  *
  * It only fetches and picks one: the matching runs in the database, in
  * public.matched_deals, and the freshness is decided in src/lib/deals. An
@@ -72,7 +69,7 @@ export async function MyDealsSection({ page }: { page: number }) {
   ]);
 
   if (!list.ok || !matchedPage.ok || !lastRefresh.ok) return <MyDealsError />;
-  if (list.entries.length === 0) return <MyDealsNoEntries />;
+  if (list.entries.length === 0) return null;
   return (
     <MyDealsResults
       page={page}
@@ -80,6 +77,21 @@ export async function MyDealsSection({ page }: { page: number }) {
       deals={matchedPage.deals}
       hasOlder={matchedPage.hasOlder}
     />
+  );
+}
+
+/**
+ * The matched deals' heading, above whichever state they are in, as the
+ * list's ListFrame is above the list.
+ */
+function MyDealsFrame({ children }: { children: ReactNode }) {
+  return (
+    <section className="flex flex-col gap-3">
+      <h2 className="font-heading text-xl font-semibold tracking-tight">
+        Okazje z Twojej listy
+      </h2>
+      {children}
+    </section>
   );
 }
 
@@ -100,31 +112,32 @@ export function MyDealsResults({
   hasOlder: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-4">
-      <FreshnessNote freshness={freshness} />
-      {deals.length > 0 ? (
-        <>
-          <DealList deals={deals} />
-          <DealsPagination
-            page={page}
-            hasOlder={hasOlder}
-            basePath="/my-deals"
-          />
-        </>
-      ) : (
-        <MyDealsEmpty page={page} />
-      )}
-    </div>
+    <MyDealsFrame>
+      <div className="flex flex-col gap-4">
+        <FreshnessNote freshness={freshness} />
+        {deals.length > 0 ? (
+          <>
+            <DealList deals={deals} />
+            <DealsPagination
+              page={page}
+              hasOlder={hasOlder}
+              basePath="/my-deals"
+            />
+          </>
+        ) : (
+          <MyDealsEmpty page={page} />
+        )}
+      </div>
+    </MyDealsFrame>
   );
 }
 
 /**
  * No matched deals to show, from a list that has entries. On the first page
  * nothing on the list matches a listed deal, and the freshness line above it
- * says whether that is the news or a stopped pipeline (US-01); the links lead
- * to every deal, with the search above them, and down to the list on this
- * page. Past the last page — an old link, or a number typed by hand — it leads
- * back to the newest matches.
+ * says whether that is the news or a stopped pipeline (US-01); the link leads
+ * to every deal, with the search above them. Past the last page — an old
+ * link, or a number typed by hand — it leads back to the newest matches.
  */
 export function MyDealsEmpty({ page }: { page: number }) {
   if (page === 1) {
@@ -140,12 +153,6 @@ export function MyDealsEmpty({ page }: { page: number }) {
         <EmptyContent>
           <Link href="/" className={buttonVariants({ variant: "secondary" })}>
             Zobacz wszystkie okazje
-          </Link>
-          <Link
-            href={`#${WATCHLIST_ANCHOR}`}
-            className={buttonVariants({ variant: "secondary" })}
-          >
-            Zmień listę obserwowanych
           </Link>
         </EmptyContent>
       </Empty>
@@ -170,53 +177,35 @@ export function MyDealsEmpty({ page }: { page: number }) {
 }
 
 /**
- * The list holds no active entries, so nothing can match: a pointer to the
- * search on `/`, where games and phrases are added. No freshness line,
- * because with nothing to match, the time of the last refresh changes nothing
- * here.
- */
-export function MyDealsNoEntries() {
-  return (
-    <Empty className="border">
-      <EmptyHeader>
-        <EmptyTitle>Twoja lista obserwowanych jest pusta</EmptyTitle>
-        <EmptyDescription>
-          Wyszukaj grę na stronie głównej i obserwuj ją albo wpisany tekst jako
-          frazę, a ich okazje pojawią się tutaj.
-        </EmptyDescription>
-      </EmptyHeader>
-      <EmptyContent>
-        <Link href="/" className={buttonVariants({ variant: "secondary" })}>
-          Przejdź do wyszukiwarki
-        </Link>
-      </EmptyContent>
-    </Empty>
-  );
-}
-
-/**
  * A read that failed, as DealsError shows one on `/`: one fixed message and a
  * retry that renders the page again in place. Why it failed is not the user's
  * to read.
  */
 export function MyDealsError() {
   return (
-    <div className="flex flex-col items-start gap-3">
-      <Alert variant="destructive">
-        <CircleAlert />
-        <AlertTitle>Nie udało się wczytać Twoich okazji</AlertTitle>
-        <AlertDescription>Spróbuj ponownie za chwilę.</AlertDescription>
-      </Alert>
-      <RetryButton />
-    </div>
+    <MyDealsFrame>
+      <div className="flex flex-col items-start gap-3">
+        <Alert variant="destructive">
+          <CircleAlert />
+          <AlertTitle>Nie udało się wczytać Twoich okazji</AlertTitle>
+          <AlertDescription>Spróbuj ponownie za chwilę.</AlertDescription>
+        </Alert>
+        <RetryButton />
+      </div>
+    </MyDealsFrame>
   );
 }
 
 /**
- * Stands in for the matched deals while they load, under a status line of
- * their own. The line is written once, here, for every place that shows the
- * wait: the route's Suspense fallback, its loading.tsx and the kitchen sink.
+ * Stands in for the matched deals while they load, under their heading and a
+ * status line of their own. The line is written once, here, for every place
+ * that shows the wait: the route's Suspense fallback, its loading.tsx and the
+ * kitchen sink.
  */
 export function MyDealsSkeleton() {
-  return <DealListSkeleton statusLine="Wczytujemy Twoje okazje…" />;
+  return (
+    <MyDealsFrame>
+      <DealListSkeleton statusLine="Wczytujemy Twoje okazje…" />
+    </MyDealsFrame>
+  );
 }
