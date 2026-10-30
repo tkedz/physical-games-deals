@@ -360,16 +360,16 @@ No schema change. Rollback is a plain `vercel rollback`: both phases are UI-only
 
 #### Automated
 
-- [x] 2.1 Unit tests, the new option cases included, and the rest of the suite pass: `npm test`
-- [x] 2.2 Lint passes with zero warnings: `npm run lint`
-- [x] 2.3 Formatting passes: `npm run format:check`
-- [x] 2.4 Types check: `npx tsc --noEmit`
-- [x] 2.5 The E2E suite still passes: `npx playwright test`
+- [x] 2.1 Unit tests, the new option cases included, and the rest of the suite pass: `npm test` — bb901be
+- [x] 2.2 Lint passes with zero warnings: `npm run lint` — bb901be
+- [x] 2.3 Formatting passes: `npm run format:check` — bb901be
+- [x] 2.4 Types check: `npx tsc --noEmit` — bb901be
+- [x] 2.5 The E2E suite still passes: `npx playwright test` — bb901be
 
 #### Manual
 
-- [x] 2.6 Signed in on a game's page with PS5 chosen: „Obserwuj” → „Usuń z listy obserwowanych” → „Usuwanie…” → „Obserwuj”, and `/my-deals` no longer lists the game on PS5
-- [x] 2.7 With the game on „Dowolna platforma” and PS5, removing it on PS5 leaves the „Dowolna platforma” entry
-- [x] 2.8 A phrase entry with the game's name stays on the list after a removal on the game page
-- [x] 2.9 Signed out, the page still shows „Zaloguj się, aby obserwować”
-- [x] 2.10 The kitchen sink shows the remove state and the failed-removal line
+- [x] 2.6 Signed in on a game's page with PS5 chosen: „Obserwuj” → „Usuń z listy obserwowanych” → „Usuwanie…” → „Obserwuj”, and `/my-deals` no longer lists the game on PS5 — bb901be
+- [x] 2.7 With the game on „Dowolna platforma” and PS5, removing it on PS5 leaves the „Dowolna platforma” entry — bb901be
+- [x] 2.8 A phrase entry with the game's name stays on the list after a removal on the game page — bb901be
+- [x] 2.9 Signed out, the page still shows „Zaloguj się, aby obserwować” — bb901be
+- [x] 2.10 The kitchen sink shows the remove state and the failed-removal line — bb901be
