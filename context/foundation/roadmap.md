@@ -3,7 +3,7 @@ project: physical-games-deals
 version: 2
 status: draft
 created: 2026-09-21
-updated: 2026-10-27
+updated: 2026-10-30
 prd_version: 2
 main_goal: speed
 top_blocker: time
@@ -72,7 +72,7 @@ M-1's north star was `S-01`, the automatic reading of freehand posts; it is `don
 | S-02 | `email-password-accounts`            | create an account with e-mail and password, sign in and sign out             | —                | FR-001, Access Control          | done |
 | S-03 | `watchlist-from-catalog`             | search the catalogue, add a game or a phrase to a watchlist, remove one      | F-01, F-03, S-02 | FR-003, FR-004, FR-010, US-01   | done |
 | S-04 | `deals-matched-to-watchlist`         | see only deals for the games and phrases they watch, platform rule applied   | S-01, S-03       | US-01, FR-005, FR-010, Guardrails | done |
-| S-05 | `game-search-and-pages`              | open any catalogue game's page and see its matching deals, found from a search on `/`; watch from there, manage the list in `/my-deals` | S-01, S-03, S-04 | FR-009, FR-003, FR-004, FR-010, MS-01–MS-05 | in-progress |
+| S-05 | `game-search-and-pages`              | open any catalogue game's page and see its matching deals, found from a search on `/`; watch from there, manage the list in `/my-deals` | S-01, S-03, S-04 | FR-009, FR-003, FR-004, FR-010, MS-01–MS-05 | done |
 
 ## Baseline
 
@@ -201,7 +201,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Should search engines index game pages? Indexing invites crawler traffic, which spends the catalogue quota on every crawl unless something caches it. Owner: user. Block: no — `/10x-plan` puts it to him (`context/changes/game-search-and-pages/research.md`, Open Questions).
   - What does a game page show when the catalogue fails or the month's quota is spent? If the game's name comes only from the catalogue, the page cannot list its matches. PRD Open Question 6 settles this for the search only. Owner: user. Block: no — same route.
 - **Risk:** Larger than this roadmap's rule of one main user action per slice: it covers four — open a game page, search and watch from `/`, keep the list in `/my-deals`, see images. Kept as one item by the user's decision of 2026-10-26: one change folder, one plan and one branch, merged into `main` only if it is done before the 2026-11-04 deadline; the plan's phases carry the split, game page first. The load-bearing risk is the public audience. It opens two things that were signed-in only: a way to read matched deals that the anonymous role can use — new database surface, under the rule that every function ships locked and is granted deliberately, with the matching truth table updated to match — and the shared catalogue quota of 20,000 requests a month, which visitors and crawlers can now spend. The register's accepted catalogue risk assumed one signed-in account (`infrastructure.md`, Risk Register). The merge's own cost is breadth, not depth: access rules, navigation, and the end-to-end test that gates deploy, which pins the search and the list to `/watchlist`.
-- **Status:** in-progress
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -257,3 +257,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-01: user opens the deals view and sees deals read automatically out of the collected posts — each one a game named by its original title, with its platform where the post states one, a price, a percentage discount where the post states one, and a link that goes to the shop, or to the aggregator post when the shop link is not in the text. Digital editions and key offers do not appear. A deal whose post gives an expiry date disappears after it; one without a date stays. The view states when the data was last refreshed.** — Archived 2026-10-26 → `context/archive/2026-09-28-physical-deals-from-real-posts/`. Lesson: —.
 - **S-03: user searches the external catalogue by title, adds a game or a phrase to their watchlist and optionally pins it to one platform, sees their list, and removes an entry — which disappears from their view for good, while the record that they once tracked it survives in the data. A phrase covers what the catalogue does not know, such as a new release. Another user cannot reach that list, including by editing the address.** — Archived 2026-10-26 → `context/archive/2026-10-07-watchlist-from-catalog/`. Lesson: —.
 - **S-04: user opens their own deals view, `/my-deals`, and sees only deals for the games and phrases on their watchlist; `/` stays the public list of every deal. A watchlist entry pinned to a platform admits only that platform's offers; an entry with no platform admits any. When nothing matches, the view says so and states when the data was last refreshed, so an empty list reads as "no deals" rather than "something is broken".** — Archived 2026-10-26 → `context/archive/2026-10-09-deals-matched-to-watchlist/`. Lesson: —.
+- **S-05: user — signed in or not — opens a catalogue game's own page and sees every listed deal matching that game: the deals an entry for it with no platform would match, shown without watching it. They find the game from a search above the deals list on `/`, whose results open over the list without moving it; `/` stays the public list of every deal. A signed-in user watches a game, or the typed text as a phrase, straight from those results, optionally pinned to a platform; a visitor is sent to sign in. The watchlist lives in `/my-deals`, and `/watchlist` redirects there. The search and the game page show the game's image from the catalogue, and every page showing catalogue data credits the catalogue. In order of priority: the game page, the search on `/`, the merged watchlist, the images — if time runs short, the game page is what ships. Update 2026-10-27: watching is also offered on the game page itself, with the same platform pin and the same sign-in link for a visitor — Tomasz's choice of 2026-10-26, over the recommendation to keep it in the search alone (`context/changes/game-search-and-pages/change.md`).** — Archived 2026-10-30 → `context/archive/2026-10-26-game-search-and-pages/`. Lesson: —.

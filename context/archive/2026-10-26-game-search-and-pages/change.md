@@ -1,10 +1,10 @@
 ---
 change_id: game-search-and-pages
 title: Catalogue search on the front page, game pages with matched deals, game images
-status: impl_reviewed
+status: archived
 created: 2026-10-26
 updated: 2026-10-30
-archived_at: null
+archived_at: 2026-10-30T19:47:27Z
 ---
 
 ## Notes
