@@ -337,12 +337,12 @@ None. No schema change, no data change, no hosted step. Rollback is `vercel roll
 
 #### Automated
 
-- [x] 1.1 The new unit tests pass: `npm test -- --project unit`
-- [x] 1.2 The whole suite passes: `npm test`
-- [x] 1.3 Lint passes: `npm run lint`
-- [x] 1.4 Formatting passes: `npm run format:check`
-- [x] 1.5 Types check: `npx next typegen && npx tsc --noEmit`
-- [x] 1.6 No migration added: `git diff --stat main -- supabase/` is empty
+- [x] 1.1 The new unit tests pass: `npm test -- --project unit` — 9c7c1c0
+- [x] 1.2 The whole suite passes: `npm test` — 9c7c1c0
+- [x] 1.3 Lint passes: `npm run lint` — 9c7c1c0
+- [x] 1.4 Formatting passes: `npm run format:check` — 9c7c1c0
+- [x] 1.5 Types check: `npx next typegen && npx tsc --noEmit` — 9c7c1c0
+- [x] 1.6 No migration added: `git diff --stat main -- supabase/` is empty — 9c7c1c0
 
 ### Phase 2: Inline edit form on `/my-deals`, kitchen sink and E2E
 
