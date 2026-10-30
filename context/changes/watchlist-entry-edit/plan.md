@@ -348,13 +348,13 @@ None. No schema change, no data change, no hosted step. Rollback is `vercel roll
 
 #### Automated
 
-- [x] 2.1 The whole suite passes: `npm test`
-- [x] 2.2 Lint passes: `npm run lint`
-- [x] 2.3 Formatting passes: `npm run format:check`
-- [x] 2.4 Types check: `npx next typegen && npx tsc --noEmit`
-- [x] 2.5 Every E2E spec passes locally, the extended main flow included: `npx playwright test`
-- [x] 2.6 Deliberate break: with `markEntryRemoved` temporarily skipped in `editEntry`, `npx playwright test tests/e2e/main-flow.spec.ts` fails at the step 6a assertion that the title's row is hidden; the break is reverted and the spec passes again
-- [x] 2.7 `entry-edit-form.tsx` does not import `src/lib/watchlist/rules.ts` (grep)
+- [x] 2.1 The whole suite passes: `npm test` — 6620831
+- [x] 2.2 Lint passes: `npm run lint` — 6620831
+- [x] 2.3 Formatting passes: `npm run format:check` — 6620831
+- [x] 2.4 Types check: `npx next typegen && npx tsc --noEmit` — 6620831
+- [x] 2.5 Every E2E spec passes locally, the extended main flow included: `npx playwright test` — 6620831
+- [x] 2.6 Deliberate break: with `markEntryRemoved` temporarily skipped in `editEntry`, `npx playwright test tests/e2e/main-flow.spec.ts` fails at the step 6a assertion that the title's row is hidden; the break is reverted and the spec passes again — 6620831
+- [x] 2.7 `entry-edit-form.tsx` does not import `src/lib/watchlist/rules.ts` (grep) — 6620831
 
 #### Manual
 
