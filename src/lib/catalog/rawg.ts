@@ -93,10 +93,12 @@ const PAGE_PATH = "resize/640/-/";
  * media path is served from RAWG's own smaller copies: 420 px wide for a
  * search result, 640 px for the game's page. A file already resized or
  * cropped (`resize/…`, `crop/…`), or one on any other host, is used as it is
- * for both. Null, or an empty string, is no image.
+ * for both. Null, or anything but an absolute https: URL, is no image: a
+ * relative or scheme-relative one would be fetched from the app's own host or
+ * from a host the browser guesses, and a plain http: one as mixed content.
  */
 export function rawgImage(backgroundImage: string | null): CatalogImage | null {
-  if (backgroundImage === null || backgroundImage === "") return null;
+  if (backgroundImage === null || !isHttpsUrl(backgroundImage)) return null;
 
   const path = backgroundImage.startsWith(RAWG_MEDIA_URL)
     ? backgroundImage.slice(RAWG_MEDIA_URL.length)
@@ -108,6 +110,11 @@ export function rawgImage(backgroundImage: string | null): CatalogImage | null {
     thumbnailUrl: `${RAWG_MEDIA_URL}${THUMBNAIL_PATH}${path}`,
     pageUrl: `${RAWG_MEDIA_URL}${PAGE_PATH}${path}`,
   };
+}
+
+/** Whether a URL is absolute and uses https:. */
+function isHttpsUrl(url: string): boolean {
+  return URL.canParse(url) && new URL(url).protocol === "https:";
 }
 
 /**

@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { RawgAttribution } from "@/components/games/rawg-attribution";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { RawgAttribution } from "@/components/watchlist/rawg-attribution";
 import { getCurrentUser } from "@/lib/auth/current-user";
 
 /**

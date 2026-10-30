@@ -1,9 +1,9 @@
 ---
 change_id: game-search-and-pages
 title: Catalogue search on the front page, game pages with matched deals, game images
-status: implementing
+status: impl_reviewed
 created: 2026-10-26
-updated: 2026-10-27
+updated: 2026-10-30
 archived_at: null
 ---
 
@@ -87,3 +87,16 @@ archived_at: null
   2. Before the first PR or the merge: Tomasz runs 2.4 and 2.5 (plan, Migration Notes), then the epilogue sets `status: implemented`.
   3. PR or merge into `main`, then the production checks in the plan's Migration Notes.
   4. `/10x-archive`, and `/10x-roadmap` to close M-2; the roadmap's Baseline still lists `/watchlist` as a route.
+- **2026-10-30 — implementation review.** `/10x-impl-review` (full plan) wrote `reviews/impl-review.md`: 0 critical, 2 warnings, 7 observations, each with its decision. Departures the review found unrecorded, and those its triage made:
+  - Phase 4 #5 meant the list's `loading.tsx` and `error.tsx` never to touch the search. The `error.tsx` half does not hold: `(deals)/error.tsx` is segment-level, so an unexpected throw in `DealsSection` or `SearchResultsSection` replaces the whole page, search included. Failed reads render inline, so only a real bug reaches it. Left as is (F3).
+  - Phase 4 also added `src/lib/search/` to `SUITE_PATHS.unit` in `.claude/hooks/post-edit-tests.mjs`, beside Phase 1's `src/lib/catalog/` and `src/lib/games/` (F3).
+  - Fixed in triage (F1): closing the overlay right after typing let the search waiting for the pause submit 300 ms later and reopen it. `catalog-search-form.tsx` now exports `PendingSearchContext`, which carries that search's timer; `SearchOverlay` provides it around the form, and `close()` clears it.
+  - Fixed in triage (F6): Phase 6 #2 said any URL not under RAWG's media path gives the original for both. Now only an absolute `https:` one does; anything else, plain `http:` included, is no image. `rawg-image.test.ts` moves its plain-`http` row to "gives no image for".
+  - Fixed in triage (F7): a game page has no `loading.tsx`, so a click on a game's name waited for the catalogue with no feedback. `GameLink` is now a Client Component whose name dims and pulses through `useLinkStatus` while its navigation is pending, as the pagination's arrows do.
+  - Fixed in triage (F9): the search's components moved out of `src/components/watchlist/`. `catalog-search-form.tsx`, `search-results.tsx` and `search-result-row.tsx` now live in `src/components/search/`, and `rawg-attribution.tsx` in `src/components/games/`. The plan, `research.md` and `frame.md` keep the old paths.
+  - Fixed in triage (F4, F5, F8), documents only:
+    - CLAUDE.md's "ships locked" rule for functions now covers `private` too;
+    - `CATALOG_SHAPE_VERSION`'s doc comment says the cache callback's source text is part of every key;
+    - `rule-change.test.ts` now states, beside `SYNTHETIC`, the known limit recorded under Phase 2 above.
+  - Skipped in triage (F2): the RAWG-quota row's trigger in `infrastructure.md` stays as written.
+  - After triage, gates: lint, format, types, `npm test` 601, all five E2E specs on a fresh build. Still open before the first PR or the merge: Progress 2.4 and 2.5, Tomasz's hosted steps.

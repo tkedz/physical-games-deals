@@ -46,7 +46,15 @@ import {
   type Migration,
 } from "./harness/database";
 
-/** Dated after the last real migration and before 20261030000000. */
+/**
+ * Dated after the last real migration and before 20261030000000
+ * (DEFAULT_PRIVILEGES_END in harness/database.ts). The window closes with the
+ * first real migration dated 2026-10-30 or later, which `npm run db:new`
+ * gives every migration from that day on. That migration settles how this
+ * version is picked, for example after the last real migration, and whether
+ * the build still needs the old default grants for it
+ * (BuildOptions.defaultPrivilegesEnd).
+ */
 const SYNTHETIC = "20261029000000_synthetic_fold_without_l_stroke.sql";
 
 /** What a fold change owes the rows it leaves behind, short of the settle. */

@@ -1,6 +1,6 @@
 import { DealListSkeleton } from "@/components/deals/deal-list-skeleton";
 import { DealsPage } from "@/components/deals/deals-page";
-import { CatalogSearchForm } from "@/components/watchlist/catalog-search-form";
+import { CatalogSearchForm } from "@/components/search/catalog-search-form";
 
 /**
  * Shown on a navigation into `/` until the page renders: the page's own

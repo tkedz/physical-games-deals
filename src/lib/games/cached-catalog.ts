@@ -25,6 +25,13 @@ import type {
  * change to CatalogGame bumps this in the same commit, and an answer stored
  * under the old shape is never read as the new one.
  *
+ * The version is not the only thing in a key: unstable_cache also puts the
+ * cache callback's source text, `cb.toString()`, into every key
+ * (node_modules/next/dist/server/web/spec-extension/unstable-cache.js). A
+ * deploy that changes the callback in cachedAnswer, even through the
+ * minifier, starts the catalogue cache cold: every answer is asked for again,
+ * and a game seen before no longer renders while the catalogue is down.
+ *
  * - 1: the first shape, with the art as `imageUrl`.
  * - 2: the art as `image`, a URL per use (thumbnail and page).
  */

@@ -11,6 +11,7 @@
  */
 import { CircleAlert } from "lucide-react";
 import type { ReactNode } from "react";
+import { SearchResultRow } from "@/components/search/search-result-row";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -21,7 +22,6 @@ import {
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PhraseOffer } from "@/components/watchlist/phrase-offer";
-import { SearchResultRow } from "@/components/watchlist/search-result-row";
 import { getCurrentUser } from "@/lib/auth/current-user";
 import type { CatalogGame } from "@/lib/catalog/types";
 import { searchCatalog } from "@/lib/games/catalog";

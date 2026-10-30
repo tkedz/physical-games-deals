@@ -3,12 +3,12 @@ import { Suspense } from "react";
 import { DealListSkeleton } from "@/components/deals/deal-list-skeleton";
 import { DealsPage } from "@/components/deals/deals-page";
 import { DealsSection } from "@/components/deals/deals-section";
+import { CatalogSearchForm } from "@/components/search/catalog-search-form";
 import { SearchOverlay } from "@/components/search/search-overlay";
-import { CatalogSearchForm } from "@/components/watchlist/catalog-search-form";
 import {
   SearchResultsSection,
   SearchResultsSkeleton,
-} from "@/components/watchlist/search-results";
+} from "@/components/search/search-results";
 import { parsePage, searchClosedHref } from "@/lib/deals/page";
 import { parseSearchState } from "@/lib/watchlist/rules";
 import { addGameEntry, addPhraseEntry } from "../_watchlist/actions";

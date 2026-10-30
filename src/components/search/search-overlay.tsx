@@ -11,6 +11,7 @@ import {
   useRef,
   type ReactNode,
 } from "react";
+import { PendingSearchContext } from "@/components/search/catalog-search-form";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent } from "@/components/ui/popover";
 import {
@@ -124,7 +125,8 @@ function firstTabbableAfter(block: HTMLElement): HTMLElement | null {
  *   here. Shift+Tab back to the form keeps it open.
  * - Closing replaces the URL with the same page of the list, without `q` and
  *   `platform` (searchClosedHref), and keeps the scroll position. The overlay
- *   hides at once, while that navigation runs.
+ *   hides at once, while that navigation runs. A search the form is still
+ *   waiting to send is dropped (PendingSearchContext), or it would reopen it.
  * - Its height is bounded by the room below the form and scrolls.
  *
  * The form arrives in `form` and renders in this component's block, outside
@@ -162,9 +164,14 @@ export function SearchOverlay({
   // Hidden at once on a close, until the navigation that drops the search
   // from the URL completes; then `open` itself is false.
   const [shown, setShown] = useOptimistic(open);
+  // The form's search still waiting for the pause, shared with it through
+  // PendingSearchContext, so a close can drop it.
+  const pendingSearch = useRef<number | undefined>(undefined);
 
   function close() {
     if (closeHref === null) return;
+    window.clearTimeout(pendingSearch.current);
+    pendingSearch.current = undefined;
     startTransition(() => {
       setShown(false);
       router.replace(closeHref, { scroll: false });
@@ -235,7 +242,11 @@ export function SearchOverlay({
 
   return (
     <div ref={blockRef} className="relative">
-      <div ref={searchRef}>{form}</div>
+      <div ref={searchRef}>
+        <PendingSearchContext value={pendingSearch}>
+          {form}
+        </PendingSearchContext>
+      </div>
       <Popover open={shown} onOpenChange={handleOpenChange}>
         <PopoverContent
           container={portalRef}

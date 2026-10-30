@@ -2,7 +2,8 @@
  * The RAWG image mapping, rawgImage (src/lib/catalog/rawg.ts): a file under
  * RAWG's media path is served from RAWG's own resized copies, 420 px wide for
  * a search result and 640 px for the game's page; a file already resized or
- * cropped, or one on another host, is used as it is; no image stays none.
+ * cropped, or one on another host, is used as it is; no image, or anything
+ * but an absolute https: URL, is none.
  *
  * Literal URLs only: nothing here reaches RAWG.
  */
@@ -52,10 +53,6 @@ describe("rawgImage", () => {
   it.each([
     ["another host", "https://images.example.com/media/games/b29/cover.jpg"],
     [
-      "RAWG's host over plain http",
-      "http://media.rawg.io/media/games/b29/b294fdd866dcdb643e7bab370a552855.jpg",
-    ],
-    [
       "RAWG's host outside its media path",
       "https://media.rawg.io/games/b29/b294fdd866dcdb643e7bab370a552855.jpg",
     ],
@@ -69,5 +66,16 @@ describe("rawgImage", () => {
 
   it("gives no image for an empty string, as for null", () => {
     expect(rawgImage("")).toBeNull();
+  });
+
+  it.each([
+    ["a path without a host", "/media/games/b29/cover.jpg"],
+    ["a scheme-relative URL", "//images.example.com/media/games/b29/cover.jpg"],
+    [
+      "RAWG's host over plain http",
+      "http://media.rawg.io/media/games/b29/b294fdd866dcdb643e7bab370a552855.jpg",
+    ],
+  ])("gives no image for %s", (_, url) => {
+    expect(rawgImage(url)).toBeNull();
   });
 });

@@ -1,7 +1,16 @@
 "use client";
 
 import Form from "next/form";
-import { useEffect, useId, useRef, useState, type ChangeEvent } from "react";
+import {
+  createContext,
+  use,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type RefObject,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -22,6 +31,17 @@ const PAUSE_MS = 300;
 // …and only once the trimmed query has this many characters. Enter and
 // "Szukaj" search any query.
 const LIVE_SEARCH_MIN_LENGTH = 3;
+
+/**
+ * The timer of a search waiting for the pause, shared with the block around
+ * the form when it provides one. SearchOverlay does, so closing the overlay
+ * drops a search typed just before the close; it would otherwise submit
+ * PAUSE_MS later and open the overlay again. Without a provider the form keeps
+ * the timer to itself.
+ */
+export const PendingSearchContext = createContext<RefObject<
+  number | undefined
+> | null>(null);
 
 /**
  * The catalogue search: a title and a platform, held in the URL as
@@ -66,7 +86,8 @@ export function CatalogSearchForm({
 }) {
   const queryId = useId();
   const platformId = useId();
-  const pendingSearch = useRef<number | undefined>(undefined);
+  const ownPendingSearch = useRef<number | undefined>(undefined);
+  const pendingSearch = use(PendingSearchContext) ?? ownPendingSearch;
   // The query the form mounted with, kept for its lifetime. Each search
   // changes `defaultQuery` through the URL, but Base UI's input keeps its
   // first default anyway, and in development it reports a changed one as an
@@ -75,7 +96,10 @@ export function CatalogSearchForm({
 
   // A search still waiting when the form goes away is dropped, so it cannot
   // navigate back here after the user has left.
-  useEffect(() => () => window.clearTimeout(pendingSearch.current), []);
+  useEffect(
+    () => () => window.clearTimeout(pendingSearch.current),
+    [pendingSearch],
+  );
 
   // Runs first on every submission, Enter and "Szukaj" included: a search
   // still waiting for the pause is superseded by this one.

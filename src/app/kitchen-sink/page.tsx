@@ -20,7 +20,16 @@ import {
   GameWatchSkeleton,
   GameWatchView,
 } from "@/components/games/game-watch-control";
+import { RawgAttribution } from "@/components/games/rawg-attribution";
+import { CatalogSearchForm } from "@/components/search/catalog-search-form";
 import { SearchOverlay } from "@/components/search/search-overlay";
+import { SearchResultRow } from "@/components/search/search-result-row";
+import {
+  CatalogUnavailable,
+  SearchNoResults,
+  SearchResultsList,
+  SearchResultsSkeleton,
+} from "@/components/search/search-results";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,15 +48,6 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { CatalogSearchForm } from "@/components/watchlist/catalog-search-form";
-import { RawgAttribution } from "@/components/watchlist/rawg-attribution";
-import { SearchResultRow } from "@/components/watchlist/search-result-row";
-import {
-  CatalogUnavailable,
-  SearchNoResults,
-  SearchResultsList,
-  SearchResultsSkeleton,
-} from "@/components/watchlist/search-results";
 import {
   WatchlistEmpty,
   WatchlistEntries,
