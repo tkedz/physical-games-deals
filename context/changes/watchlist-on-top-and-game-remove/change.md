@@ -1,7 +1,7 @@
 ---
 change_id: watchlist-on-top-and-game-remove
 title: Watchlist above the matched deals, and „Usuń” on a game's page
-status: new
+status: planned
 created: 2026-10-30
 updated: 2026-10-30
 archived_at: null
