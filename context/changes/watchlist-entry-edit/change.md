@@ -62,3 +62,13 @@ archived_at: null
   - F2: a save that replaces the entry moves focus to the list's „Twoja lista” heading (`tabIndex={-1}` in `ListFrame`), not to „Edytuj”, whose row leaves the page; an unchanged save and „Anuluj” still return focus to „Edytuj”.
   - F4: the kitchen sink's too-short state shows the phrase „fe”; step 6a asserts the select with `toHaveValue("")`, replacing the `selectedLabel` helper named in the Phase 2 note.
   - F3 (two tabs editing one entry can leave two new versions) was skipped.
+- **2026-10-30 — where the work stands (session paused).** Branch `watchlist-entry-edit` is pushed up to `8156600` (the triage fixes); this note's commit is local only. PR #6 (`watchlist-entry-edit` → `main`) is open. Its CI run for `8156600` (run 41100494091) was still queued when the session stopped, because GitHub was failing (HTTP 504). Local gates on `8156600` all passed: Vitest 638, E2E 5/5, types, lint, format. `game-search-and-pages` (PR #5) is merged into `main` and live in production; its folder is still in `context/changes/`, with status `impl_reviewed`. Next, in this order:
+  1. Check PR #6's CI (`gh pr checks 6`). If it is green, merge by fast-forward, `git push origin watchlist-entry-edit:main`, so the Progress SHAs stay valid; then confirm the production deploy.
+  2. `/10x-archive game-search-and-pages`, then `/10x-archive watchlist-entry-edit`.
+  3. A README in English, replacing the create-next-app boilerplate: what the app does, the stack, how to run it (Node 24, Docker for the local Supabase, `.env.example`), the tests, and the public URL. Commit only `.md` files, which `ci.yml` ignores.
+  4. `/10x-roadmap`: close M-2 (S-05) and fix the Baseline, which still lists `/watchlist` as a page.
+  5. Tomasz, before submitting:
+     - invite `przeprogramowani`, `psmyrdek` and `mkczarkowski` as collaborators on the private repo;
+     - delete `agent-preview-1793370632589@przyklad22.pl` in the hosted Supabase (Authentication → Users);
+     - explain the CRUD (create, read, update through „Edytuj”, delete through „Usuń”) in the submission;
+     - optionally run `collect` by hand, so production does not show the stale-data note.
