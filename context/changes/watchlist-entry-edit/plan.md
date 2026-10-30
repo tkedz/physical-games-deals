@@ -368,8 +368,8 @@ None. No schema change, no data change, no hosted step. Rollback is `vercel roll
 
 #### Automated
 
-- [x] 3.1 The whole suite passes: `npm test`
-- [x] 3.2 No markdown in the documents step breaks a gate: `npm run lint` and `npm run format:check`
+- [x] 3.1 The whole suite passes: `npm test` — 83300d5
+- [x] 3.2 No markdown in the documents step breaks a gate: `npm run lint` and `npm run format:check` — 83300d5
 
 #### Manual
 
