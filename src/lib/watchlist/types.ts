@@ -58,14 +58,16 @@ export type WatchlistEntry = GameEntry | PhraseEntry;
 export type WatchState = "guest" | "on_list" | "can_watch";
 
 /**
- * What a watchlist action answers, for useActionState: a null message when
- * the change was made, or the one line the button shows under itself.
+ * What any of the four watchlist actions answers, for useActionState: a null
+ * message when the change was made (or, for an edit, when there was nothing
+ * to change), or the one line the control shows under itself.
  */
 export type WatchlistActionState = { message: string | null };
 
 /**
- * The shape of the three Server Actions — adding a game, adding a phrase and
- * removing an entry — so the button that posts them and the actions agree.
+ * The shape of the four Server Actions — adding a game, adding a phrase,
+ * removing an entry and editing one — so the controls that post them and the
+ * actions agree.
  */
 export type WatchlistAction = (
   prevState: WatchlistActionState,

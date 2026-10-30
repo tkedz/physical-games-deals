@@ -1,7 +1,7 @@
 ---
 change_id: watchlist-entry-edit
 title: "Edit a watchlist entry: phrase text and platform"
-status: planned
+status: implementing
 created: 2026-10-30
 updated: 2026-10-30
 archived_at: null
@@ -33,3 +33,9 @@ archived_at: null
   - Documents: a new FR-011 in `prd.md` (Polish, must-have, with a note on the replace), the main flow's description in `test-plan.md`, and one `CLAUDE.md` bullet that an entry is never updated in place. `roadmap.md` is left to `/10x-roadmap`: no item carries this change ID.
 - **2026-10-30 — planned.** `plan.md` (three phases: the decision and action; the form, kitchen sink and E2E; documents) and `plan-brief.md`. No migration, no hosted step. Next step: `/10x-plan-review watchlist-entry-edit` or `/10x-implement watchlist-entry-edit phase 1`.
 - **2026-10-30 — Tomasz confirmed the planner's open points.** A phrase edit that differs only in what the unique indexes ignore (case, diacritics, punctuation) on the same platform is refused with the planned line, not handled by removing first. An edited entry moving to the top of the list is accepted. He skipped `/10x-plan-review`; next step `/10x-implement`, phase by phase.
+- **2026-10-30 — Phase 1 implemented** (delegated by the orchestrating session; no manual criteria in this phase). `decideEntryEdit` (`src/lib/watchlist/edit.ts`), `editEntrySchema` and `entryEditFields` (`rules.ts`), `loadActiveEntry` (`queries.ts`), `editEntry` (`src/app/(app)/_watchlist/actions.ts`), 37 unit tests in `tests/unit/watchlist/entry-edit.test.ts`. Gates: `npm test` 31 files / 638 tests, lint, format, `next typegen` + `tsc --noEmit`, `git diff --stat main -- supabase/` empty. Deliberate breaks: dropping the `same_match` branch turned 3 rows red, and copying the old platform into a game's new version turned 3 more red; both restored. Departures from the plan, all minor:
+  - `EntryEditInput.phrase` is optional (`phrase?: string | undefined`), not `phrase: string | undefined`: zod's output for `z.string().optional()` is an optional key, and `tsc` refused the parsed data otherwise. The decision reads both the same way.
+  - `editEntry` creates one Supabase client for the request and uses it for the read, the insert and the removal, instead of a separate client for the read. Same session, same RLS.
+  - `queries.ts` gains a private `logUnexpectedShape`, shared by `loadActiveEntries` and `loadActiveEntry`; the log line is unchanged.
+  - `entryEditFields` is typed as `Pick<…, "entryId">` of the schema's input keys, since the form's visible fields name themselves.
+  - The tests add rows the plan did not list: a punctuation-only change (`same_match`), a pinned game ↔ any platform, an undated game, a phrase pinned from any platform, more refused ids (`""`, `-1`, `0x10`, `7.0`, absent) and `entryEditFields` read back by the schema.

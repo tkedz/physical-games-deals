@@ -1,7 +1,7 @@
 /**
  * The watchlist's rules: how the search reads the URL, when a query can
  * become a phrase, how matching folds text, what is already on the list, what
- * a game's watch control offers, and what the three Server Actions accept.
+ * a game's watch control offers, and what the four Server Actions accept.
  * The platforms an entry can be pinned to, and how long a query may be, live
  * in ./vocabulary.ts, which the browser loads without zod; they are
  * re-exported here.
@@ -345,6 +345,19 @@ export const removeEntrySchema = z.object({
   entryId: positiveInteger(Number.MAX_SAFE_INTEGER),
 });
 
+/**
+ * The form data of editing an entry: the hidden field entryEditFields writes,
+ * and the form's own `phrase` (a phrase entry's form only) and `platform`.
+ * The phrase is typed, not a hidden field, so it passes raw: decideEntryEdit
+ * in ./edit.ts judges its length, and a bad one gets the form's own line
+ * rather than the generic one for forged input.
+ */
+export const editEntrySchema = z.object({
+  entryId: removeEntrySchema.shape.entryId,
+  phrase: z.string().optional(),
+  platform: platformField,
+});
+
 /** A game to add, as addGameEntrySchema returns it. */
 export type NewGameEntry = z.output<typeof addGameEntrySchema>;
 
@@ -377,5 +390,15 @@ export function phraseEntryFields(
 export function entryRemovalFields(
   entry: WatchlistEntry,
 ): Record<keyof z.input<typeof removeEntrySchema>, string> {
+  return { entryId: String(entry.id) };
+}
+
+/**
+ * The hidden field of an entry's edit form, named as editEntrySchema reads
+ * it. The visible fields carry their own names, `phrase` and `platform`.
+ */
+export function entryEditFields(
+  entry: WatchlistEntry,
+): Pick<Record<keyof z.input<typeof editEntrySchema>, string>, "entryId"> {
   return { entryId: String(entry.id) };
 }

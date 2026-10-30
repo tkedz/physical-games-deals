@@ -104,13 +104,59 @@ export async function loadActiveEntries(
 
   const parsed = z.array(entryRow).safeParse(data);
   if (!parsed.success) {
-    const at = parsed.error.issues[0]?.path.map(String).join(".") ?? "";
-    console.error(
-      `Reading watchlist_entries returned rows of an unexpected shape at ${at || "the top"}`,
-    );
+    logUnexpectedShape(parsed.error);
     return { ok: false };
   }
   return { ok: true, entries: parsed.data };
+}
+
+/** Logs where a read's rows broke their shape: the path, never a value. */
+function logUnexpectedShape(error: z.ZodError): void {
+  const at = error.issues[0]?.path.map(String).join(".") ?? "";
+  console.error(
+    `Reading watchlist_entries returned rows of an unexpected shape at ${at || "the top"}`,
+  );
+}
+
+export type ActiveEntryResult =
+  { ok: true; entry: WatchlistEntry | null } | { ok: false };
+
+/**
+ * One of the caller's active entries, the one an edit replaces. The entry is
+ * null when no active row with this id is visible: it does not exist, it was
+ * removed (in another tab, say), or it is not the caller's and RLS hides it —
+ * the three are indistinguishable by design.
+ */
+export async function loadActiveEntry(
+  client: SupabaseClient,
+  entryId: number,
+): Promise<ActiveEntryResult> {
+  let data: unknown;
+  try {
+    const response = await client
+      .from("watchlist_entries")
+      .select(ENTRY_COLUMNS)
+      .eq("id", entryId)
+      .is("removed_at", null)
+      .maybeSingle();
+    if (response.error !== null) {
+      console.error(
+        `Reading an entry of watchlist_entries failed: ${codeOf(response.error)}`,
+      );
+      return { ok: false };
+    }
+    data = response.data;
+  } catch {
+    console.error("Reading an entry of watchlist_entries threw");
+    return { ok: false };
+  }
+
+  const parsed = entryRow.nullable().safeParse(data);
+  if (!parsed.success) {
+    logUnexpectedShape(parsed.error);
+    return { ok: false };
+  }
+  return { ok: true, entry: parsed.data };
 }
 
 /**

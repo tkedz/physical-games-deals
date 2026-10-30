@@ -1,10 +1,16 @@
 "use server";
 
 /**
- * The watchlist's three changes — adding a game, adding a phrase, removing an
- * entry — which EntryActionButton posts through useActionState: the adds from
- * the search on `/` and from a game's page, `/games/<id>`, the removal from
- * the list on `/my-deals`.
+ * The watchlist's four changes — adding a game, adding a phrase, removing an
+ * entry, editing an entry — posted through useActionState: the adds from the
+ * search on `/` and from a game's page, `/games/<id>`, the removal and the
+ * edit from the list on `/my-deals`.
+ *
+ * An edit is a replace, never an update in place: `authenticated` may update
+ * removed_at only (supabase/migrations/20261007141021_create_watchlist_entries.sql),
+ * and the old version keeps its row as the record of what was tracked
+ * (FR-004). The new version is inserted first and the old one removed after,
+ * because the other order would lose the entry when the insert is refused.
  *
  * They live in a private folder (`_watchlist`, which is no route), so they
  * outlive any one page that posts them.
@@ -27,9 +33,11 @@
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/current-user";
+import { decideEntryEdit } from "@/lib/watchlist/edit";
 import {
   insertGameEntry,
   insertPhraseEntry,
+  loadActiveEntry,
   markEntryRemoved,
   type AddEntryResult,
   type RemoveEntryResult,
@@ -37,6 +45,7 @@ import {
 import {
   addGameEntrySchema,
   addPhraseEntrySchema,
+  editEntrySchema,
   removeEntrySchema,
 } from "@/lib/watchlist/rules";
 import type { WatchlistActionState } from "@/lib/watchlist/types";
@@ -48,6 +57,13 @@ import { createClient } from "@/utils/supabase/server";
 const INVALID_INPUT = "Coś poszło nie tak. Spróbuj ponownie.";
 const DUPLICATE = "Ta pozycja jest już na liście.";
 const WRITE_FAILED = "Nie udało się zapisać zmiany. Spróbuj ponownie.";
+// The edit form's own lines. Its phrase is typed, so a bad length is the
+// user's to correct, not a forged request.
+const INVALID_PHRASE = "Fraza musi mieć od 3 do 100 znaków.";
+const SAME_MATCH =
+  "Ta fraza znajdzie te same okazje co obecna. Wpisz inną albo zmień platformę.";
+const OLD_VERSION_KEPT =
+  "Zapisaliśmy nową wersję, ale poprzednia została na liście. Usuń ją ręcznie.";
 
 /** Returns for a signed-in user only; a visitor is sent to /login. */
 async function requireUser(): Promise<void> {
@@ -102,4 +118,54 @@ export async function removeEntry(
   return answer(
     await markEntryRemoved(await createClient(), input.data.entryId),
   );
+}
+
+/**
+ * Replaces an entry with its edited version, from its form's "Zapisz": a
+ * phrase entry's new text and platform, or a game entry's new platform.
+ *
+ * The entry is read as the user, so RLS confines the edit to the user's own
+ * rows, and a game's catalogue fields come from that row, never from the
+ * form. decideEntryEdit says what the edit does; this only performs it:
+ * insert the new version, then, only once it is in, mark the old one
+ * removed. The page re-renders after a replace, after a replace whose removal
+ * failed (so both versions show, under the old one's line), and when the
+ * entry is no longer active (so its row goes) — never when nothing was
+ * written.
+ */
+export async function editEntry(
+  _state: WatchlistActionState,
+  formData: FormData,
+): Promise<WatchlistActionState> {
+  await requireUser();
+  const input = editEntrySchema.safeParse(Object.fromEntries(formData));
+  if (!input.success) return { message: INVALID_INPUT };
+
+  const client = await createClient();
+  const current = await loadActiveEntry(client, input.data.entryId);
+  if (!current.ok) return { message: WRITE_FAILED };
+  if (current.entry === null) {
+    // Removed in another tab, or not the user's: as markEntryRemoved counts
+    // zero rows as done, the row just goes.
+    refresh();
+    return { message: null };
+  }
+
+  const edit = decideEntryEdit(current.entry, input.data);
+  if (edit.outcome === "invalid_phrase") return { message: INVALID_PHRASE };
+  if (edit.outcome === "unchanged") return { message: null };
+  if (edit.outcome === "same_match") return { message: SAME_MATCH };
+
+  const added =
+    "game" in edit
+      ? await insertGameEntry(client, edit.game)
+      : await insertPhraseEntry(client, edit.phrase);
+  if (added !== "ok") return answer(added);
+
+  if ((await markEntryRemoved(client, current.entry.id)) === "failed") {
+    refresh();
+    return { message: OLD_VERSION_KEPT };
+  }
+  refresh();
+  return { message: null };
 }
