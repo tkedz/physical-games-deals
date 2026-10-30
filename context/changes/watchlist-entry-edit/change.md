@@ -72,3 +72,4 @@ archived_at: null
      - delete `agent-preview-1793370632589@przyklad22.pl` in the hosted Supabase (Authentication → Users);
      - explain the CRUD (create, read, update through „Edytuj”, delete through „Usuń”) in the submission;
      - optionally run `collect` by hand, so production does not show the stale-data note.
+- **2026-10-30 — merged and deployed.** PR #6's CI for `8156600` passed (verify, e2e, deploy). `main` was fast-forwarded to `d634685` with `git push origin watchlist-entry-edit:main`, so the Progress SHAs stay valid, and the PR shows as merged. The push's CI run (41115882795) was cancelled by GitHub after 3 s ("higher priority waiting request") with no other run waiting; a rerun passed, and `vercel inspect` showed the production deployment ready.
