@@ -35,8 +35,10 @@ import type { WatchlistAction, WatchlistEntry } from "@/lib/watchlist/types";
  */
 export async function WatchlistSection({
   removeAction,
+  editAction,
 }: {
   removeAction: WatchlistAction;
+  editAction: WatchlistAction;
 }) {
   if ((await getCurrentUser()) === null) return null;
 
@@ -44,7 +46,11 @@ export async function WatchlistSection({
   if (!list.ok) return <WatchlistError />;
   if (list.entries.length === 0) return <WatchlistEmpty />;
   return (
-    <WatchlistEntries entries={list.entries} removeAction={removeAction} />
+    <WatchlistEntries
+      entries={list.entries}
+      removeAction={removeAction}
+      editAction={editAction}
+    />
   );
 }
 
@@ -62,21 +68,29 @@ function ListFrame({ children }: { children: ReactNode }) {
 
 /**
  * The active entries, in the order given: newest first, as the read returns
- * them. Without `removeAction` the "Usuń" buttons render inert.
+ * them, so an edited entry, which is a new one, comes first. Without
+ * `removeAction` the "Usuń" buttons render inert, and without `editAction`
+ * the edit forms.
  */
 export function WatchlistEntries({
   entries,
   removeAction,
+  editAction,
 }: {
   entries: readonly WatchlistEntry[];
   removeAction?: WatchlistAction;
+  editAction?: WatchlistAction;
 }) {
   return (
     <ListFrame>
       <ul className="flex flex-col gap-2">
         {entries.map((entry) => (
           <li key={entry.id}>
-            <WatchlistEntryRow entry={entry} action={removeAction} />
+            <WatchlistEntryRow
+              entry={entry}
+              action={removeAction}
+              editAction={editAction}
+            />
           </li>
         ))}
       </ul>

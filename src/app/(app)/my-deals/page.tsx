@@ -11,7 +11,7 @@ import {
   WatchlistSkeleton,
 } from "@/components/watchlist/watchlist-entries";
 import { parsePage } from "@/lib/deals/page";
-import { removeEntry } from "../_watchlist/actions";
+import { editEntry, removeEntry } from "../_watchlist/actions";
 
 export const metadata: Metadata = {
   title: "Moje okazje",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 /**
  * `/my-deals`: the listed deals that match the signed-in user's watchlist,
  * newest first, a page at a time, and under them the watchlist itself, with
- * "Usuń" on every entry. Private: the proxy sends visitors to /login, and the
+ * "Edytuj" and "Usuń" on every entry. Private: the proxy sends visitors to /login, and the
  * list's old address here (src/lib/auth/access.ts); each section checks the
  * user again before it reads.
  *
@@ -34,9 +34,10 @@ export const metadata: Metadata = {
  *   sits outside the matched deals' boundary, so paging leaves it in place.
  *   Both sections read the list through the same React-cached
  *   getActiveEntries, so a render queries it once.
- * - Entries are added from the search on `/` and from a game's page; removing
- *   one re-renders this page (src/app/(app)/_watchlist/actions.ts), the
- *   matched deals with it.
+ * - Entries are added from the search on `/` and from a game's page; editing
+ *   or removing one re-renders this page (src/app/(app)/_watchlist/actions.ts),
+ *   the matched deals with it. An edit replaces the entry with a new one, so
+ *   the edited entry moves to the top of the list.
  */
 export default async function MyDealsRoute({
   searchParams,
@@ -50,7 +51,7 @@ export default async function MyDealsRoute({
       </Suspense>
       <div id={WATCHLIST_ANCHOR} className="scroll-mt-4">
         <Suspense fallback={<WatchlistSkeleton />}>
-          <WatchlistSection removeAction={removeEntry} />
+          <WatchlistSection removeAction={removeEntry} editAction={editEntry} />
         </Suspense>
       </div>
     </MyDealsPage>

@@ -54,6 +54,7 @@ import {
   WatchlistError,
   WatchlistSkeleton,
 } from "@/components/watchlist/watchlist-entries";
+import { WatchlistEntryRow } from "@/components/watchlist/watchlist-entry-row";
 import type {
   CatalogGame,
   CatalogImage,
@@ -673,7 +674,8 @@ export default function KitchenSinkPage() {
           from the sample data above: the matched deals, then the watchlist
           that sits below them on the page. The visual gate before
           `/my-deals` depends on them. No action is passed, so every "Usuń"
-          renders inert, and nothing here reaches Supabase. */}
+          and every edit form renders inert, and nothing here reaches
+          Supabase. The edit form's states are single rows of the list. */}
       <section className="flex flex-col gap-6">
         <h2 className="font-heading text-xl font-semibold tracking-tight">
           Moje okazje
@@ -761,6 +763,45 @@ export default function KitchenSinkPage() {
             Lista obserwowanych
           </h3>
           <WatchlistEntries entries={sampleEntries} />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">Edycja frazy</h3>
+          <WatchlistEntryRow entry={sampleEntries[3]} editView="open" />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">Edycja gry</h3>
+          <WatchlistEntryRow entry={sampleEntries[1]} editView="open" />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Zapisywanie zmiany
+          </h3>
+          <WatchlistEntryRow entry={sampleEntries[2]} editView="saving" />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Edycja: fraza za krótka
+          </h3>
+          <WatchlistEntryRow
+            entry={sampleEntries[2]}
+            editView="open"
+            editMessage="Fraza musi mieć od 3 do 100 znaków."
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="font-heading text-base font-medium">
+            Edycja: pozycja już na liście
+          </h3>
+          <WatchlistEntryRow
+            entry={sampleEntries[3]}
+            editView="open"
+            editMessage="Ta pozycja jest już na liście."
+          />
         </div>
 
         <div className="flex flex-col gap-3">

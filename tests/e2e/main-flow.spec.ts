@@ -2,10 +2,12 @@
 // browser round trip: the PRD's primary flow. A guest is sent to sign in; a
 // signed-in user starts with an empty watchlist, watches a deal's title as a
 // phrase from the search on /, finds the phrase in the list on /my-deals and
-// that deal among the matched ones with its price and links, removes the
-// phrase there, and signs out, after which the server no longer honours the
-// old session. /watchlist, the list's address before it moved into
-// /my-deals, sends a guest to sign in and a signed-in user to /my-deals.
+// that deal among the matched ones with its price and links, edits the
+// phrase there into one that matches nothing and back again, the matched
+// deals following each edit, removes the phrase, and signs out, after which
+// the server no longer honours the old session. /watchlist, the list's
+// address before it moved into /my-deals, sends a guest to sign in and a
+// signed-in user to /my-deals.
 // Seed: tests/e2e/seed.spec.ts. The test data seeds itself from the public
 // deals list on /, so it runs on supabase/seed.sql alone (CI) and on a local
 // stack holding the production snapshot.
@@ -77,6 +79,13 @@ function dealCard(page: Page, title: string): Locator {
   return page.getByRole("listitem").filter({
     has: page.getByRole("heading", { level: 2, name: title, exact: true }),
   });
+}
+
+/** The label of the option a select shows. */
+function selectedLabel(select: Locator): Promise<string | undefined> {
+  return select.evaluate(
+    (element: HTMLSelectElement) => element.selectedOptions[0]?.text,
+  );
 }
 
 /** Where each link on a card leads, in order. */
@@ -171,6 +180,69 @@ test.describe("main flow", () => {
     const entry = page.getByRole("listitem").filter({ hasText: `„${title}”` });
     await expect(entry.getByRole("button", { name: "Usuń" })).toBeVisible();
     const matchedCards = dealCard(page, title);
+    await expect(matchedCards.first()).toBeVisible();
+    await expect
+      .poll(async () =>
+        Promise.all(
+          (await matchedCards.all()).map(async (card) => ({
+            price: await card.getByText(PRICE).innerText(),
+            links: await linkTargets(card),
+          })),
+        ),
+      )
+      .toContainEqual({ price, links });
+
+    // 6a. Edit: "Edytuj" on the entry opens a form holding the phrase, for
+    // any platform. It becomes a text unique to this run, which matches no
+    // deal, pinned to PC. An edit replaces the entry, so the title's row goes
+    // and a row with the new text and a "PC" badge comes; refresh() renders
+    // the list and the matched deals in one response, so once the rows have
+    // changed the matched deals are empty. "Edytuj" does nothing until the
+    // page hydrates and is gone once the form is open, so it is pressed until
+    // the form shows, and only while it is still there.
+    const editPhrase = `e2e-edit-${Date.now()}`;
+    const editButton = entry.getByRole("button", { name: "Edytuj" });
+    const phraseField = entry.getByLabel("Fraza");
+    await expect(async () => {
+      if (await editButton.isVisible())
+        await editButton.click({ timeout: 1_000 });
+      await expect(phraseField).toBeVisible({ timeout: 1_000 });
+    }).toPass();
+    await expect(phraseField).toHaveValue(title);
+    const platformField = entry.getByLabel("Platforma");
+    expect(await selectedLabel(platformField)).toBe("Dowolna platforma");
+    await phraseField.fill(editPhrase);
+    await platformField.selectOption({ label: "PC" });
+    await entry.getByRole("button", { name: "Zapisz" }).click();
+    const editedEntry = page
+      .getByRole("listitem")
+      .filter({ hasText: `„${editPhrase}”` });
+    await expect(editedEntry.getByText("PC", { exact: true })).toBeVisible();
+    await expect(entry).toBeHidden();
+    await expect(
+      page.getByText("Brak okazji na gry z Twojej listy"),
+    ).toBeVisible();
+
+    // 6b. Edit back: the title again, for any platform. The title's row
+    // returns with its pin, the edited one goes, and the deal is among the
+    // matched ones again, with the same price and links as on /.
+    const editedButton = editedEntry.getByRole("button", { name: "Edytuj" });
+    const editedPhraseField = editedEntry.getByLabel("Fraza");
+    await expect(async () => {
+      if (await editedButton.isVisible()) {
+        await editedButton.click({ timeout: 1_000 });
+      }
+      await expect(editedPhraseField).toBeVisible({ timeout: 1_000 });
+    }).toPass();
+    await editedPhraseField.fill(title);
+    await editedEntry
+      .getByLabel("Platforma")
+      .selectOption({ label: "Dowolna platforma" });
+    await editedEntry.getByRole("button", { name: "Zapisz" }).click();
+    await expect(
+      entry.getByText("Dowolna platforma", { exact: true }),
+    ).toBeVisible();
+    await expect(editedEntry).toBeHidden();
     await expect(matchedCards.first()).toBeVisible();
     await expect
       .poll(async () =>
