@@ -31,3 +31,11 @@ archived_at: null
 - **2026-11-02 — impl-review triage, departures from the plan** (decisions in `reviews/impl-review.md`).
   - F1: `GameWatchControl` (`src/components/games/game-watch-control.tsx`) now requires `removeAction`; the plan had it optional. It stays optional on `GameWatchView`, for the kitchen sink.
   - F3, F4: comments only. The `my-deals-section.tsx` header scopes "the heading stays put" to a list with entries. The `gameWatchOption` and `watch-state.test.ts` headers and two kitchen-sink comments are reworded.
+- **2026-11-02 — merged and deployed.**
+  - `main` had moved on with `051bb59`, a notes trim in the archived `watchlist-entry-edit`. It was merged into the branch rather than rebased, so the Progress SHAs stay valid.
+  - PR #7's CI (run 41408548090) passed verify, e2e and deploy. `main` was then fast-forwarded to `b18e735` with `git push origin watchlist-on-top-and-game-remove:main`, and the PR shows as merged. The push's CI run (41409324341) passed too.
+  - `vercel inspect` shows the production deployment Ready.
+  - Checked on production as the demo account:
+    - `/my-deals` has „Twoja lista” above „Okazje z Twojej listy”, the list region is named „Twoja lista”, and the jump link is gone.
+    - Split Fiction's page shows „Usuń z listy obserwowanych” for „Dowolna platforma”.
+  - Removal was not pressed on production, so the demo list is unchanged.
