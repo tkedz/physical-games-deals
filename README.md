@@ -14,9 +14,10 @@ match the games and phrases on their own watchlist.
   catalogue search sits above the list.
 - **`/games/[id]`**: a game's public page, with its catalogue image and every
   listed deal matching it. Signed-in users can watch the game from here,
-  optionally pinned to one platform.
-- **`/my-deals`** (signed in): only the deals matching your watchlist, and the
-  watchlist itself. You can add a game from the catalogue or a free-text phrase
+  optionally pinned to one platform, and remove it from the watchlist for the
+  chosen platform („Usuń z listy obserwowanych”).
+- **`/my-deals`** (signed in): your watchlist on top, then only the deals
+  matching it. You can add a game from the catalogue or a free-text phrase
   for titles the catalogue does not know, edit an entry („Edytuj”: a phrase's
   text and platform, a game's platform) and remove one („Usuń”).
 - Accounts use e-mail and password. Each user's watchlist is isolated by
