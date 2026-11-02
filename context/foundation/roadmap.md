@@ -3,13 +3,13 @@ project: physical-games-deals
 version: 2
 status: draft
 created: 2026-09-21
-updated: 2026-10-30
+updated: 2026-11-02
 prd_version: 2
 main_goal: speed
 top_blocker: time
 milestone_id: public-game-pages
 milestone_seq: 2
-milestone_status: open
+milestone_status: done
 ---
 
 # Roadmap: physical-games-deals
@@ -28,7 +28,7 @@ milestone_status: open
 
 ## Milestone
 
-**M-2: Game pages and catalogue search for everyone** — Status: open
+**M-2: Game pages and catalogue search for everyone** — Status: done
 
 - **Intent:** Give anyone, signed in or not, a page per catalogue game that lists every listed deal matching it, and a catalogue search on the front page that leads there — without public traffic exhausting the shared catalogue quota. Watching stays the one thing that needs an account, and the watchlist moves in with the matched deals. This is the PRD's per-game view (`FR-009`), whose precondition — "po domknięciu głównego przepływu" — M-1 met.
 - **Source materials:** `context/foundation/prd.md` (v2, the next tranche: `FR-009`); Tomasz's intent of 2026-10-26 in `context/changes/game-search-and-pages/change.md`, narrowed by his answers in `frame.md` (Narrowing Signals).
@@ -78,11 +78,12 @@ M-1's north star was `S-01`, the automatic reading of freehand posts; it is `don
 
 What's already in place in the codebase as of `2026-10-26` (auto-researched for M-2; M-1's baseline of 2026-09-21 is in git history).
 Foundations below assume these are present and do NOT re-scaffold them.
+Updated 2026-11-02, when M-2 closed: the Frontend, Backend / API, Data and Auth lines describe the code after M-2. The full baseline is re-researched when M-3 opens.
 
-- **Frontend:** present — Next 16.3.5 App Router, Tailwind v4, shadcn/ui (eleven components in `src/components/ui/`) and Base UI 1.8.0. Product routes: `/` (the public, paged deals list), `/my-deals`, `/watchlist` (catalogue search and the list on one page), `/login`, `/signup`. There is no popover or overlay component yet, and nothing renders an image.
-- **Backend / API:** present — Server Components read Supabase; Server Actions add and remove watchlist entries (`src/app/(app)/watchlist/actions.ts`). The catalogue is reached only through `src/lib/catalog/rawg.ts` behind a server-only wrapper, by signed-in users only. Nothing caches, throttles or retries catalogue calls, and the catalogue contract has a search call and no lookup of one game.
-- **Data:** present — 15 migrations in `supabase/migrations/`: collected posts, extractions, deals, pipeline runs and watchlist entries, every table locked by default. Matching lives in Postgres: a view of the deals matching the signed-in caller's watchlist, and matching functions granted to signed-in users only. No public per-game match path exists.
-- **Auth:** present — e-mail and password accounts; `src/proxy.ts` with `src/lib/auth/access.ts` keeps `/watchlist` and `/my-deals` private; per-user rows sit behind row-level security.
+- **Frontend:** present — Next 16.3.5 App Router, Tailwind v4, shadcn/ui (twelve components in `src/components/ui/`) and Base UI 1.8.0. Product routes: `/` (the public, paged deals list with the catalogue search above it), `/games/<id>` (a public page per catalogue game), `/my-deals` (the watchlist on top, then the matched deals), `/login`, `/signup`. `/watchlist` only redirects. Catalogue images render through `src/components/games/game-image.tsx`.
+- **Backend / API:** present — Server Components read Supabase; Server Actions add, edit and remove watchlist entries (`src/app/(app)/_watchlist/actions.ts`). The catalogue is reached only through `src/lib/games/catalog.ts`, which caches answers at function level in front of `src/lib/catalog/rawg.ts`; the contract has a search call and a lookup of one game, and visitors reach both.
+- **Data:** present — 16 migrations in `supabase/migrations/`: collected posts, extractions, deals, pipeline runs and watchlist entries, every table locked by default. Matching lives in Postgres: a view of the deals matching the signed-in caller's watchlist, and a public per-game function, `public.deals_for_game`, whose key comes from a definer function in schema `private`.
+- **Auth:** present — e-mail and password accounts; `src/proxy.ts` with `src/lib/auth/access.ts` keeps `/my-deals` private and sends `/watchlist` there; per-user rows sit behind row-level security.
 - **Deploy / infra:** present — `.github/workflows/ci.yml` gates `deploy` (Vercel Hobby, `fra1`) on `verify` (lint, format, `npm test`) and `e2e` (Playwright against a local Supabase stack); `collect.yml` collects and extracts every four hours; `database-tests.yml` runs the database test suite on every push that touches the schema. Development runs against a local Supabase stack on Docker.
 - **Observability:** partial — the pipeline records each run in a table, and the deals views' freshness line reads it. Server-side failures go to `console.error`, which Hobby keeps for one hour. No error tracking, no metrics.
 - **Deal collection (extra layer):** present — the collector runs from this repository and writes to the database (`F-02`, done).
@@ -245,6 +246,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 (Append-only. Carried forward verbatim into each successor milestone's roadmap; empty on the very first milestone.)
 
 - **M-1: First matched physical deals** (`first-matched-physical-deals`) — closed 2026-10-26. Deals read automatically from real posts, physical editions only, narrowed at `/my-deals` to each user's watchlist of catalogue games and phrases; measured on production with 20 watched games, 90.7% of their deals found (39 of 43) and none wrong (0 of 39). Its items `F-01`–`F-03` and `S-01`–`S-04` stay in this file as `done`.
+- **M-2: Game pages and catalogue search for everyone** (`public-game-pages`) — closed 2026-11-02. Anyone opens a catalogue game's page with its matching deals, found from a search on `/`, and watching works from both; the watchlist lives at the top of `/my-deals`, and `/watchlist` redirects there. Two follow-up changes, outside the roadmap, made entries editable (`watchlist-entry-edit`) and added removal on a game's page (`watchlist-on-top-and-game-remove`). Its item `S-05` stays in this file as `done`.
 
 ## Done
 
