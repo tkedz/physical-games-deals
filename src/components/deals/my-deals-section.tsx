@@ -2,7 +2,9 @@
  * Every state of the matched deals on `/my-deals`, below the watchlist: the
  * user's matched deals, no matches, a page past the end, a failed read, and
  * the wait for one of them. Each sits under the same "Okazje z Twojej listy"
- * heading, so the heading stays put while the deals load.
+ * heading, so, for a list with entries, the heading stays put while the deals
+ * load. An empty list renders no section, so there the heading shows only
+ * while the page loads.
  *
  * MyDealsSection reads and picks one. What each state looks like is in the
  * sync components after it, which the kitchen sink renders from sample data.

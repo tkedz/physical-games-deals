@@ -242,7 +242,8 @@ export function watchState(input: {
  * "Usuń z listy obserwowanych" entryRemovalFields of exactly the entry
  * findGameEntry finds. So the removal never reaches the game on another
  * platform, its entry on the other side of "any platform", or a phrase
- * carrying its name. The state is watchState's.
+ * carrying its name. The state agrees with watchState's, since both rest on
+ * findGameEntry.
  */
 export function gameWatchOption(input: {
   signedIn: boolean;

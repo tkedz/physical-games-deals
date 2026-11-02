@@ -34,7 +34,7 @@ export async function GameWatchControl({
 }: {
   game: CatalogGame;
   addGameAction: WatchlistAction;
-  removeAction?: WatchlistAction;
+  removeAction: WatchlistAction;
 }) {
   const user = await getCurrentUser();
   const list = user === null ? null : await getActiveEntries();

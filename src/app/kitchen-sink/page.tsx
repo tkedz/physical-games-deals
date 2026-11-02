@@ -198,8 +198,7 @@ const freshnessSamples: Freshness[] = [
 
 // Sample catalogue answers and list entries for the search's sections and the
 // list on "Moje okazje", in the shapes the catalogue and the list's read
-// return. The platforms carry RAWG's
-// names; the game and entry ids are made up. Between them they hold every
+// return. The platforms carry RAWG's names; the game and entry ids are made up. Between them they hold every
 // variant of a row:
 // - a result the list holds for the chosen platform (Fire Emblem Engage, on
 //   the list for any platform), and results it does not;
@@ -929,8 +928,8 @@ export default function KitchenSinkPage() {
 
       {/* A game's page, `/games/<id>`, in every state it can be in, from the
           sample data above: the visual gate before the page depends on them.
-          No action is passed, so the watch buttons render inert, and nothing here
-          reaches Supabase or the catalogue. Each header and the unavailable
+          No action is passed, so the watch buttons render inert, and nothing
+          here reaches Supabase or the catalogue. Each header and the unavailable
           state hold the page's h1. */}
       <section className="flex flex-col gap-6">
         <h2 className="font-heading text-xl font-semibold tracking-tight">

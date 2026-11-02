@@ -1,9 +1,9 @@
 ---
 change_id: watchlist-on-top-and-game-remove
 title: Watchlist above the matched deals, and „Usuń” on a game's page
-status: implemented
+status: impl_reviewed
 created: 2026-10-30
-updated: 2026-10-30
+updated: 2026-11-02
 archived_at: null
 ---
 
@@ -28,3 +28,6 @@ archived_at: null
   - The new lookup is `findGameEntry` and the option function `gameWatchOption`, both in `src/lib/watchlist/rules.ts`. The `on_list` and `can_watch` options share one member of the `WatchOption` union (`src/lib/watchlist/types.ts`), since both carry fields; `guest` carries none.
   - Kitchen sink (`src/app/kitchen-sink/page.tsx`): the failed-removal sample spells out the write-failed line, as the other samples do. `WRITE_FAILED` in `src/app/(app)/_watchlist/actions.ts` cannot be imported: a `"use server"` file exports async functions only.
 - **2026-10-30 — Phase 2, verified.** `npm test` (643 passed, the new `gameWatchOption` cases included), `npm run lint`, `npm run format:check`, `npx tsc --noEmit`, and `npx playwright test` 5/5 on a fresh server (`E2E_PORT=3100`). Break check: with `findGameEntry` also matching the any-platform entry, two `watch-state` tests went red. Manual checks 2.6–2.10 run by the agent in the DevTools browser on `npm run dev`, on a local test account: on PS5 the button went „Obserwuj” → „Dodawanie…” → „Usuń z listy obserwowanych” → „Usuwanie…” → „Obserwuj” with PS5 still chosen, while the „Dowolna platforma” entry stayed; a removal on the game page left the phrase with the game's name on `/my-deals`; signed out, the page shows „Zaloguj się, aby obserwować”; the kitchen sink shows the remove state and the failed-removal line.
+- **2026-11-02 — impl-review triage, departures from the plan** (decisions in `reviews/impl-review.md`).
+  - F1: `GameWatchControl` (`src/components/games/game-watch-control.tsx`) now requires `removeAction`; the plan had it optional. It stays optional on `GameWatchView`, for the kitchen sink.
+  - F3, F4: comments only. The `my-deals-section.tsx` header scopes "the heading stays put" to a list with entries. The `gameWatchOption` and `watch-state.test.ts` headers and two kitchen-sink comments are reworded.

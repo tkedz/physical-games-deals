@@ -1,8 +1,9 @@
 /**
- * watchState (src/lib/watchlist/rules.ts), what a game's watch control offers
+ * watchState (src/lib/watchlist/rules.ts), what a search result on `/` offers
  * for the platform chosen in it: the sign-in link for a visitor, a disabled
  * "Na liście" when the list holds the game on exactly that platform, and
- * "Obserwuj" otherwise.
+ * "Obserwuj" otherwise. A game's page offers removal in place of "Na liście"
+ * (gameWatchOption, below).
  *
  * Saying "on the list" for a platform the list does not hold is the silent
  * failure — the user cannot watch the game there, and nothing says why — so
